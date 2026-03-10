@@ -26,7 +26,7 @@ export const ALL_FEATURES: Feature[] = [
         label: 'Start Study',
         group: 'CORE',
         surfaceLevel: 1,
-        adminVisible: false,
+        adminVisible: true,
         path: 'COURSES',
         icon: 'Book',
         description: 'Access your main courses and subjects.'
@@ -36,7 +36,7 @@ export const ALL_FEATURES: Feature[] = [
         label: 'MCQ Practice',
         group: 'CORE',
         surfaceLevel: 1,
-        adminVisible: false,
+        adminVisible: true,
         path: 'MCQ',
         icon: 'CheckSquare',
         description: 'Practice unlimited questions.'
@@ -47,7 +47,7 @@ export const ALL_FEATURES: Feature[] = [
         group: 'CORE',
         surfaceLevel: 1,
         requiredSubscription: 'BASIC',
-        adminVisible: false,
+        adminVisible: true,
         path: 'REVISION',
         icon: 'BrainCircuit',
         description: 'Smart revision based on your weak topics.'
@@ -57,7 +57,7 @@ export const ALL_FEATURES: Feature[] = [
         label: 'My Analysis',
         group: 'CORE',
         surfaceLevel: 1,
-        adminVisible: false,
+        adminVisible: true,
         path: 'ANALYTICS',
         icon: 'BarChart3',
         description: 'Track your progress and performance.'
@@ -68,7 +68,7 @@ export const ALL_FEATURES: Feature[] = [
         group: 'CORE',
         surfaceLevel: 1,
         requiredSubscription: 'BASIC',
-        adminVisible: false,
+        adminVisible: true,
         path: 'REVISION',
         icon: 'AlertCircle',
         description: 'Focus instantly on your weakest areas.',
@@ -79,11 +79,124 @@ export const ALL_FEATURES: Feature[] = [
         label: 'Continue Last',
         group: 'CORE',
         surfaceLevel: 1,
-        adminVisible: false,
+        adminVisible: true,
         path: 'CONTINUE',
         icon: 'PlayCircle',
         description: 'Resume exactly where you left off.',
         isDummy: true // Not implemented
+    },
+
+    // --- NEW STUDENT UI ELEMENTS ---
+    {
+        id: 'INBOX',
+        label: 'Inbox',
+        group: 'CORE',
+        surfaceLevel: 2,
+        adminVisible: true,
+        icon: 'Mail',
+        description: 'Student messages and notifications.'
+    },
+    {
+        id: 'UPDATES',
+        label: 'Notifications',
+        group: 'CORE',
+        surfaceLevel: 2,
+        adminVisible: true,
+        icon: 'Bell',
+        description: 'App updates and global alerts.'
+    },
+    {
+        id: 'MARKSHEET',
+        label: 'Marksheet',
+        group: 'ANALYSIS',
+        surfaceLevel: 2,
+        adminVisible: true,
+        icon: 'FileText',
+        description: 'Monthly and annual performance report.'
+    },
+    {
+        id: 'HISTORY_PAGE',
+        label: 'History',
+        group: 'CORE',
+        surfaceLevel: 2,
+        adminVisible: true,
+        icon: 'History',
+        description: 'View past test attempts and study history.'
+    },
+    {
+        id: 'MY_PLAN',
+        label: 'My Plan',
+        group: 'CONTENT',
+        surfaceLevel: 2,
+        adminVisible: true,
+        icon: 'CreditCard',
+        description: 'View active subscription and history.'
+    },
+    {
+        id: 'PRIZES',
+        label: 'Prizes',
+        group: 'GAME',
+        surfaceLevel: 2,
+        adminVisible: true,
+        icon: 'Trophy',
+        description: 'View available prizes and rewards.'
+    },
+    {
+        id: 'GUIDE',
+        label: 'App Guide',
+        group: 'TOOLS',
+        surfaceLevel: 2,
+        adminVisible: true,
+        icon: 'HelpCircle',
+        description: 'Help and documentation for students.'
+    },
+    {
+        id: 'PROFILE_PAGE',
+        label: 'Profile',
+        group: 'CORE',
+        surfaceLevel: 2,
+        adminVisible: true,
+        icon: 'User',
+        description: 'User profile and settings.'
+    },
+
+    // --- NEW TOP & BOTTOM NAV CONTROLS ---
+    {
+        id: 'NAV_LANGUAGE',
+        label: 'Language Toggle',
+        group: 'TOOLS',
+        surfaceLevel: 1,
+        adminVisible: true,
+        icon: 'Globe',
+        description: 'Toggle between Hindi and English.'
+    },
+    {
+        id: 'NAV_STORE_CREDITS',
+        label: 'Store & Credits',
+        group: 'CONTENT',
+        surfaceLevel: 1,
+        adminVisible: true,
+        icon: 'Crown',
+        description: 'Access store and view credits.'
+    },
+    {
+        id: 'NAV_SALE_BANNER',
+        label: 'Sale Banner',
+        group: 'TOOLS',
+        surfaceLevel: 1,
+        adminVisible: true,
+        icon: 'Zap',
+        description: 'Show active sale banners.'
+    },
+
+    {
+        id: 'NAV_HOME',
+        label: 'Home Tab',
+        group: 'CORE',
+        surfaceLevel: 1,
+        adminVisible: true,
+        icon: 'Home',
+        description: 'Bottom navigation home tab.'
     },
 
     // --- SECONDARY (Layer 2: Tools & Exploration) ---
@@ -93,7 +206,7 @@ export const ALL_FEATURES: Feature[] = [
         group: 'AI',
         surfaceLevel: 2,
         requiredSubscription: 'BASIC',
-        adminVisible: false,
+        adminVisible: true,
         path: 'AI_HUB',
         icon: 'Sparkles',
         description: 'Central hub for all AI tools.'
@@ -103,7 +216,7 @@ export const ALL_FEATURES: Feature[] = [
         label: 'Tools',
         group: 'TOOLS',
         surfaceLevel: 2,
-        adminVisible: false,
+        adminVisible: true,
         path: 'TOOLS',
         icon: 'Wrench',
         description: 'Calculators, converters, and more.',
@@ -114,7 +227,7 @@ export const ALL_FEATURES: Feature[] = [
         label: 'Game Zone',
         group: 'GAME',
         surfaceLevel: 2,
-        adminVisible: false,
+        adminVisible: true,
         path: 'GAME',
         icon: 'Gamepad2',
         description: 'Relax and earn rewards.'
@@ -124,7 +237,7 @@ export const ALL_FEATURES: Feature[] = [
         label: 'Store',
         group: 'CONTENT',
         surfaceLevel: 2,
-        adminVisible: false,
+        adminVisible: true,
         path: 'STORE',
         icon: 'ShoppingBag',
         description: 'Upgrade your plan and buy credits.'
@@ -134,7 +247,7 @@ export const ALL_FEATURES: Feature[] = [
         label: 'Leaderboard',
         group: 'GAME',
         surfaceLevel: 2,
-        adminVisible: false,
+        adminVisible: true,
         path: 'LEADERBOARD',
         icon: 'Trophy',
         description: 'Compete with others globally.'
@@ -144,7 +257,7 @@ export const ALL_FEATURES: Feature[] = [
         label: 'Premium',
         group: 'CONTENT',
         surfaceLevel: 2,
-        adminVisible: false,
+        adminVisible: true,
         path: 'SUB_HISTORY',
         icon: 'Crown',
         description: 'Manage your subscription.'
@@ -166,7 +279,7 @@ export const ALL_FEATURES: Feature[] = [
         label: 'Redeem Code',
         group: 'TOOLS',
         surfaceLevel: 3,
-        adminVisible: false,
+        adminVisible: true,
         path: 'REDEEM',
         icon: 'Gift'
     },
@@ -175,7 +288,7 @@ export const ALL_FEATURES: Feature[] = [
         label: 'Logs & Debug',
         group: 'ADVANCED',
         surfaceLevel: 3,
-        adminVisible: false,
+        adminVisible: true,
         path: 'LOGS',
         icon: 'Terminal',
         isDummy: true
@@ -188,7 +301,7 @@ export const ALL_FEATURES: Feature[] = [
         group: 'REVISION',
         surfaceLevel: 2,
         requiredSubscription: 'ULTRA',
-        adminVisible: false,
+        adminVisible: true,
         description: 'Generate AI-based study plans.',
         isDummy: true // Integrated Logic (Non-Switchable)
     },
@@ -197,7 +310,7 @@ export const ALL_FEATURES: Feature[] = [
         label: 'Mistakes Review',
         group: 'REVISION',
         surfaceLevel: 2,
-        adminVisible: false,
+        adminVisible: true,
         description: 'Review your past mistakes.',
         isDummy: true // Integrated Logic (Non-Switchable)
     },
@@ -209,7 +322,7 @@ export const ALL_FEATURES: Feature[] = [
         group: 'AI',
         surfaceLevel: 2,
         requiredSubscription: 'ULTRA',
-        adminVisible: false,
+        adminVisible: true,
         icon: 'MessageSquare',
         description: 'Chat with AI for doubt solving.'
     },
@@ -219,7 +332,7 @@ export const ALL_FEATURES: Feature[] = [
         group: 'AI',
         surfaceLevel: 2,
         requiredSubscription: 'BASIC',
-        adminVisible: false,
+        adminVisible: true,
         icon: 'FileText',
         description: 'Generate custom notes.'
     },
@@ -230,7 +343,7 @@ export const ALL_FEATURES: Feature[] = [
         label: 'Video Lectures',
         group: 'CONTENT',
         surfaceLevel: 1,
-        adminVisible: false,
+        adminVisible: true,
         description: 'Access video content.'
     },
     {
@@ -238,7 +351,7 @@ export const ALL_FEATURES: Feature[] = [
         label: 'Premium Notes',
         group: 'CONTENT',
         surfaceLevel: 1,
-        adminVisible: false,
+        adminVisible: true,
         description: 'Access PDF and HTML notes.'
     },
     {
@@ -246,7 +359,7 @@ export const ALL_FEATURES: Feature[] = [
         label: 'Audio Library',
         group: 'CONTENT',
         surfaceLevel: 2,
-        adminVisible: false,
+        adminVisible: true,
         description: 'Listen to audio lessons.'
     },
     {
@@ -255,7 +368,7 @@ export const ALL_FEATURES: Feature[] = [
         group: 'CONTENT',
         surfaceLevel: 2,
         requiredSubscription: 'ULTRA',
-        adminVisible: false,
+        adminVisible: true,
         description: 'High-level content for exams.'
     },
     {
@@ -264,7 +377,7 @@ export const ALL_FEATURES: Feature[] = [
         group: 'TOOLS',
         surfaceLevel: 2,
         requiredSubscription: 'BASIC',
-        adminVisible: false,
+        adminVisible: true,
         description: 'Save content offline.'
     },
     {
@@ -273,7 +386,7 @@ export const ALL_FEATURES: Feature[] = [
         group: 'CONTENT',
         surfaceLevel: 2,
         requiredSubscription: 'BASIC',
-        adminVisible: false,
+        adminVisible: true,
         description: 'Detailed HTML notes with audio.'
     },
     {
@@ -282,7 +395,7 @@ export const ALL_FEATURES: Feature[] = [
         group: 'CONTENT',
         surfaceLevel: 2,
         requiredSubscription: 'ULTRA',
-        adminVisible: false,
+        adminVisible: true,
         description: 'Synchronized audio and visual slides.'
     },
     {
@@ -291,7 +404,7 @@ export const ALL_FEATURES: Feature[] = [
         group: 'CONTENT',
         surfaceLevel: 1,
         requiredSubscription: 'BASIC',
-        adminVisible: false,
+        adminVisible: true,
         description: 'Control access to Premium (PDF+TTS) notes.',
         adminTab: 'FEATURE_ACCESS'
     },
@@ -312,7 +425,7 @@ export const ALL_FEATURES: Feature[] = [
         group: 'CONTENT',
         surfaceLevel: 1,
         requiredSubscription: 'BASIC',
-        adminVisible: false,
+        adminVisible: true,
         description: 'Control access to Additional Resources tab.',
         adminTab: 'FEATURE_ACCESS'
     },

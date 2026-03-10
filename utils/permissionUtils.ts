@@ -5,6 +5,7 @@ export type UserTier = 'FREE' | 'BASIC' | 'ULTRA';
 
 export interface FeatureAccessResult {
     hasAccess: boolean;
+    isHidden: boolean; // Indicates if the feature is completely hidden (e.g. from UI)
     cost: number;
     limit?: number; // Limit for current tier
     allowedTiers: UserTier[];
@@ -46,6 +47,7 @@ export const checkFeatureAccess = (
     if (user?.role === 'ADMIN' || user?.isSubAdmin) {
         return {
             hasAccess: true,
+            isHidden: false,
             cost: 0,
             allowedTiers: ['FREE', 'BASIC', 'ULTRA'],
             userTier: 'ULTRA',
@@ -140,6 +142,11 @@ export const checkFeatureAccess = (
     // 7. Check Access
     const hasAccess = allowedTiers.includes(userTier);
 
+    // 8. Determine Hidden Status
+    // A feature is considered "hidden" if the dynamic config explicitly sets `visible` to false.
+    // The prompt requested: "hide kiya hua chijhe wo logo ko na dikhega".
+    const isHidden = dynamicConfig?.visible === false;
+
     let reason: FeatureAccessResult['reason'] = hasAccess ? 'GRANTED' : 'TIER_RESTRICTED';
 
     if (!hasAccess && isFeedControl) {
@@ -152,6 +159,7 @@ export const checkFeatureAccess = (
 
     return {
         hasAccess,
+        isHidden,
         cost,
         limit,
         allowedTiers,

@@ -1562,18 +1562,51 @@ export const LessonView: React.FC<Props> = ({
                                            })}
                                        </div>
 
-                                       {showExplanation && q.explanation && (
-                                           <div className="mt-4 p-4 bg-blue-50 border border-blue-100 rounded-xl animate-in fade-in slide-in-from-top-2">
-                                               <div className="flex items-center justify-between mb-1">
-                                                   <div className="flex items-center gap-2 text-blue-700 font-bold text-xs">
-                                                       <BookOpen size={14} /> Explanation
+                                       {showExplanation && (
+                                           <div className="mt-6 flex flex-col gap-4 animate-in fade-in slide-in-from-top-2">
+                                               {q.concept && (
+                                                   <div className="p-4 bg-purple-50 border border-purple-100 rounded-xl">
+                                                        <div className="flex items-center gap-2 text-purple-700 font-bold text-xs mb-2">
+                                                            <BrainCircuit size={14} /> Core Concept
+                                                        </div>
+                                                        <div className="text-slate-700 text-sm leading-relaxed prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.concept) }} />
                                                    </div>
-                                                   <SpeakButton text={q.explanation} className="p-1 text-blue-400 hover:bg-blue-100" iconSize={14} />
-                                               </div>
-                                               <div
-                                                   className="text-slate-600 text-sm leading-relaxed prose prose-sm max-w-none"
-                                                   dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.explanation) }}
-                                               />
+                                               )}
+                                               {q.explanation && (
+                                                   <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl">
+                                                       <div className="flex items-center justify-between mb-1">
+                                                           <div className="flex items-center gap-2 text-blue-700 font-bold text-xs">
+                                                               <BookOpen size={14} /> Explanation
+                                                           </div>
+                                                           <SpeakButton text={q.explanation} className="p-1 text-blue-400 hover:bg-blue-100" iconSize={14} />
+                                                       </div>
+                                                       <div className="text-slate-600 text-sm leading-relaxed prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.explanation) }} />
+                                                   </div>
+                                               )}
+                                               {q.commonMistake && (
+                                                   <div className="p-4 bg-red-50 border border-red-100 rounded-xl">
+                                                        <div className="flex items-center gap-2 text-red-700 font-bold text-xs mb-2">
+                                                            <AlertTriangle size={14} /> Common Mistake
+                                                        </div>
+                                                        <div className="text-red-900 text-sm leading-relaxed prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.commonMistake) }} />
+                                                   </div>
+                                               )}
+                                               {q.examTip && (
+                                                   <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                                                        <div className="flex items-center gap-2 text-amber-700 font-bold text-xs mb-2">
+                                                            <Lightbulb size={14} /> Exam Tip
+                                                        </div>
+                                                        <div className="text-amber-900 text-sm leading-relaxed prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.examTip) }} />
+                                                   </div>
+                                               )}
+                                               {q.mnemonic && (
+                                                   <div className="p-4 bg-teal-50 border border-teal-100 rounded-xl">
+                                                        <div className="flex items-center gap-2 text-teal-700 font-bold text-xs mb-2">
+                                                            <Zap size={14} /> Memory Trick
+                                                        </div>
+                                                        <div className="text-teal-900 text-sm leading-relaxed font-bold" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.mnemonic) }} />
+                                                   </div>
+                                               )}
                                            </div>
                                        )}
                                    </div>
