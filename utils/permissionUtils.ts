@@ -143,10 +143,9 @@ export const checkFeatureAccess = (
     const hasAccess = allowedTiers.includes(userTier);
 
     // 8. Determine Hidden Status
-    // A feature is considered "hidden" if the Feed Control explicitly sets `visible` to false.
-    // If it's not in Feed Control, it's not hidden (visible by default unless tier restricts access and we want to hide it).
+    // A feature is considered "hidden" if the dynamic config explicitly sets `visible` to false.
     // The prompt requested: "hide kiya hua chijhe wo logo ko na dikhega".
-    const isHidden = isFeedControl ? (dynamicConfig?.visible === false) : false;
+    const isHidden = dynamicConfig?.visible === false;
 
     let reason: FeatureAccessResult['reason'] = hasAccess ? 'GRANTED' : 'TIER_RESTRICTED';
 
