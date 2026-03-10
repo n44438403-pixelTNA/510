@@ -909,32 +909,68 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
-                        {/* Language Toggle moved to corner */}
-                        <button
-                            onClick={() => {
-                                const newBoard = user.board === 'CBSE' ? 'BSEB' : 'CBSE';
-                                handleUserUpdate({ ...user, board: newBoard });
-                                showAlert(`Language switched to ${newBoard === 'CBSE' ? 'English' : 'Hindi'}`, 'SUCCESS');
-                            }}
-                            className="flex items-center gap-1 bg-indigo-50 text-indigo-600 px-2 py-1.5 rounded-lg text-[9px] font-black border border-indigo-100 hover:bg-indigo-100 transition-colors"
-                        >
-                            <Globe size={12} /> {user.board === 'CBSE' ? 'EN' : 'HI'}
-                        </button>
+                        {/* Language Toggle */}
+                        {(() => {
+                            const access = getFeatureAccess('NAV_LANGUAGE');
+                            if (access.isHidden) return null;
+                            const isLocked = !access.hasAccess;
+                            return (
+                                <button
+                                    onClick={() => {
+                                        if (isLocked) { showAlert("🔒 Language Toggle Locked", "ERROR"); return; }
+                                        const newBoard = user.board === 'CBSE' ? 'BSEB' : 'CBSE';
+                                        handleUserUpdate({ ...user, board: newBoard });
+                                        showAlert(`Language switched to ${newBoard === 'CBSE' ? 'English' : 'Hindi'}`, 'SUCCESS');
+                                    }}
+                                    className={`flex items-center gap-1 bg-indigo-50 text-indigo-600 px-2 py-1.5 rounded-lg text-[9px] font-black border border-indigo-100 transition-colors ${isLocked ? 'opacity-50 grayscale' : 'hover:bg-indigo-100'}`}
+                                >
+                                    <Globe size={12} /> {user.board === 'CBSE' ? 'EN' : 'HI'}
+                                    {isLocked && <Lock size={10} className="ml-1 text-red-500" />}
+                                </button>
+                            );
+                        })()}
 
-                        {settings?.specialDiscountEvent?.enabled && (
-                            <button
-                                onClick={() => onTabChange('STORE')}
-                                className="bg-red-50 border border-red-200 text-red-600 px-2 py-1.5 rounded-lg flex items-center gap-1 text-[10px] font-black animate-pulse"
-                            >
-                                <Zap size={12} className="fill-red-600"/> SALE
-                            </button>
-                        )}
-                        <button
-                            onClick={() => onTabChange('STORE')}
-                            className="bg-blue-50 border border-blue-200 text-blue-600 px-3 py-1.5 rounded-xl flex items-center gap-2 font-black text-xs hover:bg-blue-100 transition-colors"
-                        >
-                            <Crown size={14} className="fill-blue-600"/> {user.credits}
-                        </button>
+                        {/* Sale Banner */}
+                        {(() => {
+                            const access = getFeatureAccess('NAV_SALE_BANNER');
+                            if (access.isHidden) return null;
+                            const isLocked = !access.hasAccess;
+
+                            if (settings?.specialDiscountEvent?.enabled) {
+                                return (
+                                    <button
+                                        onClick={() => {
+                                            if (isLocked) { showAlert("🔒 Store Access Locked", "ERROR"); return; }
+                                            onTabChange('STORE');
+                                        }}
+                                        className={`bg-red-50 border border-red-200 text-red-600 px-2 py-1.5 rounded-lg flex items-center gap-1 text-[10px] font-black ${isLocked ? 'opacity-50 grayscale' : 'animate-pulse'}`}
+                                    >
+                                        <Zap size={12} className="fill-red-600"/> SALE
+                                        {isLocked && <Lock size={10} className="ml-1 text-red-500" />}
+                                    </button>
+                                );
+                            }
+                            return null;
+                        })()}
+
+                        {/* Store & Credits */}
+                        {(() => {
+                            const access = getFeatureAccess('NAV_STORE_CREDITS');
+                            if (access.isHidden) return null;
+                            const isLocked = !access.hasAccess;
+                            return (
+                                <button
+                                    onClick={() => {
+                                        if (isLocked) { showAlert("🔒 Store Access Locked", "ERROR"); return; }
+                                        onTabChange('STORE');
+                                    }}
+                                    className={`bg-blue-50 border border-blue-200 text-blue-600 px-3 py-1.5 rounded-xl flex items-center gap-2 font-black text-xs transition-colors ${isLocked ? 'opacity-50 grayscale' : 'hover:bg-blue-100'}`}
+                                >
+                                    <Crown size={14} className="fill-blue-600"/> {user.credits}
+                                    {isLocked && <Lock size={12} className="ml-1 text-red-500" />}
+                                </button>
+                            );
+                        })()}
                     </div>
                 </div>
 
@@ -973,7 +1009,7 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
                             const isLocked = !access.hasAccess;
 
                             return (
-                                <div className={`col-span-2 bg-white rounded-3xl p-5 border border-slate-100 shadow-sm relative ${isLocked ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
+                                <div className={`col-span-2 bg-white rounded-3xl p-5 border border-slate-100 shadow-sm relative ${isLocked ? 'opacity-50 grayscale' : ''}`}>
                                     {isLocked && <div className="absolute top-4 right-4 bg-red-500 text-white p-1.5 rounded-full z-10"><Lock size={16} /></div>}
                                     <h3 className="font-black text-slate-800 text-lg mb-4 flex items-center gap-2">
                                         <BookOpen className="text-blue-600" size={24} /> Study
@@ -1862,10 +1898,27 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
         {/* FIXED BOTTOM NAVIGATION */}
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg z-50 pb-safe">
             <div className="flex justify-around items-center h-16">
-                <button onClick={() => { onTabChange('HOME'); setContentViewStep('SUBJECTS'); }} className={`flex flex-col items-center justify-center w-full h-full ${activeTab === 'HOME' ? 'text-blue-600' : 'text-slate-400'}`}>
-                    <Home size={24} fill={activeTab === 'HOME' ? "currentColor" : "none"} />
-                    <span className="text-[10px] font-bold mt-1">Home</span>
-                </button>
+                {(() => {
+                    const access = getFeatureAccess('NAV_HOME');
+                    if (access.isHidden) return null;
+                    const isLocked = !access.hasAccess;
+                    return (
+                        <button
+                            onClick={() => {
+                                if (isLocked) { showAlert("🔒 Locked by Admin.", "ERROR"); return; }
+                                onTabChange('HOME');
+                                setContentViewStep('SUBJECTS');
+                            }}
+                            className={`flex flex-col items-center justify-center w-full h-full relative ${activeTab === 'HOME' ? 'text-blue-600' : 'text-slate-400'} ${isLocked ? 'opacity-50 grayscale' : ''}`}
+                        >
+                            <div className="relative">
+                                <Home size={24} fill={activeTab === 'HOME' && !isLocked ? "currentColor" : "none"} />
+                                {isLocked && <div className="absolute -top-1 -right-1 bg-red-500 rounded-full p-0.5 border border-white"><Lock size={8} className="text-white"/></div>}
+                            </div>
+                            <span className="text-[10px] font-bold mt-1">Home</span>
+                        </button>
+                    );
+                })()}
 
                 {(() => {
                     const access = getFeatureAccess('REVISION_HUB');
