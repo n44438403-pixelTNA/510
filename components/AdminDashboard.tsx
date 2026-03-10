@@ -54,12 +54,20 @@ const DEFAULT_ULTRA_FEATURES = [
 
 const QUESTION_START_REGEX = /^(\*\*)?(\*\*Question\s*\d+\*\*|Q\s*\d+[.:)]?|\d+[.:)]|Question\s*\d+[.:)]?)(\*\*)?\s*/i;
 
-const looksLikeQuestionBlock = (lines: string[], index: number): boolean => {
-    // Check if line index + 5 (Answer line) exists
-    if (index + 5 >= lines.length) return false;
+const QUESTION_EMOJI_REGEX = /^❓\s*Question:/i;
 
-    // Check Answer pattern on line index + 5
-    const ansLine = lines[index + 5];
+const looksLikeQuestionBlock = (lines: string[], index: number): boolean => {
+    // Handle optional "Options:" header
+    let ansLineIndex = index + 5;
+    if (lines[index + 1] && /^(Options|विकल्प)\s*[:\s-]*$/i.test(lines[index + 1].trim())) {
+        ansLineIndex = index + 6;
+    }
+
+    // Check if Answer line exists
+    if (ansLineIndex >= lines.length) return false;
+
+    // Check Answer pattern
+    const ansLine = lines[ansLineIndex];
     // Remove Markdown Bolding (**Answer**) if present
     const cleanAnsLine = ansLine.replace(/^\*\*|\*\*$/g, '');
 
@@ -2134,19 +2142,32 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
                       const line = lines[i];
                       
                       // Check for Question Start
-                      const isQuestionStart = QUESTION_START_REGEX.test(line) || looksLikeQuestionBlock(lines, i);
+                      const isQuestionStart = QUESTION_START_REGEX.test(line) || QUESTION_EMOJI_REGEX.test(line) || looksLikeQuestionBlock(lines, i);
 
                       if (isQuestionStart) {
                           if (i + 5 >= lines.length) break;
 
-                          // Clean Question Text (Remove Markdown ** if present)
-                          const q = line.replace(/^\*\*|\*\*$/g, '');
+                          // Clean Question Text (Remove Markdown **, ❓ Question: , Question (प्रश्न): )
+                          let q = line.replace(/^\*\*|\*\*$/g, '').trim();
+                          q = q.replace(QUESTION_START_REGEX, '').trim();
+                          q = q.replace(/^(❓\s*)?(Question\s*\(प्रश्न\)|Question|प्रश्न)\s*[:\s-]*\s*/i, '').trim();
+                          q = q.replace(/^\*\*|\*\*$/g, '').trim();
 
-                          const opts = [lines[i+1], lines[i+2], lines[i+3], lines[i+4]];
+                          let optionsLineOffset = 1;
+                          if (lines[i+1] && /^(Options|विकल्प)\s*[:\s-]*$/i.test(lines[i+1].trim())) {
+                              optionsLineOffset = 2; // Skip "Options:" header
+                          }
 
-                          let ansLine = lines[i+5];
+                          const opts = [
+                              lines[i+optionsLineOffset].replace(/^[A-D]\)\s*/i, '').trim(),
+                              lines[i+optionsLineOffset+1].replace(/^[A-D]\)\s*/i, '').trim(),
+                              lines[i+optionsLineOffset+2].replace(/^[A-D]\)\s*/i, '').trim(),
+                              lines[i+optionsLineOffset+3].replace(/^[A-D]\)\s*/i, '').trim()
+                          ];
+
+                          let ansLine = lines[i+optionsLineOffset+4];
                           ansLine = ansLine.replace(/^\*\*|\*\*$/g, '');
-                          let ansRaw = ansLine.replace(/^(Answer|Ans|Correct|उत्तर)\s*[:\s-]*\s*/i, '').trim();
+                          let ansRaw = ansLine.replace(/^(✅\s*)?(Correct Answer|Answer|Ans|Correct|उत्तर)\s*[:\s-]*\s*/i, '').trim();
 
                           let ansIdx = parseInt(ansRaw) - 1;
                           if (isNaN(ansIdx)) {
@@ -2154,14 +2175,18 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
                               const map: any = { 'A': 0, 'B': 1, 'C': 2, 'D': 3 };
                               if (map[firstChar] !== undefined) ansIdx = map[firstChar];
                           }
-                          if (ansIdx < 0 || ansIdx > 3) ansIdx = 0;
+                          if (ansIdx < 0 || ansIdx > 3) {
+                              const optionText = ansRaw.replace(/^[A-D]\)\s*/i, '').trim();
+                              ansIdx = opts.findIndex(o => o.toLowerCase() === optionText.toLowerCase());
+                              if (ansIdx === -1) ansIdx = 0;
+                          }
 
                           let expLines = [];
-                          let nextIndex = i + 6;
+                          let nextIndex = i + optionsLineOffset + 5;
 
                           while (nextIndex < lines.length) {
                               const line = lines[nextIndex];
-                              const isNewQuestion = QUESTION_START_REGEX.test(line) || looksLikeQuestionBlock(lines, nextIndex);
+                              const isNewQuestion = QUESTION_START_REGEX.test(line) || QUESTION_EMOJI_REGEX.test(line) || looksLikeQuestionBlock(lines, nextIndex);
                               if (isNewQuestion) break;
                               expLines.push(line);
                               nextIndex++;
@@ -2170,14 +2195,15 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
                           let explanation = expLines.join('\n').trim();
                           // Improved Explanation Parsing
                           explanation = explanation.replace(/^\*\*/, '');
-                          explanation = explanation.replace(/^(Explanation|Exp|व्याख्या)\s*[:\s-]*(\*\*)?\s*/i, '');
+                          explanation = explanation.replace(/^(💡\s*)?(Concept\s*\(अवधारणा\)|Concept|अवधारणा)\s*[:\s-]*(\*\*)?\s*/i, '');
+                          explanation = explanation.replace(/^(🔎\s*)?(Explanation|Exp|व्याख्या)\s*[:\s-]*(\*\*)?\s*/i, '');
                           explanation = explanation.replace(/^\*\*/, '').trim();
 
                           let topic = '';
-                          const topicMatch = explanation.match(/Topic:\s*(.*)/i);
+                          const topicMatch = explanation.match(/^(📖\s*)?Topic:\s*(.*)/im);
                           if (topicMatch) {
-                              topic = topicMatch[1].trim();
-                              explanation = explanation.replace(/Topic:\s*.*$/im, '').trim();
+                              topic = topicMatch[2].trim();
+                              explanation = explanation.replace(/^(📖\s*)?Topic:\s*.*$/im, '').trim();
                           }
 
                           newQuestions.push({
@@ -6100,30 +6126,48 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                                   </div>
                               </div>
 
-                              <div className="flex justify-between items-center mb-2">
-                                  <span className="font-bold text-slate-700">Total Questions: {(activeTab === 'CONTENT_TEST' ? editingTestMcqs : editingMcqs).length}</span>
-                                  <div className="flex gap-2">
-                                      <button onClick={() => deleteAllMcqs(activeTab === 'CONTENT_TEST')} className="bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors">Delete All</button>
-                                      <button onClick={() => addMcq(activeTab === 'CONTENT_TEST')} className="bg-white border border-blue-200 text-blue-600 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-50">+ Add Question</button>
-                                  <button 
-                                      onClick={() => {
-                                          const list = activeTab === 'CONTENT_TEST' ? editingTestMcqs : editingMcqs;
-                                          if (list.length === 0) { alert("No questions to copy!"); return; }
-                                          
-                                          // Format: Question \t OptA \t OptB \t OptC \t OptD \t AnswerIndex(1-4) \t Explanation
-                                          const text = list.map(q => {
-                                              return `${q.question}\t${q.options[0]}\t${q.options[1]}\t${q.options[2]}\t${q.options[3]}\t${q.correctAnswer + 1}\t${q.explanation || ''}`;
-                                          }).join('\n');
-                                          
-                                          navigator.clipboard.writeText(text);
-                                          alert(`✅ Copied ${list.length} questions to clipboard!\n\nPaste directly into Google Sheets or Excel.`);
-                                      }}
-                                      className="bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-indigo-200 flex items-center gap-1"
-                                  >
-                                      <Copy size={14} /> Copy for Sheets
-                                  </button>
-                                  <button onClick={() => addMcq(activeTab === 'CONTENT_TEST')} className="bg-white border border-blue-200 text-blue-600 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-50">+ Add Question</button>
-                                      <label className="flex items-center gap-2 cursor-pointer bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+                              <div className="flex flex-col gap-2 mb-2 sm:flex-row sm:justify-between sm:items-center">
+                                  <span className="font-bold text-slate-700 text-lg sm:text-base">
+                                      Total Questions: {(activeTab === 'CONTENT_TEST' ? editingTestMcqs : editingMcqs).length}
+                                  </span>
+                                  <div className="flex flex-wrap gap-2">
+                                      <button onClick={() => deleteAllMcqs(activeTab === 'CONTENT_TEST')} className="bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors">
+                                          Delete All
+                                      </button>
+                                      <button onClick={() => addMcq(activeTab === 'CONTENT_TEST')} className="bg-white border border-blue-200 text-blue-600 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-50">
+                                          + Add Question
+                                      </button>
+                                      <button
+                                          onClick={() => {
+                                              const list = activeTab === 'CONTENT_TEST' ? editingTestMcqs : editingMcqs;
+                                              if (list.length === 0) { alert("No questions to copy!"); return; }
+
+                                              // Format: Question \t OptA \t OptB \t OptC \t OptD \t AnswerIndex(1-4) \t Explanation
+                                              const text = list.map(q => {
+                                                  return `${q.question}\t${q.options[0]}\t${q.options[1]}\t${q.options[2]}\t${q.options[3]}\t${q.correctAnswer + 1}\t${q.explanation || ''}`;
+                                              }).join('\n');
+
+                                              navigator.clipboard.writeText(text);
+                                              alert(`✅ Copied ${list.length} questions to clipboard!\n\nPaste directly into Google Sheets or Excel.`);
+                                          }}
+                                          className="bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-indigo-200 flex items-center gap-1"
+                                      >
+                                          <Copy size={14} /> Copy for Sheets
+                                      </button>
+                                      <button
+                                          onClick={() => {
+                                              const list = activeTab === 'CONTENT_TEST' ? editingTestMcqs : editingMcqs;
+                                              if (activeTab === 'CONTENT_TEST') {
+                                                  handleSaveTestMcqs(list);
+                                              } else {
+                                                  handleSaveMcqs(list);
+                                              }
+                                          }}
+                                          className="bg-green-600 text-white border border-green-700 px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-green-700 transition-colors shadow-sm flex items-center gap-1 ml-auto"
+                                      >
+                                          <Save size={14} /> Save
+                                      </button>
+                                      <label className="flex items-center gap-2 cursor-pointer bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 ml-auto sm:ml-0">
                                           <input 
                                               type="checkbox" 
                                               checked={editConfig.isMcqHidden || false} 

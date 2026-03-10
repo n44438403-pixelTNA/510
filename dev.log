@@ -90,3 +90,8 @@ Port 5001 is in use, trying another one...
 
   Plugin: vite:esbuild
   File: /app/utils/full_syllabus_data.ts
+11:29:06 PM [vite] (client) hmr update /components/AdminDashboard.tsx
+11:34:41 PM [vite] (client) hmr update /components/AdminDashboard.tsx
+11:35:25 PM [vite] (client) hmr update /components/AdminDashboard.tsx
+11:36:05 PM [vite] (client) hmr update /components/AdminDashboard.tsx
+11:36:46 PM [vite] (client) hmr update /components/AdminDashboard.tsx
