@@ -309,6 +309,7 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
   const [currentAudioTrack, setCurrentAudioTrack] = useState<{url: string, title: string} | null>(null);
   const [universalNotes, setUniversalNotes] = useState<any[]>([]);
   const [topicFilter, setTopicFilter] = useState<string | undefined>(undefined);
+  const [initialParentSubject, setInitialParentSubject] = useState<string | null>(null);
 
   useEffect(() => {
       getChapterData('nst_universal_notes').then(data => {
@@ -1003,6 +1004,75 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
                 {/* MAIN ACTION BUTTONS (RESTORED OLD LAYOUT) */}
                 <DashboardSectionWrapper id="section_main_actions" label="Main Actions" settings={settings} isLayoutEditing={isLayoutEditing} onToggleVisibility={toggleLayoutVisibility}>
                     <div className="grid grid-cols-2 gap-4">
+
+                        {/* STUDY SECTION (REPLACED MY COURSES) */}
+                        <div className="col-span-2 bg-white rounded-3xl p-5 border border-slate-100 shadow-sm">
+                            <h3 className="font-black text-slate-800 text-lg mb-4 flex items-center gap-2">
+                                <BookOpen className="text-blue-600" size={24} /> Study
+                            </h3>
+                            <div className="grid grid-cols-3 gap-3">
+                                {(()=>{
+                                    const rawSubjects = getSubjectsList(user.classLevel || '10', user.stream || 'Science', user.board);
+                                    let displaySubjects: any[] = [];
+                                    const isClass9to12 = ['9', '10', '11', '12'].includes(user.classLevel || '10');
+                                    const isClass6to8 = ['6', '7', '8'].includes(user.classLevel || '10');
+                                    const scienceGroup = ['Physics', 'Chemistry', 'Biology'];
+                                    const sstGroup9to12 = ['History', 'Geography', 'Political Science', 'Economics'];
+                                    const sstGroup6to8 = ['History', 'Geography', 'Political Science'];
+
+                                    rawSubjects.forEach(s => {
+                                        if (scienceGroup.includes(s.name) && isClass9to12) {
+                                            if (!displaySubjects.find(ds => ds.name === 'Science')) {
+                                                displaySubjects.push({ id: 'science', name: 'Science', icon: 'science', color: 'bg-blue-50 text-blue-600' });
+                                            }
+                                        } else if ((sstGroup9to12.includes(s.name) && isClass9to12) || (sstGroup6to8.includes(s.name) && isClass6to8)) {
+                                            if (!displaySubjects.find(ds => ds.name === 'Social Science')) {
+                                                displaySubjects.push({ id: 'sst', name: 'Social Science', icon: 'geo', color: 'bg-orange-50 text-orange-600' });
+                                            }
+                                        } else {
+                                            displaySubjects.push(s);
+                                        }
+                                    });
+
+                                    return displaySubjects.map((subject) => {
+                                        if ((settings?.hiddenSubjects || []).includes(subject.id)) return null;
+                                        return (
+                                            <button
+                                                key={subject.id}
+                                                onClick={() => {
+                                                    onTabChange('COURSES');
+                                                    if (['Science', 'Social Science'].includes(subject.name)) {
+                                                        setInitialParentSubject(subject.name);
+                                                    } else {
+                                                        handleContentSubjectSelect(subject);
+                                                    }
+                                                }}
+                                                className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl transition-all active:scale-95 border-2 ${
+                                                    subject.id.includes('science') ? 'bg-purple-50 border-purple-100 text-purple-700' :
+                                                    subject.id.includes('math') ? 'bg-blue-50 border-blue-100 text-blue-700' :
+                                                    subject.id.includes('sst') || subject.id.includes('social') ? 'bg-orange-50 border-orange-100 text-orange-700' :
+                                                    'bg-slate-50 border-slate-100 text-slate-700'
+                                                }`}
+                                            >
+                                                <div className={`p-2 rounded-full bg-white shadow-sm`}>
+                                                    {/* Simple Icon Mapping or default */}
+                                                    <BookOpen size={20} className={
+                                                        subject.id.includes('science') ? 'text-purple-600' :
+                                                        subject.id.includes('math') ? 'text-blue-600' :
+                                                        subject.id.includes('sst') || subject.id.includes('social') ? 'text-orange-600' :
+                                                        'text-slate-600'
+                                                    } />
+                                                </div>
+                                                <span className="text-[10px] font-bold uppercase text-center leading-tight">
+                                                    {subject.name}
+                                                </span>
+                                            </button>
+                                        );
+                                    });
+                                })()}
+                            </div>
+                        </div>
+
                         {(() => {
                             const access = getFeatureAccess('START_STUDY');
                             if (access.isHidden) return null;
@@ -1050,6 +1120,7 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
                                 </div>
                             );
                         })()}
+
 
                         {(() => {
                             const access = getFeatureAccess('MY_ANALYSIS');
@@ -1155,6 +1226,33 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
 
       // 3. COURSES TAB (Generic Chapter List for Study Mode)
       if (activeTab === 'COURSES') {
+          if (contentViewStep === 'SUBJECTS') {
+              return (
+                  <div className="p-4 max-w-6xl mx-auto pb-24">
+                      <SubjectSelection
+                          classLevel={user.classLevel || '10'}
+                          stream={user.stream || 'Science'}
+                          board={user.board}
+                          initialParentSubject={initialParentSubject}
+                          onSelect={(subject) => {
+                              setSelectedSubject(subject);
+                              setContentViewStep('CHAPTERS');
+                              setSelectedChapter(null);
+                              setLoadingChapters(true);
+                              const lang = user.board === 'BSEB' ? 'Hindi' : 'English';
+                              fetchChapters(user.board || 'CBSE', user.classLevel || '10', user.stream || 'Science', subject, lang).then(data => {
+                                  setChapters(data);
+                                  setLoadingChapters(false);
+                              });
+                          }}
+                          onBack={() => {
+                              setInitialParentSubject(null);
+                              onTabChange('HOME');
+                          }}
+                      />
+                  </div>
+              );
+          }
           return renderContentSection('GENERIC');
       }
 
