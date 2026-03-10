@@ -577,12 +577,10 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
 
         {view === 'HOME' && (
             <div className="space-y-6 relative z-10 animate-in fade-in mt-10">
-                 {settings?.showGoogleLogin !== false && (
-                   <button type="button" onClick={handleGoogleAuth} className="w-full bg-[#e2e8f0] hover:bg-[#cbd5e1] text-[#1e293b] font-bold py-4 rounded-[2rem] flex items-center justify-center gap-3 transition-all active:scale-95">
-                       <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
-                       Continue with Google
-                   </button>
-                 )}
+                 <button type="button" onClick={handleGoogleAuth} className="w-full bg-[#e2e8f0] hover:bg-[#cbd5e1] text-[#1e293b] font-bold py-4 rounded-[2rem] flex items-center justify-center gap-3 transition-all active:scale-95">
+                     <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
+                     Continue with Google
+                 </button>
 
                  <button type="button" onClick={() => setView('SIGNUP')} className="w-full bg-[#e2e8f0] hover:bg-[#cbd5e1] text-[#1e293b] font-bold py-4 rounded-[2rem] flex items-center justify-center gap-3 transition-all active:scale-95">
                      Sign up
