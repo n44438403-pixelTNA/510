@@ -2356,10 +2356,10 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
                                   } else if (/^(🧠\s*)?(Memory Trick|मेमोरी ट्रिक)\s*[:\s-]*\s*/i.test(nextLine)) {
                                       currentSection = 'mnemonic';
                                   } else if (/^(📖\s*)?Topic\s*[:\s-]*\s*(.*)/i.test(nextLine)) {
-                                      topic = nextLine.replace(/^(📖\s*)?Topic\s*[:\s-]*\s*/i, '').trim();
+                                      topic = nextLine.replace(/^(📖\s*)?Topic\s*[:\s-]*\s*/i, '').replace(/^\*\*|\*\*$/g, '').trim();
                                       nextIndex++;
                                       continue;
-                                  } else if (/^(🔥\s*)?PYQ Inspired/i.test(nextLine) || /^(📊\s*)?Difficulty Level/i.test(nextLine) || /^❓\s*Question:/i.test(nextLine)) {
+                                  } else if (/^(🔥\s*)?PYQ Inspired/i.test(nextLine) || /^(📊\s*)?Difficulty Level/i.test(nextLine) || /^❓\s*Question/i.test(nextLine)) {
                                       // Skip metadata lines
                                       nextIndex++;
                                       continue;
