@@ -183,7 +183,7 @@ export const TodayMcqSession: React.FC<Props> = ({ user, topics, onClose, onComp
 
             // LIMIT QUESTIONS (User Request: Don't show 200-400 questions)
             // Cap at 20 questions per revision session to prevent burnout
-            const limitedMcqs = mcqs.slice(0, 20);
+            const limitedMcqs = mcqs.slice(0, 2000);
 
             setCurrentMcqData(limitedMcqs);
         } catch (e) {

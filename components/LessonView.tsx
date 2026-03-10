@@ -199,7 +199,7 @@ export const LessonView: React.FC<Props> = ({
           <div className="fixed inset-0 z-[200] bg-white flex flex-col animate-in fade-in">
               {/* Header */}
               <header className="bg-white border-b border-slate-200 p-4 flex items-center justify-between shadow-sm sticky top-0 z-10">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3"><button onClick={toggleFullScreen} className="p-2 bg-slate-100 rounded-full text-slate-600 hover:bg-slate-200" title="Toggle Fullscreen"><Maximize size={20} /></button>
                       {settings?.appLogo && <img src={settings.appLogo} className="w-8 h-8 object-contain" />}
                       <div>
                           <h2 className="font-black text-slate-800 uppercase text-sm">{settings?.appName || 'Free Notes'}</h2>
@@ -214,10 +214,10 @@ export const LessonView: React.FC<Props> = ({
 
               {/* Content */}
               <div className="flex-1 overflow-y-auto p-4 md:p-8 bg-slate-50">
-                  <div className="max-w-3xl mx-auto bg-white p-6 rounded-3xl shadow-sm border border-slate-100 min-h-[50vh]">
+                  <div className="w-full mx-auto bg-white p-6 rounded-3xl shadow-sm border border-slate-100 min-h-[50vh]">
                       <h1 className="text-2xl font-black text-slate-900 mb-6 border-b pb-4">{viewingNote.title}</h1>
                       <div
-                          className="prose prose-slate max-w-none prose-p:text-slate-700 prose-headings:font-black"
+                          className="prose prose-slate w-full prose-p:text-slate-700 prose-headings:font-black"
                           dangerouslySetInnerHTML={{ __html: decodeHtml(viewingNote.content) }}
                       />
                   </div>
@@ -240,7 +240,7 @@ export const LessonView: React.FC<Props> = ({
           return (
               <div className="fixed inset-0 z-50 bg-white flex flex-col animate-in fade-in">
                   <header className="bg-white/95 backdrop-blur-md text-slate-800 p-4 absolute top-0 left-0 right-0 z-10 flex items-center justify-between border-b border-slate-100 shadow-sm">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3"><button onClick={toggleFullScreen} className="p-2 bg-slate-100 rounded-full text-slate-600 hover:bg-slate-200" title="Toggle Fullscreen"><Maximize size={20} /></button>
                           <button onClick={onBack} className="p-2 bg-slate-100 rounded-full"><ArrowLeft size={20} /></button>
                           <div>
                               <h2 className="text-sm font-bold">{content.title}</h2>
@@ -267,7 +267,7 @@ export const LessonView: React.FC<Props> = ({
                   <div className="flex-1 overflow-y-auto w-full pt-16 pb-20 px-4 md:px-8 bg-slate-50">
                       <div 
                           ref={contentRef}
-                          className="prose prose-slate max-w-none prose-p:leading-relaxed prose-p:text-slate-700 prose-headings:font-black font-sans"
+                          className="prose prose-slate w-full prose-p:leading-relaxed prose-p:text-slate-700 prose-headings:font-black font-sans"
                           dangerouslySetInnerHTML={{ __html: decodedContent }}
                       />
                       {isStreaming && (
@@ -285,7 +285,7 @@ export const LessonView: React.FC<Props> = ({
           return (
               <div className="fixed inset-0 z-50 bg-[#111] flex flex-col animate-in fade-in">
                   <header className="bg-black/90 backdrop-blur-md text-white p-4 absolute top-0 left-0 right-0 z-10 flex items-center justify-between border-b border-white/10">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3"><button onClick={toggleFullScreen} className="p-2 bg-slate-100 rounded-full text-slate-600 hover:bg-slate-200" title="Toggle Fullscreen"><Maximize size={20} /></button>
                           <button onClick={onBack} className="p-2 bg-white/10 rounded-full"><ArrowLeft size={20} /></button>
                           <div>
                               <h2 className="text-sm font-bold text-white/90">{content.title}</h2>
@@ -311,7 +311,7 @@ export const LessonView: React.FC<Props> = ({
           return (
               <div className="fixed inset-0 z-50 bg-slate-900 flex flex-col animate-in fade-in">
                   <header className="bg-slate-900/90 backdrop-blur-md text-white p-4 flex items-center justify-between border-b border-white/10 z-20">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3"><button onClick={toggleFullScreen} className="p-2 bg-slate-100 rounded-full text-slate-600 hover:bg-slate-200" title="Toggle Fullscreen"><Maximize size={20} /></button>
                           <button onClick={onBack} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors"><ArrowLeft size={20} /></button>
                           <div>
                             <h2 className="font-bold text-white leading-tight">{content.title}</h2>
@@ -336,7 +336,7 @@ export const LessonView: React.FC<Props> = ({
       return (
           <div className="fixed inset-0 z-50 bg-white flex flex-col animate-in fade-in">
               <header className="bg-white border-b p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3"><button onClick={toggleFullScreen} className="p-2 bg-slate-100 rounded-full text-slate-600 hover:bg-slate-200" title="Toggle Fullscreen"><Maximize size={20} /></button>
                       <button onClick={onBack} className="p-2 bg-slate-100 rounded-full"><ArrowLeft size={20} /></button>
                       <h2 className="font-bold truncate">{content.title}</h2>
                   </div>
@@ -364,7 +364,7 @@ export const LessonView: React.FC<Props> = ({
       return (
           <div className="flex flex-col h-full bg-white animate-in fade-in">
               <header className="bg-white border-b p-4 flex items-center justify-between sticky top-0 z-10">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3"><button onClick={toggleFullScreen} className="p-2 bg-slate-100 rounded-full text-slate-600 hover:bg-slate-200" title="Toggle Fullscreen"><Maximize size={20} /></button>
                       <button onClick={onBack} className="p-2 bg-slate-100 rounded-full"><ArrowLeft size={20} /></button>
                       <h2 className="font-bold">{content.title}</h2>
                   </div>
@@ -386,7 +386,7 @@ export const LessonView: React.FC<Props> = ({
                   </div>
               </header>
               <div className="flex-1 overflow-y-auto p-6 bg-white">
-                  <div ref={contentRef} className="prose prose-slate max-w-none prose-p:leading-relaxed prose-p:text-slate-700 prose-headings:font-black font-sans">
+                  <div ref={contentRef} className="prose prose-slate w-full prose-p:leading-relaxed prose-p:text-slate-700 prose-headings:font-black font-sans">
                       <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                           {content.content}
                       </ReactMarkdown>
@@ -774,7 +774,7 @@ export const LessonView: React.FC<Props> = ({
                 <div className="bg-white p-6 rounded-3xl shadow-sm border border-purple-100 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-purple-100 rounded-full blur-3xl opacity-50 -mr-10 -mt-10"></div>
                     <div className="flex items-center justify-between mb-4 relative z-10">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3"><button onClick={toggleFullScreen} className="p-2 bg-slate-100 rounded-full text-slate-600 hover:bg-slate-200" title="Toggle Fullscreen"><Maximize size={20} /></button>
                             <div className="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center shadow-lg shadow-purple-200">
                                 <BrainCircuit size={20} />
                             </div>
@@ -785,7 +785,7 @@ export const LessonView: React.FC<Props> = ({
                         </div>
                         <SpeakButton text={content.aiAnalysisText} className="p-2 bg-purple-50 text-purple-600 hover:bg-purple-100" />
                     </div>
-                    <div className="prose prose-sm prose-slate max-w-none prose-p:text-slate-600 prose-headings:font-black prose-headings:text-slate-800 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    <div className="prose prose-sm prose-slate w-full prose-p:text-slate-600 prose-headings:font-black prose-headings:text-slate-800 bg-slate-50 p-4 rounded-xl border border-slate-100">
                         <ReactMarkdown>{content.aiAnalysisText}</ReactMarkdown>
                     </div>
                 </div>
@@ -1035,7 +1035,7 @@ export const LessonView: React.FC<Props> = ({
                        )}
 
                    </div>
-                   <div className="flex items-center gap-3">
+                   <div className="flex items-center gap-3"><button onClick={toggleFullScreen} className="p-2 bg-slate-100 rounded-full text-slate-600 hover:bg-slate-200" title="Toggle Fullscreen"><Maximize size={20} /></button>
                        <button onClick={() => setShowTopicSidebar(true)} className="p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200" title="View Topic Progress">
                            <List size={20} />
                        </button>
@@ -1083,7 +1083,7 @@ export const LessonView: React.FC<Props> = ({
                    </div>
                </div>
                
-               <div className="flex-1 overflow-y-auto p-4 space-y-6 max-w-3xl mx-auto w-full pb-32 mcq-container">
+               <div className="flex-1 overflow-y-auto p-4 space-y-6 w-full mx-auto w-full pb-32 mcq-container">
                    {/* 1. TOPIC HEADER (ANALYSIS ONLY) */}
                    {showResults && content.type === 'MCQ_ANALYSIS' && (
                        <div className="mb-4">
@@ -1272,7 +1272,7 @@ export const LessonView: React.FC<Props> = ({
                                                    <h3 className="font-black text-slate-800 text-lg flex items-center gap-2"><BrainCircuit size={18}/> AI Performance Report</h3>
                                                    <SpeakButton text={content.aiAnalysisText} className="p-2 bg-purple-50 text-purple-600 hover:bg-purple-100" />
                                                </div>
-                                               <div className="prose prose-sm prose-slate max-w-none prose-p:text-slate-600 prose-headings:font-black prose-headings:text-slate-800 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                                               <div className="prose prose-sm prose-slate w-full prose-p:text-slate-600 prose-headings:font-black prose-headings:text-slate-800 bg-slate-50 p-4 rounded-xl border border-slate-100">
                                                    <ReactMarkdown>{content.aiAnalysisText}</ReactMarkdown>
                                                </div>
                                            </div>
@@ -1435,7 +1435,7 @@ export const LessonView: React.FC<Props> = ({
                                                                <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs shrink-0 font-bold mt-0.5 ${isCorrect ? 'bg-green-100 text-green-700' : isWrong ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-500'}`}>
                                                                    {idx + 1}
                                                                </span>
-                                                               <div dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.question) }} className="prose prose-sm max-w-none" />
+                                                               <div dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.question) }} className="prose prose-sm w-full" />
                                                            </div>
                                                            <SpeakButton text={fullQuestionText} className="shrink-0" settings={settings} />
                                                        </div>
@@ -1471,7 +1471,7 @@ export const LessonView: React.FC<Props> = ({
                                                                    </div>
                                                                    <SpeakButton text={q.explanation} className="p-1 text-blue-400 hover:bg-blue-100" iconSize={14} />
                                                                </div>
-                                                               <div className="text-slate-600 text-sm leading-relaxed prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.explanation) }} />
+                                                               <div className="text-slate-600 text-sm leading-relaxed prose prose-sm w-full" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.explanation) }} />
                                                            </div>
                                                        )}
                                                    </div>
@@ -1485,7 +1485,7 @@ export const LessonView: React.FC<Props> = ({
                                                <h4 className="font-bold text-amber-900 flex items-center gap-2 mb-2">
                                                    <Lightbulb size={18} /> {topic} Revision Note
                                                </h4>
-                                               <div className="prose prose-sm max-w-none text-amber-800" dangerouslySetInnerHTML={{ __html: decodeHtml(topicNote.content || topicNote.html || '') }} />
+                                               <div className="prose prose-sm w-full text-amber-800" dangerouslySetInnerHTML={{ __html: decodeHtml(topicNote.content || topicNote.html || '') }} />
                                            </div>
                                        )}
                                    </div>
@@ -1508,7 +1508,7 @@ export const LessonView: React.FC<Props> = ({
                                        <div className="flex justify-between items-start mb-4 gap-3">
                                            <div className="font-bold text-slate-800 flex gap-3 leading-relaxed flex-1">
                                                <span className="bg-blue-100 text-blue-700 w-6 h-6 rounded-full flex items-center justify-center text-xs shrink-0 font-bold mt-0.5">{idx + 1}</span>
-                                               <div dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.question) }} className="prose prose-sm max-w-none" />
+                                               <div dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.question) }} className="prose prose-sm w-full" />
                                            </div>
                                            <SpeakButton
                                                text={fullQuestionText}
@@ -1569,7 +1569,7 @@ export const LessonView: React.FC<Props> = ({
                                                         <div className="flex items-center gap-2 text-purple-700 font-bold text-xs mb-2">
                                                             <BrainCircuit size={14} /> Core Concept
                                                         </div>
-                                                        <div className="text-slate-700 text-sm leading-relaxed prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.concept) }} />
+                                                        <div className="text-slate-700 text-sm leading-relaxed prose prose-sm w-full" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.concept) }} />
                                                    </div>
                                                )}
                                                {q.explanation && (
@@ -1580,7 +1580,7 @@ export const LessonView: React.FC<Props> = ({
                                                            </div>
                                                            <SpeakButton text={q.explanation} className="p-1 text-blue-400 hover:bg-blue-100" iconSize={14} />
                                                        </div>
-                                                       <div className="text-slate-600 text-sm leading-relaxed prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.explanation) }} />
+                                                       <div className="text-slate-600 text-sm leading-relaxed prose prose-sm w-full" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.explanation) }} />
                                                    </div>
                                                )}
                                                {q.commonMistake && (
@@ -1588,7 +1588,7 @@ export const LessonView: React.FC<Props> = ({
                                                         <div className="flex items-center gap-2 text-red-700 font-bold text-xs mb-2">
                                                             <AlertTriangle size={14} /> Common Mistake
                                                         </div>
-                                                        <div className="text-red-900 text-sm leading-relaxed prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.commonMistake) }} />
+                                                        <div className="text-red-900 text-sm leading-relaxed prose prose-sm w-full" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.commonMistake) }} />
                                                    </div>
                                                )}
                                                {q.examTip && (
@@ -1596,7 +1596,7 @@ export const LessonView: React.FC<Props> = ({
                                                         <div className="flex items-center gap-2 text-amber-700 font-bold text-xs mb-2">
                                                             <Lightbulb size={14} /> Exam Tip
                                                         </div>
-                                                        <div className="text-amber-900 text-sm leading-relaxed prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.examTip) }} />
+                                                        <div className="text-amber-900 text-sm leading-relaxed prose prose-sm w-full" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.examTip) }} />
                                                    </div>
                                                )}
                                                {q.mnemonic && (

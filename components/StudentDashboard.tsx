@@ -1073,54 +1073,6 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
                             </div>
                         </div>
 
-                        {(() => {
-                            const access = getFeatureAccess('START_STUDY');
-                            if (access.isHidden) return null;
-                            const isLocked = !access.hasAccess;
-
-                            return (
-                                <div className={`col-span-2 bg-white rounded-3xl p-5 border border-slate-100 shadow-sm relative ${isLocked ? 'opacity-50 grayscale' : ''}`}>
-                                    {isLocked && <div className="absolute top-4 right-4 bg-red-500 text-white p-1.5 rounded-full z-10"><Lock size={16} /></div>}
-                                    <h3 className="font-black text-slate-800 text-lg mb-4 flex items-center gap-2">
-                                        <BookOpen className="text-blue-600" size={24} /> Study
-                                    </h3>
-                                    <div className="grid grid-cols-3 gap-3">
-                                        {getSubjectsList(user.classLevel || '10', user.stream || 'Science', user.board).map((subject) => {
-                                            if ((settings?.hiddenSubjects || []).includes(subject.id)) return null;
-                                            return (
-                                                <button
-                                                    key={subject.id}
-                                                    onClick={() => {
-                                                        if (isLocked) { showAlert("🔒 Locked by Admin.", "ERROR"); return; }
-                                                        onTabChange('COURSES');
-                                                        handleContentSubjectSelect(subject);
-                                                    }}
-                                                    className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl transition-all active:scale-95 border-2 ${
-                                                        subject.id.includes('science') ? 'bg-purple-50 border-purple-100 text-purple-700' :
-                                                        subject.id.includes('math') ? 'bg-blue-50 border-blue-100 text-blue-700' :
-                                                        subject.id.includes('social') ? 'bg-orange-50 border-orange-100 text-orange-700' :
-                                                        'bg-slate-50 border-slate-100 text-slate-700'
-                                                    }`}
-                                                >
-                                                    <div className={`p-2 rounded-full bg-white shadow-sm`}>
-                                                        <BookOpen size={20} className={
-                                                            subject.id.includes('science') ? 'text-purple-600' :
-                                                            subject.id.includes('math') ? 'text-blue-600' :
-                                                            subject.id.includes('social') ? 'text-orange-600' :
-                                                            'text-slate-600'
-                                                        } />
-                                                    </div>
-                                                    <span className="text-[10px] font-bold uppercase text-center leading-tight">
-                                                        {subject.name}
-                                                    </span>
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            );
-                        })()}
-
 
                         {(() => {
                             const access = getFeatureAccess('MY_ANALYSIS');
