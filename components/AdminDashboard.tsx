@@ -52,7 +52,7 @@ const DEFAULT_ULTRA_FEATURES = [
     'Spin Wheel (10 Spins/Day)'
 ];
 
-const QUESTION_START_REGEX = /^(\*\*)?(Q\s*\d+[.:)]?|\d+[.:)]|Question\s*\d+[.:)]?)(\*\*)?\s*/i;
+const QUESTION_START_REGEX = /^(\*\*)?(\*\*Question\s*\d+\*\*|Q\s*\d+[.:)]?|\d+[.:)]|Question\s*\d+[.:)]?)(\*\*)?\s*/i;
 
 const looksLikeQuestionBlock = (lines: string[], index: number): boolean => {
     // Check if line index + 5 (Answer line) exists
@@ -63,8 +63,8 @@ const looksLikeQuestionBlock = (lines: string[], index: number): boolean => {
     // Remove Markdown Bolding (**Answer**) if present
     const cleanAnsLine = ansLine.replace(/^\*\*|\*\*$/g, '');
 
-    // Check if it starts with Answer/Ans/Correct/उत्तर
-    return /^(Answer|Ans|Correct|उत्तर)\s*[:\s-]*\s*/i.test(cleanAnsLine);
+    // Check if it starts with Answer/Ans/Correct/उत्तर/✅ Correct Answer
+    return /^(✅\s*)?(Correct Answer|Answer|Ans|Correct|उत्तर)\s*[:\s-]*\s*/i.test(cleanAnsLine);
 };
 
 interface Props {
