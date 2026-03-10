@@ -2230,35 +2230,19 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
               let rawText = importText.trim();
               const newTopicNotes: typeof topicNotes = [];
 
-              // 1. EXTRACT NOTES BLOCKS
-              // Regex to find <NOTE: Topic> Content </NOTE>
+              // 1. EXTRACT EXPLICIT <NOTE: > BLOCKS
               const noteRegex = /<NOTE:\s*(.*?)>([\s\S]*?)<\/NOTE>/gi;
-              let match;
-              while ((match = noteRegex.exec(rawText)) !== null) {
-                  const topicName = match[1].trim();
-                  const noteContent = match[2].trim();
+              let textForMcq = rawText.replace(noteRegex, (match, p1, p2) => {
+                  newTopicNotes.push({
+                      id: `note-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                      title: `Note: ${p1.trim()}`,
+                      topic: p1.trim(),
+                      content: p2.trim(),
+                      isPremium: false
+                  });
+                  return "";
+              });
 
-                  if (topicName && noteContent) {
-                      newTopicNotes.push({
-                          id: `note-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-                          title: `Note: ${topicName}`,
-                          topic: topicName,
-                          content: noteContent,
-                          isPremium: false // Default to Free HTML
-                      });
-                  }
-              }
-
-              // Update Topic Notes State
-              if (newTopicNotes.length > 0) {
-                  setTopicNotes(prev => [...prev, ...newTopicNotes]);
-              }
-
-              // 2. REMOVE NOTES FROM TEXT TO PARSE MCQs
-              // Note: We deliberately handle this to avoid parsing Note content as questions.
-              const textForMcq = rawText.replace(noteRegex, "");
-
-              // 3. PARSE MCQs (Reusing logic applied to cleaned text)
               let newQuestions: MCQItem[] = [];
 
               if (textForMcq.trim().length > 0) {
@@ -2306,16 +2290,39 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
                               continue;
                           }
 
-                          // 2. CHECK FOR QUESTION START
-                          const isQuestionStart = QUESTION_START_REGEX.test(line) || looksLikeQuestionBlock(lines, i);
+                          // 2. CHECK FOR HTML BLOCKS AS NOTES
+                          const isHtmlStart = /^<(h[1-6]|div)/i.test(line);
+                          if (isHtmlStart) {
+                              let noteContent = '';
+                              let noteTitle = line.replace(/<[^>]+>/g, '').trim() || 'Imported Note';
+
+                              while (i < lines.length) {
+                                  const nextLine = lines[i];
+                                  const isNextQuestion = /^(\*\*)?(Question|Q)\s*\d+[.:)]?.*(\*\*)?\s*$/i.test(nextLine) || /^❓\s*Question/i.test(nextLine);
+                                  const isNextTopic = /^<TOPIC:\s*(.*?)>/i.test(nextLine);
+
+                                  if (isNextQuestion || isNextTopic) break;
+                                  noteContent += nextLine + '\n';
+                                  i++;
+                              }
+
+                              if (noteContent.trim()) {
+                                  newTopicNotes.push({
+                                      id: `note-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                                      title: `Note: ${noteTitle}`,
+                                      topic: currentGlobalTopic || noteTitle,
+                                      content: noteContent.trim(),
+                                      isPremium: false
+                                  });
+                              }
+                              continue;
+                          }
+
+                          // 3. CHECK FOR QUESTION START
+                          const isQuestionStart = /^(\*\*)?(Question|Q)\s*\d+[.:)]?.*(\*\*)?\s*$/i.test(line);
 
                           if (isQuestionStart) {
-                              // Needs at least Q + 4 Options + Ans = 6 lines remaining
-                              if (i + 5 >= lines.length) break;
-
-                              // 3. EXTRACT QUESTION PROPERTIES (Options, Answer, etc.)
-                              // Flexible property extraction to handle varying formats
-                              let currentQ = line.replace(/^\*\*|\*\*$/g, '').replace(QUESTION_START_REGEX, '').trim();
+                              let currentQ = line.replace(/^\*\*|\*\*$/g, '').replace(/^(\*\*)?(Question|Q)\s*\d+[.:)]?(\*\*)?\s*/i, '').trim();
 
                               let opts: string[] = [];
                               let ansIdx = -1;
@@ -2327,17 +2334,23 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
                               let topic = currentGlobalTopic;
 
                               let nextIndex = i + 1;
-                              let currentSection = 'question'; // 'question', 'options', 'answer', 'explanation', etc.
+                              let currentSection = 'meta'; // 'meta', 'question', 'options', 'answer', 'explanation', etc.
 
                               while (nextIndex < lines.length) {
                                   let nextLine = lines[nextIndex];
 
-                                  const isNextQ = QUESTION_START_REGEX.test(nextLine) || looksLikeQuestionBlock(lines, nextIndex);
+                                  const isNextQ = /^(\*\*)?(Question|Q)\s*\d+[.:)]?.*(\*\*)?\s*$/i.test(nextLine);
                                   const isNextTopic = /^<TOPIC:\s*(.*?)>/i.test(nextLine);
-                                  if (isNextQ || isNextTopic) break;
+                                  const isNextHtml = /^<(h[1-6]|div)/i.test(nextLine);
+
+                                  if (isNextQ || isNextTopic || isNextHtml) break;
 
                                   // Detect Sections
-                                  if (/^(Options\s*:?|विकल्प\s*:?)/i.test(nextLine)) {
+                                  if (/^❓\s*Question/i.test(nextLine)) {
+                                      currentSection = 'question';
+                                      nextIndex++;
+                                      continue;
+                                  } else if (/^(Options\s*:?|विकल्प\s*:?)/i.test(nextLine)) {
                                       currentSection = 'options_header';
                                       nextIndex++;
                                       continue;
@@ -2359,15 +2372,15 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
                                       topic = nextLine.replace(/^(📖\s*)?Topic\s*[:\s-]*\s*/i, '').replace(/^\*\*|\*\*$/g, '').trim();
                                       nextIndex++;
                                       continue;
-                                  } else if (/^(🔥\s*)?PYQ Inspired/i.test(nextLine) || /^(📊\s*)?Difficulty Level/i.test(nextLine) || /^❓\s*Question/i.test(nextLine)) {
-                                      // Skip metadata lines
+                                  } else if (/^(🔥\s*)?PYQ Inspired/i.test(nextLine) || /^(📊\s*)?Difficulty Level/i.test(nextLine)) {
+                                      currentSection = 'meta';
                                       nextIndex++;
                                       continue;
                                   }
 
                                   // Process Sections
                                   if (currentSection === 'question') {
-                                      currentQ += '\n' + nextLine;
+                                      if (nextLine) currentQ += (currentQ ? '\n' : '') + nextLine;
                                   } else if (currentSection === 'options') {
                                       opts.push(nextLine.replace(/^[A-D]\s*[.)]\s*|^\([A-D]\)\s*/i, '').trim());
                                   } else if (currentSection === 'answer') {
@@ -2388,7 +2401,6 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
                                                if (optionIndex !== -1) ansIdx = optionIndex;
                                           }
                                       }
-                                      // If it's a multiline answer, don't keep adding to it
                                       currentSection = 'post_answer';
                                   } else if (currentSection === 'concept') {
                                       concept += (concept ? '\n' : '') + nextLine.replace(/^(💡\s*)?(Concept|संकल्पना)\s*[:\s-]*\s*/i, '').trim();
@@ -2411,6 +2423,9 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
                                   while(opts.length < 4) opts.push("Option");
                               }
 
+                              // Remove any trailing labels
+                              currentQ = currentQ.replace(/^❓\s*Question\s*:?/i, '').trim();
+
                               newQuestions.push({
                                   question: currentQ.trim(),
                                   options: [opts[0], opts[1], opts[2], opts[3]],
@@ -2429,6 +2444,11 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
                           }
                       }
                   }
+              }
+
+              // Update Topic Notes State
+              if (newTopicNotes.length > 0) {
+                  setTopicNotes(prev => [...prev, ...newTopicNotes]);
               }
 
               if (newQuestions.length > 0) {

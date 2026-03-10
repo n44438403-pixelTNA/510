@@ -67,7 +67,7 @@ export const ALL_FEATURES: Feature[] = [
         label: 'Weak Topics',
         group: 'CORE',
         surfaceLevel: 1,
-        requiredSubscription: 'FREE',
+        requiredSubscription: 'BASIC',
         adminVisible: true,
         path: 'REVISION',
         icon: 'AlertCircle',
@@ -331,7 +331,7 @@ export const ALL_FEATURES: Feature[] = [
         label: 'AI Notes Gen',
         group: 'AI',
         surfaceLevel: 2,
-        requiredSubscription: 'FREE',
+        requiredSubscription: 'BASIC',
         adminVisible: true,
         icon: 'FileText',
         description: 'Generate custom notes.'
@@ -376,7 +376,7 @@ export const ALL_FEATURES: Feature[] = [
         label: 'Download PDF',
         group: 'TOOLS',
         surfaceLevel: 2,
-        requiredSubscription: 'FREE',
+        requiredSubscription: 'BASIC',
         adminVisible: true,
         description: 'Save content offline.'
     },
@@ -385,7 +385,7 @@ export const ALL_FEATURES: Feature[] = [
         label: 'Deep Dive',
         group: 'CONTENT',
         surfaceLevel: 2,
-        requiredSubscription: 'FREE',
+        requiredSubscription: 'BASIC',
         adminVisible: true,
         description: 'Detailed HTML notes with audio.'
     },
@@ -403,7 +403,7 @@ export const ALL_FEATURES: Feature[] = [
         label: 'Premium Notes',
         group: 'CONTENT',
         surfaceLevel: 1,
-        requiredSubscription: 'FREE',
+        requiredSubscription: 'BASIC',
         adminVisible: true,
         description: 'Control access to Premium (PDF+TTS) notes.',
         adminTab: 'FEATURE_ACCESS'
@@ -424,7 +424,7 @@ export const ALL_FEATURES: Feature[] = [
         label: 'Additional Notes',
         group: 'CONTENT',
         surfaceLevel: 1,
-        requiredSubscription: 'FREE',
+        requiredSubscription: 'BASIC',
         adminVisible: true,
         description: 'Control access to Additional Resources tab.',
         adminTab: 'FEATURE_ACCESS'

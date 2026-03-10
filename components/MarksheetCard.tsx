@@ -34,7 +34,7 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
       mcqMode === 'PREMIUM' ? 'ANALYSIS_TOPIC' : 'OFFICIAL_MARKSHEET'
   );
   
-  // FREE MODE ANALYSIS LOCK
+  // FREE MODE ANALYSIS LOCK (Only locks the AI/Topic Analysis. Solutions are always free)
   const [isAnalysisUnlocked, setIsAnalysisUnlocked] = useState(mcqMode === 'PREMIUM');
 
   // ULTRA ANALYSIS STATE
@@ -1147,28 +1147,27 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                     );
                 })()}
 
+                {/* Solutions Tab (Always Free) */}
+                <button onClick={() => setActiveTab('SOLUTION')} className={`px-4 py-2 text-xs font-bold rounded-t-lg border-b-2 transition-colors whitespace-nowrap ${activeTab === 'SOLUTION' ? 'border-indigo-600 text-indigo-600 bg-indigo-50' : 'border-transparent text-slate-500 hover:bg-slate-50'}`}>
+                    <BookOpen size={14} className="inline mr-1 mb-0.5" /> Explanations
+                </button>
+
+                {/* Analysis / OMR Tabs (Premium or Unlockable) */}
                 {!isAnalysisUnlocked ? (
                     <button onClick={unlockFreeAnalysis} className="px-4 py-2 text-xs font-bold rounded-t-lg border-b-2 border-transparent text-slate-400 hover:text-slate-600 flex items-center gap-1 bg-slate-50/50">
-                        <Lock size={12} /> Analysis (Locked)
+                        <Lock size={12} /> Full Analysis (Locked)
                     </button>
                 ) : (
                     <>
-                        {/* Analysis (Solution) Tab */}
                         {(() => {
                             const access = checkFeatureAccess('MS_ANALYSIS', user, settings || {});
                             if (!access.hasAccess) return null;
                             return (
-                                <>
-                                    <button onClick={() => setActiveTab('ANALYSIS_TOPIC')} className={`px-4 py-2 text-xs font-bold rounded-t-lg border-b-2 transition-colors whitespace-nowrap ${activeTab === 'ANALYSIS_TOPIC' ? 'border-indigo-600 text-indigo-600 bg-indigo-50' : 'border-transparent text-slate-500 hover:bg-slate-50'}`}>
-                                        <FileSearch size={14} className="inline mr-1 mb-0.5" /> Full Analysis
-                                    </button>
-                                    <button onClick={() => setActiveTab('SOLUTION')} className={`px-4 py-2 text-xs font-bold rounded-t-lg border-b-2 transition-colors whitespace-nowrap ${activeTab === 'SOLUTION' ? 'border-indigo-600 text-indigo-600 bg-indigo-50' : 'border-transparent text-slate-500 hover:bg-slate-50'}`}>
-                                        <BookOpen size={14} className="inline mr-1 mb-0.5" /> Explanations
-                                    </button>
-                                </>
+                                <button onClick={() => setActiveTab('ANALYSIS_TOPIC')} className={`px-4 py-2 text-xs font-bold rounded-t-lg border-b-2 transition-colors whitespace-nowrap ${activeTab === 'ANALYSIS_TOPIC' ? 'border-indigo-600 text-indigo-600 bg-indigo-50' : 'border-transparent text-slate-500 hover:bg-slate-50'}`}>
+                                    <FileSearch size={14} className="inline mr-1 mb-0.5" /> Full Analysis
+                                </button>
                             );
                         })()}
-
 
                         {/* OMR Tab */}
                         {(() => {
@@ -1180,7 +1179,6 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                                 </button>
                             );
                         })()}
-
                     </>
                 )}
             </div>
@@ -1218,7 +1216,7 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                     </div>
                 )}
 
-                {activeTab === 'SOLUTION' && isAnalysisUnlocked && (
+                {activeTab === 'SOLUTION' && (
                     <div className="animate-in slide-in-from-bottom-4">
                         {questions && questions.length > 0 ? (
                             <div className="space-y-6">
