@@ -741,31 +741,71 @@ export const fetchLessonContent = async (
               - Do NOT just copy-paste NCERT. Do NOT use unnecessary theory. Provide pure clarity.
               - Use the Icon System where appropriate: 📈 (Green = Growth), 🟡 (Yellow = Unstable), 🔴 (Red = Drop), 🔵 (Blue = Plateau).
               
-              STRUCTURE EXACTLY AS FOLLOWS (Template):
+              STRUCTURE EXACTLY AS FOLLOWS (Generate strict semantic HTML using these specific CSS classes for premium app-like UI styling):
 
-              1. 🚀 Quick Revision (8-12 bullet points of the most crucial concepts)
+              <div class="quick-revision">
+                 <h2>🚀 Quick Revision</h2>
+                 <!-- 8-12 bullet points of the most crucial concepts -->
+                 <ul><li>...</li></ul>
+              </div>
 
-              2. 📘 Topic 1 (Sub-topic name)
-                 - Definition (Simple language)
-                 - Explanation (Step-by-step)
-                 - Real Life Example (Connect with student)
-                 - Diagram (Text-based ASCII if possible, or describe it)
-                 - Important Points Box: Highlight 📌 Exam Point, 📌 Common Mistake, 📌 Memory Trick
-                 - 🔁 Topic Quick Recap (4-5 bullet points, one line summary, keyword list e.g., "• Needs sunlight • Produces glucose")
+              <div class="topic-card">
+                 <h2 class="font-black">📘 Topic 1 (Sub-topic name)</h2>
 
-              3. 📘 Topic 2 (Same structure as above)
-                 ... (Repeat for all key topics)
+                 <div class="definition">
+                    <h3>📌 Definition</h3>
+                    <p>... (Simple language)</p>
+                 </div>
 
-              4. 🟡 Memory Anchors (Very Powerful)
-                 - For every important concept, provide: 🧠 Trick, 🔗 Link to previous concept, and 📊 Table comparison (e.g., Difference between X and Y).
+                 <div class="explanation">
+                    <h3>🔍 Explanation</h3>
+                    <p>... (Step-by-step)</p>
+                 </div>
 
-              5. 🔴 Final Chapter Brain Map
-                 - "Chapter in 60 Seconds"
-                 - 10 bullet chain flow / small flow diagram (Ultra revision material).
+                 <div class="example">
+                    <h3>🌍 Real Life Example</h3>
+                    <p>... (Connect with student)</p>
+                 </div>
 
-              6. 📝 20 Practice MCQs (At the very end, with Answer Key and Solutions)
+                 <div class="visual-facts">
+                    <!-- Text-based ASCII diagram or described diagram -->
+                 </div>
+
+                 <div class="exam">
+                    <h3>🎯 Exam Point</h3>
+                    <p>...</p>
+                 </div>
+
+                 <div class="mistake">
+                    <h3>⚠️ Common Mistake</h3>
+                    <p>...</p>
+                 </div>
+
+                 <div class="memory">
+                    <h3>💡 Memory Trick</h3>
+                    <p>...</p>
+                 </div>
+
+                 <div class="recap">
+                    <h3>🔁 Topic Quick Recap</h3>
+                    <ul><li>...</li></ul>
+                 </div>
+              </div>
+
+              <!-- Repeat .topic-card for all key topics -->
+              <div class="topic-card">...</div>
+
+              <div class="memory-anchors">
+                 <h2>🟡 Memory Anchors</h2>
+                 <!-- 🧠 Trick, 🔗 Link to previous concept, and 📊 Table comparison -->
+              </div>
+
+              <div class="brain-map">
+                 <h2>🔴 Final Chapter Brain Map</h2>
+                 <!-- "Chapter in 60 Seconds" 10 bullet chain flow / small flow diagram -->
+              </div>
               
-              Ensure you follow this strict Topic Wise Deep Dive structure.`;
+              Ensure you follow this strict Topic Wise Deep Dive HTML structure. Do NOT wrap output in markdown code blocks like \`\`\`html. Return pure HTML.`;
           } else {
               // FREE PROMPT (200-300 Words)
               prompt = `${customInstruction}
@@ -776,12 +816,20 @@ export const fetchLessonContent = async (
               
               STRICT TARGET: 200-300 Words.
               
-              STRUCTURE:
-              1. 📌 Basic Definition (Simple & Clear)
-              2. 🔑 Key Points (Bullet points summary)
-              3. 📝 5 Practice MCQs (with Answer Key)
+              OUTPUT FORMAT:
+              You MUST return pure semantic HTML using these specific CSS classes:
+
+              <div class="quick-revision">
+                 <h2>📌 Basic Definition</h2>
+                 <p>...</p>
+              </div>
+
+              <div class="topic-card">
+                 <h2>🔑 Key Points</h2>
+                 <ul><li>...</li></ul>
+              </div>
               
-              Keep it concise. Focus on quick revision.`;
+              Do NOT wrap output in markdown code blocks like \`\`\`html. Return pure HTML.`;
           }
       }
 

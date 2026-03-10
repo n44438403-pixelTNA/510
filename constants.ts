@@ -138,15 +138,39 @@ export const getSubjectsList = (classLevel: string, stream: string | null, board
       ].filter(Boolean);
   }
   else if (!isSenior) {
-      selectedSubjects = [
-          pool.math,
-          pool.science,
-          pool.sst,
+      const isClass9or10 = ['9', '10'].includes(classLevel);
+      const isClass6to8 = ['6', '7', '8'].includes(classLevel);
+
+      let juniorSubjects: Subject[] = [pool.math];
+
+      if (isClass9or10) {
+          juniorSubjects.push(
+              pool.physics,
+              pool.chemistry,
+              pool.biology,
+              pool.history,
+              pool.geography,
+              pool.polity,
+              pool.economics
+          );
+      } else if (isClass6to8) {
+          juniorSubjects.push(
+              pool.science, // Kept as general science for 6-8 based on prompt request.
+              pool.history,
+              pool.geography,
+              pool.polity
+          );
+      } else {
+          juniorSubjects.push(pool.science, pool.sst);
+      }
+
+      juniorSubjects.push(
           pool.english,
           pool.hindi,
           pool.sanskrit,
           pool.computer
-      ].filter(Boolean);
+      );
+      selectedSubjects = juniorSubjects.filter(Boolean);
   }
   else {
       if (stream === 'Science') {
