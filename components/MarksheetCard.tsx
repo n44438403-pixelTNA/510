@@ -30,8 +30,8 @@ interface Props {
 
 export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose, onViewAnalysis, onPublish, questions, onUpdateUser, initialView, onLaunchContent, mcqMode = 'FREE' }) => {
   const [page, setPage] = useState(1);
-  const [activeTab, setActiveTab] = useState<'OFFICIAL_MARKSHEET' | 'SOLUTION' | 'OMR' | 'RECOMMEND' | 'MISTAKES' | 'AI_ANALYSIS'>(
-      mcqMode === 'PREMIUM' ? 'SOLUTION' : 'OFFICIAL_MARKSHEET'
+  const [activeTab, setActiveTab] = useState<'OFFICIAL_MARKSHEET' | 'SOLUTION' | 'ANALYSIS_TOPIC' | 'OMR' | 'RECOMMEND' | 'MISTAKES' | 'AI_ANALYSIS'>(
+      mcqMode === 'PREMIUM' ? 'ANALYSIS_TOPIC' : 'OFFICIAL_MARKSHEET'
   );
   
   // FREE MODE ANALYSIS LOCK
@@ -1158,9 +1158,14 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                             const access = checkFeatureAccess('MS_ANALYSIS', user, settings || {});
                             if (!access.hasAccess) return null;
                             return (
-                                <button onClick={() => setActiveTab('SOLUTION')} className={`px-4 py-2 text-xs font-bold rounded-t-lg border-b-2 transition-colors whitespace-nowrap ${activeTab === 'SOLUTION' ? 'border-indigo-600 text-indigo-600 bg-indigo-50' : 'border-transparent text-slate-500 hover:bg-slate-50'}`}>
-                                    <FileSearch size={14} className="inline mr-1 mb-0.5" /> Analysis
-                                </button>
+                                <>
+                                    <button onClick={() => setActiveTab('ANALYSIS_TOPIC')} className={`px-4 py-2 text-xs font-bold rounded-t-lg border-b-2 transition-colors whitespace-nowrap ${activeTab === 'ANALYSIS_TOPIC' ? 'border-indigo-600 text-indigo-600 bg-indigo-50' : 'border-transparent text-slate-500 hover:bg-slate-50'}`}>
+                                        <FileSearch size={14} className="inline mr-1 mb-0.5" /> Full Analysis
+                                    </button>
+                                    <button onClick={() => setActiveTab('SOLUTION')} className={`px-4 py-2 text-xs font-bold rounded-t-lg border-b-2 transition-colors whitespace-nowrap ${activeTab === 'SOLUTION' ? 'border-indigo-600 text-indigo-600 bg-indigo-50' : 'border-transparent text-slate-500 hover:bg-slate-50'}`}>
+                                        <BookOpen size={14} className="inline mr-1 mb-0.5" /> Explanations
+                                    </button>
+                                </>
                             );
                         })()}
 
@@ -1198,13 +1203,23 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                     </>
                 )}
 
-                {activeTab === 'SOLUTION' && isAnalysisUnlocked && (
+                {activeTab === 'ANALYSIS_TOPIC' && isAnalysisUnlocked && (
                     <div className="animate-in slide-in-from-bottom-4">
-                        {/* NEW: Granular Analysis View (Default) */}
                         <div className="mb-8">
                             {renderGranularAnalysis()}
                         </div>
+                        {/* Prompt to view solutions */}
+                        <div className="text-center p-6 bg-indigo-50 border border-indigo-100 rounded-xl mt-6">
+                            <p className="text-indigo-800 font-bold mb-3">Want to see the detailed question-by-question breakdown?</p>
+                            <button onClick={() => setActiveTab('SOLUTION')} className="px-6 py-2 bg-indigo-600 text-white rounded-lg shadow-sm hover:bg-indigo-700 transition font-bold text-sm">
+                                View Full Solutions
+                            </button>
+                        </div>
+                    </div>
+                )}
 
+                {activeTab === 'SOLUTION' && isAnalysisUnlocked && (
+                    <div className="animate-in slide-in-from-bottom-4">
                         {questions && questions.length > 0 ? (
                             <div className="space-y-6">
                                 {questions.map((q, idx) => {
