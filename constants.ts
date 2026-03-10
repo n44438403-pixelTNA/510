@@ -137,11 +137,29 @@ export const getSubjectsList = (classLevel: string, stream: string | null, board
           pool.math
       ].filter(Boolean);
   }
-  else if (!isSenior) {
+  else if (['6', '7', '8'].includes(classLevel)) {
       selectedSubjects = [
           pool.math,
           pool.science,
-          pool.sst,
+          pool.history,
+          pool.geography,
+          pool.polity,
+          pool.english,
+          pool.hindi,
+          pool.sanskrit,
+          pool.computer
+      ].filter(Boolean);
+  }
+  else if (['9', '10'].includes(classLevel)) {
+      selectedSubjects = [
+          pool.math,
+          pool.physics,
+          pool.chemistry,
+          pool.biology,
+          pool.history,
+          pool.geography,
+          pool.polity,
+          pool.economics,
           pool.english,
           pool.hindi,
           pool.sanskrit,
