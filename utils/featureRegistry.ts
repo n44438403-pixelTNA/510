@@ -86,6 +86,80 @@ export const ALL_FEATURES: Feature[] = [
         isDummy: true // Not implemented
     },
 
+    // --- NEW STUDENT UI ELEMENTS ---
+    {
+        id: 'INBOX',
+        label: 'Inbox',
+        group: 'CORE',
+        surfaceLevel: 2,
+        adminVisible: false,
+        icon: 'Mail',
+        description: 'Student messages and notifications.'
+    },
+    {
+        id: 'UPDATES',
+        label: 'Notifications',
+        group: 'CORE',
+        surfaceLevel: 2,
+        adminVisible: false,
+        icon: 'Bell',
+        description: 'App updates and global alerts.'
+    },
+    {
+        id: 'MARKSHEET',
+        label: 'Marksheet',
+        group: 'ANALYSIS',
+        surfaceLevel: 2,
+        adminVisible: false,
+        icon: 'FileText',
+        description: 'Monthly and annual performance report.'
+    },
+    {
+        id: 'HISTORY_PAGE',
+        label: 'History',
+        group: 'CORE',
+        surfaceLevel: 2,
+        adminVisible: false,
+        icon: 'History',
+        description: 'View past test attempts and study history.'
+    },
+    {
+        id: 'MY_PLAN',
+        label: 'My Plan',
+        group: 'CONTENT',
+        surfaceLevel: 2,
+        adminVisible: false,
+        icon: 'CreditCard',
+        description: 'View active subscription and history.'
+    },
+    {
+        id: 'PRIZES',
+        label: 'Prizes',
+        group: 'GAME',
+        surfaceLevel: 2,
+        adminVisible: false,
+        icon: 'Trophy',
+        description: 'View available prizes and rewards.'
+    },
+    {
+        id: 'GUIDE',
+        label: 'App Guide',
+        group: 'TOOLS',
+        surfaceLevel: 2,
+        adminVisible: false,
+        icon: 'HelpCircle',
+        description: 'Help and documentation for students.'
+    },
+    {
+        id: 'PROFILE_PAGE',
+        label: 'Profile',
+        group: 'CORE',
+        surfaceLevel: 2,
+        adminVisible: false,
+        icon: 'User',
+        description: 'User profile and settings.'
+    },
+
     // --- SECONDARY (Layer 2: Tools & Exploration) ---
     {
         id: 'AI_CENTER',

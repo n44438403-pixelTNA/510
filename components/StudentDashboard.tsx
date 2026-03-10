@@ -126,11 +126,13 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
   const analysisLogs = JSON.parse(localStorage.getItem('nst_universal_analysis_logs') || '[]');
   const isGameEnabled = settings?.isGameEnabled !== false;
 
+  const getFeatureAccess = (featureId: string) => {
+      if (!settings) return { hasAccess: true, isHidden: false };
+      return checkFeatureAccess(featureId, user, settings);
+  };
+
   const hasPermission = (featureId: string) => {
-      // Use the new centralized helper which handles Feed vs Matrix control
-      if (!settings) return true; // Default allow if settings missing (fallback to static)
-      const { hasAccess } = checkFeatureAccess(featureId, user, settings);
-      return hasAccess;
+      return getFeatureAccess(featureId).hasAccess;
   };
 
   // --- EXPIRY CHECK & AUTO DOWNGRADE ---
@@ -787,24 +789,24 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
           {
               category: 'Essential',
               items: [
-                  { id: 'INBOX', label: 'Inbox', icon: Mail, color: 'indigo', action: () => { setShowInbox(true); setShowSidebar(false); } },
-                  { id: 'UPDATES', label: 'Notifications', icon: Bell, color: 'red', action: () => { onTabChange('UPDATES'); setHasNewUpdate(false); localStorage.setItem('nst_last_read_update', Date.now().toString()); setShowSidebar(false); } },
+                  { id: 'INBOX', label: 'Inbox', icon: Mail, color: 'indigo', action: () => { setShowInbox(true); setShowSidebar(false); }, featureId: 'INBOX' },
+                  { id: 'UPDATES', label: 'Notifications', icon: Bell, color: 'red', action: () => { onTabChange('UPDATES'); setHasNewUpdate(false); localStorage.setItem('nst_last_read_update', Date.now().toString()); setShowSidebar(false); }, featureId: 'UPDATES' },
               ]
           },
           {
               category: 'Learning & Progress',
               items: [
-                  { id: 'ANALYTICS', label: 'Analytics', icon: BarChart3, color: 'blue', action: () => { onTabChange('ANALYTICS'); setShowSidebar(false); } },
-                  { id: 'MARKSHEET', label: 'Marksheet', icon: FileText, color: 'green', action: () => { setShowMonthlyReport(true); setShowSidebar(false); } },
-                  { id: 'HISTORY', label: 'History', icon: History, color: 'slate', action: () => { onTabChange('HISTORY'); setShowSidebar(false); } },
+                  { id: 'ANALYTICS', label: 'Analytics', icon: BarChart3, color: 'blue', action: () => { onTabChange('ANALYTICS'); setShowSidebar(false); }, featureId: 'MY_ANALYSIS' },
+                  { id: 'MARKSHEET', label: 'Marksheet', icon: FileText, color: 'green', action: () => { setShowMonthlyReport(true); setShowSidebar(false); }, featureId: 'MARKSHEET' },
+                  { id: 'HISTORY', label: 'History', icon: History, color: 'slate', action: () => { onTabChange('HISTORY'); setShowSidebar(false); }, featureId: 'HISTORY_PAGE' },
               ]
           },
           {
               category: 'Premium & Rewards',
               items: [
-                  { id: 'PLAN', label: 'My Plan', icon: CreditCard, color: 'purple', action: () => { onTabChange('SUB_HISTORY' as any); setShowSidebar(false); } },
-                  { id: 'REDEEM', label: 'Redeem', icon: Gift, color: 'pink', action: () => { onTabChange('REDEEM'); setShowSidebar(false); } },
-                  { id: 'PRIZES', label: 'Prizes', icon: Trophy, color: 'yellow', action: () => { onTabChange('PRIZES'); setShowSidebar(false); } },
+                  { id: 'PLAN', label: 'My Plan', icon: CreditCard, color: 'purple', action: () => { onTabChange('SUB_HISTORY' as any); setShowSidebar(false); }, featureId: 'MY_PLAN' },
+                  { id: 'REDEEM', label: 'Redeem', icon: Gift, color: 'pink', action: () => { onTabChange('REDEEM'); setShowSidebar(false); }, featureId: 'REDEEM_CODE' },
+                  { id: 'PRIZES', label: 'Prizes', icon: Trophy, color: 'yellow', action: () => { onTabChange('PRIZES'); setShowSidebar(false); }, featureId: 'PRIZES' },
               ]
           },
           {
@@ -817,48 +819,61 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
           {
               category: 'Help & Support',
               items: [
-                  { id: 'GUIDE', label: 'App Guide', icon: HelpCircle, color: 'cyan', action: () => { setShowStudentGuide(true); setShowSidebar(false); } },
-                  { id: 'SUPPORT', label: 'Admin Support', icon: MessageSquare, color: 'rose', action: handleSupportEmail },
+                  { id: 'GUIDE', label: 'App Guide', icon: HelpCircle, color: 'cyan', action: () => { setShowStudentGuide(true); setShowSidebar(false); }, featureId: 'GUIDE' },
+                  { id: 'SUPPORT', label: 'Admin Support', icon: MessageSquare, color: 'rose', action: handleSupportEmail, featureId: 'SUPPORT' }, // Optional featureId, fallback true if missing
               ]
           }
       ];
 
-      return groupedItems.map((group, gIdx) => (
-          <div key={gIdx} className="mb-4">
-              <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-4 mb-2">{group.category}</h4>
-              <div className="space-y-1">
-                  {group.items.map(item => {
-                      let isLocked = false;
-                      if (item.featureId) {
-                          const access = checkFeatureAccess(item.featureId, user, settings || {});
-                          if (!access.hasAccess) isLocked = true;
-                      }
+      return groupedItems.map((group, gIdx) => {
+          // Filter items that are hidden
+          const visibleItems = group.items.filter(item => {
+              if (item.featureId) {
+                  const access = getFeatureAccess(item.featureId);
+                  return !access.isHidden;
+              }
+              return true;
+          });
 
-                      return (
-                          <Button
-                              key={item.id}
-                              onClick={() => {
-                                  if (isLocked) {
-                                      showAlert("🔒 Locked by Admin. Upgrade your plan to access.", 'ERROR');
-                                      return;
-                                  }
-                                  item.action();
-                              }}
-                              variant="ghost"
-                              fullWidth
-                              className={`justify-start gap-4 p-3 mx-2 hover:bg-slate-50 rounded-xl ${isLocked ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
-                          >
-                              <div className={`bg-${item.color}-100 text-${item.color}-600 p-2 rounded-lg relative`}>
-                                  <item.icon size={18} />
-                                  {isLocked && <div className="absolute -top-1 -right-1 bg-red-500 rounded-full p-0.5 border border-white"><Lock size={8} className="text-white"/></div>}
-                              </div>
-                              <span className="text-sm font-bold text-slate-700">{item.label}</span>
-                          </Button>
-                      );
-                  })}
+          if (visibleItems.length === 0) return null;
+
+          return (
+              <div key={gIdx} className="mb-4">
+                  <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-4 mb-2">{group.category}</h4>
+                  <div className="space-y-1">
+                      {visibleItems.map(item => {
+                          let isLocked = false;
+                          if (item.featureId) {
+                              const access = getFeatureAccess(item.featureId);
+                              if (!access.hasAccess) isLocked = true;
+                          }
+
+                          return (
+                              <Button
+                                  key={item.id}
+                                  onClick={() => {
+                                      if (isLocked) {
+                                          showAlert("🔒 Locked by Admin. Upgrade your plan to access.", 'ERROR');
+                                          return;
+                                      }
+                                      item.action();
+                                  }}
+                                  variant="ghost"
+                                  fullWidth
+                                  className={`justify-start gap-4 p-3 mx-2 hover:bg-slate-50 rounded-xl ${isLocked ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
+                              >
+                                  <div className={`bg-${item.color}-100 text-${item.color}-600 p-2 rounded-lg relative`}>
+                                      <item.icon size={18} />
+                                      {isLocked && <div className="absolute -top-1 -right-1 bg-red-500 rounded-full p-0.5 border border-white"><Lock size={8} className="text-white"/></div>}
+                                  </div>
+                                  <span className="text-sm font-bold text-slate-700">{item.label}</span>
+                              </Button>
+                          );
+                      })}
+                  </div>
               </div>
-          </div>
-      ));
+          );
+      });
   };
 
   // --- RENDER BASED ON ACTIVE TAB ---
@@ -952,52 +967,63 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
                 {/* MAIN ACTION BUTTONS (RESTORED OLD LAYOUT) */}
                 <DashboardSectionWrapper id="section_main_actions" label="Main Actions" settings={settings} isLayoutEditing={isLayoutEditing} onToggleVisibility={toggleLayoutVisibility}>
                     <div className="grid grid-cols-2 gap-4">
-                        {/* STUDY SECTION (REPLACED MY COURSES) */}
-                        <div className="col-span-2 bg-white rounded-3xl p-5 border border-slate-100 shadow-sm">
-                            <h3 className="font-black text-slate-800 text-lg mb-4 flex items-center gap-2">
-                                <BookOpen className="text-blue-600" size={24} /> Study
-                            </h3>
-                            <div className="grid grid-cols-3 gap-3">
-                                {getSubjectsList(user.classLevel || '10', user.stream || 'Science', user.board).map((subject) => {
-                                    if ((settings?.hiddenSubjects || []).includes(subject.id)) return null;
-                                    return (
-                                        <button
-                                            key={subject.id}
-                                            onClick={() => {
-                                                onTabChange('COURSES');
-                                                handleContentSubjectSelect(subject);
-                                            }}
-                                            className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl transition-all active:scale-95 border-2 ${
-                                                subject.id.includes('science') ? 'bg-purple-50 border-purple-100 text-purple-700' :
-                                                subject.id.includes('math') ? 'bg-blue-50 border-blue-100 text-blue-700' :
-                                                subject.id.includes('social') ? 'bg-orange-50 border-orange-100 text-orange-700' :
-                                                'bg-slate-50 border-slate-100 text-slate-700'
-                                            }`}
-                                        >
-                                            <div className={`p-2 rounded-full bg-white shadow-sm`}>
-                                                {/* Simple Icon Mapping or default */}
-                                                <BookOpen size={20} className={
-                                                    subject.id.includes('science') ? 'text-purple-600' :
-                                                    subject.id.includes('math') ? 'text-blue-600' :
-                                                    subject.id.includes('social') ? 'text-orange-600' :
-                                                    'text-slate-600'
-                                                } />
-                                            </div>
-                                            <span className="text-[10px] font-bold uppercase text-center leading-tight">
-                                                {subject.name}
-                                            </span>
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </div>
+                        {(() => {
+                            const access = getFeatureAccess('START_STUDY');
+                            if (access.isHidden) return null;
+                            const isLocked = !access.hasAccess;
+
+                            return (
+                                <div className={`col-span-2 bg-white rounded-3xl p-5 border border-slate-100 shadow-sm relative ${isLocked ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
+                                    {isLocked && <div className="absolute top-4 right-4 bg-red-500 text-white p-1.5 rounded-full z-10"><Lock size={16} /></div>}
+                                    <h3 className="font-black text-slate-800 text-lg mb-4 flex items-center gap-2">
+                                        <BookOpen className="text-blue-600" size={24} /> Study
+                                    </h3>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        {getSubjectsList(user.classLevel || '10', user.stream || 'Science', user.board).map((subject) => {
+                                            if ((settings?.hiddenSubjects || []).includes(subject.id)) return null;
+                                            return (
+                                                <button
+                                                    key={subject.id}
+                                                    onClick={() => {
+                                                        if (isLocked) { showAlert("🔒 Locked by Admin.", "ERROR"); return; }
+                                                        onTabChange('COURSES');
+                                                        handleContentSubjectSelect(subject);
+                                                    }}
+                                                    className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl transition-all active:scale-95 border-2 ${
+                                                        subject.id.includes('science') ? 'bg-purple-50 border-purple-100 text-purple-700' :
+                                                        subject.id.includes('math') ? 'bg-blue-50 border-blue-100 text-blue-700' :
+                                                        subject.id.includes('social') ? 'bg-orange-50 border-orange-100 text-orange-700' :
+                                                        'bg-slate-50 border-slate-100 text-slate-700'
+                                                    }`}
+                                                >
+                                                    <div className={`p-2 rounded-full bg-white shadow-sm`}>
+                                                        <BookOpen size={20} className={
+                                                            subject.id.includes('science') ? 'text-purple-600' :
+                                                            subject.id.includes('math') ? 'text-blue-600' :
+                                                            subject.id.includes('social') ? 'text-orange-600' :
+                                                            'text-slate-600'
+                                                        } />
+                                                    </div>
+                                                    <span className="text-[10px] font-bold uppercase text-center leading-tight">
+                                                        {subject.name}
+                                                    </span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            );
+                        })()}
 
                         {(() => {
-                            // UNLOCKED AS PER REQUEST
-                            const isLocked = false;
+                            const access = getFeatureAccess('MY_ANALYSIS');
+                            if (access.isHidden) return null;
+                            const isLocked = !access.hasAccess;
+
                             return (
                                 <button
                                     onClick={() => {
+                                        if (isLocked) { showAlert("🔒 Locked by Admin.", "ERROR"); return; }
                                         onTabChange('ANALYTICS');
                                     }}
                                     className={`bg-white border-2 border-slate-100 p-4 rounded-3xl shadow-sm flex flex-col items-center justify-center gap-2 group active:scale-95 transition-all hover:border-blue-200 h-32 relative overflow-hidden ${isLocked ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
@@ -1011,8 +1037,10 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
 
                         {(() => {
                             // Using VIDEO_ACCESS as proxy for Universal Video as it's the closest content type
-                            const access = checkFeatureAccess('VIDEO_ACCESS', user, settings || {});
+                            const access = getFeatureAccess('VIDEO_ACCESS');
+                            if (access.isHidden) return null;
                             const isLocked = !access.hasAccess;
+
                             return (
                                 <button
                                     onClick={() => {
@@ -1839,39 +1867,89 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
                     <span className="text-[10px] font-bold mt-1">Home</span>
                 </button>
 
-                <button
-                    onClick={() => {
-                        onTabChange('REVISION' as any);
-                    }}
-                    className={`flex flex-col items-center justify-center w-full h-full ${activeTab === 'REVISION' ? 'text-blue-600' : 'text-slate-400'}`}
-                >
-                    <div className="relative">
-                        <BrainCircuit size={24} fill={activeTab === 'REVISION' ? "currentColor" : "none"} />
-                    </div>
-                    <span className="text-[10px] font-bold mt-1">Revision</span>
-                </button>
+                {(() => {
+                    const access = getFeatureAccess('REVISION_HUB');
+                    if (access.isHidden) return null;
+                    const isLocked = !access.hasAccess;
+                    return (
+                        <button
+                            onClick={() => {
+                                if (isLocked) { showAlert("🔒 Locked by Admin.", "ERROR"); return; }
+                                onTabChange('REVISION' as any);
+                            }}
+                            className={`flex flex-col items-center justify-center w-full h-full relative ${activeTab === 'REVISION' ? 'text-blue-600' : 'text-slate-400'} ${isLocked ? 'opacity-50 grayscale' : ''}`}
+                        >
+                            <div className="relative">
+                                <BrainCircuit size={24} fill={activeTab === 'REVISION' && !isLocked ? "currentColor" : "none"} />
+                                {isLocked && <div className="absolute -top-1 -right-1 bg-red-500 rounded-full p-0.5 border border-white"><Lock size={8} className="text-white"/></div>}
+                            </div>
+                            <span className="text-[10px] font-bold mt-1">Revision</span>
+                        </button>
+                    );
+                })()}
 
-                <button
-                    onClick={() => {
-                        onTabChange('AI_HUB');
-                    }}
-                    className={`flex flex-col items-center justify-center w-full h-full ${activeTab === 'AI_HUB' ? 'text-blue-600' : 'text-slate-400'}`}
-                >
-                    <div className="relative">
-                        <Sparkles size={24} fill={activeTab === 'AI_HUB' ? "currentColor" : "none"} />
-                    </div>
-                    <span className="text-[10px] font-bold mt-1">AI Hub</span>
-                </button>
+                {(() => {
+                    const access = getFeatureAccess('AI_CENTER');
+                    if (access.isHidden) return null;
+                    const isLocked = !access.hasAccess;
+                    return (
+                        <button
+                            onClick={() => {
+                                if (isLocked) { showAlert("🔒 Locked by Admin.", "ERROR"); return; }
+                                onTabChange('AI_HUB');
+                            }}
+                            className={`flex flex-col items-center justify-center w-full h-full relative ${activeTab === 'AI_HUB' ? 'text-blue-600' : 'text-slate-400'} ${isLocked ? 'opacity-50 grayscale' : ''}`}
+                        >
+                            <div className="relative">
+                                <Sparkles size={24} fill={activeTab === 'AI_HUB' && !isLocked ? "currentColor" : "none"} />
+                                {isLocked && <div className="absolute -top-1 -right-1 bg-red-500 rounded-full p-0.5 border border-white"><Lock size={8} className="text-white"/></div>}
+                            </div>
+                            <span className="text-[10px] font-bold mt-1">AI Hub</span>
+                        </button>
+                    );
+                })()}
 
-                <button onClick={() => onTabChange('HISTORY')} className={`flex flex-col items-center justify-center w-full h-full ${activeTab === 'HISTORY' ? 'text-blue-600' : 'text-slate-400'}`}>
-                    <History size={24} />
-                    <span className="text-[10px] font-bold mt-1">History</span>
-                </button>
+                {(() => {
+                    const access = getFeatureAccess('HISTORY_PAGE');
+                    if (access.isHidden) return null;
+                    const isLocked = !access.hasAccess;
+                    return (
+                        <button
+                            onClick={() => {
+                                if (isLocked) { showAlert("🔒 Locked by Admin.", "ERROR"); return; }
+                                onTabChange('HISTORY');
+                            }}
+                            className={`flex flex-col items-center justify-center w-full h-full relative ${activeTab === 'HISTORY' ? 'text-blue-600' : 'text-slate-400'} ${isLocked ? 'opacity-50 grayscale' : ''}`}
+                        >
+                            <div className="relative">
+                                <History size={24} />
+                                {isLocked && <div className="absolute -top-1 -right-1 bg-red-500 rounded-full p-0.5 border border-white"><Lock size={8} className="text-white"/></div>}
+                            </div>
+                            <span className="text-[10px] font-bold mt-1">History</span>
+                        </button>
+                    );
+                })()}
 
-                <button onClick={() => onTabChange('PROFILE')} className={`flex flex-col items-center justify-center w-full h-full ${activeTab === 'PROFILE' ? 'text-blue-600' : 'text-slate-400'}`}>
-                    <UserIconOutline size={24} fill={activeTab === 'PROFILE' ? "currentColor" : "none"} />
-                    <span className="text-[10px] font-bold mt-1">Profile</span>
-                </button>
+                {(() => {
+                    const access = getFeatureAccess('PROFILE_PAGE');
+                    if (access.isHidden) return null;
+                    const isLocked = !access.hasAccess;
+                    return (
+                        <button
+                            onClick={() => {
+                                if (isLocked) { showAlert("🔒 Locked by Admin.", "ERROR"); return; }
+                                onTabChange('PROFILE');
+                            }}
+                            className={`flex flex-col items-center justify-center w-full h-full relative ${activeTab === 'PROFILE' ? 'text-blue-600' : 'text-slate-400'} ${isLocked ? 'opacity-50 grayscale' : ''}`}
+                        >
+                            <div className="relative">
+                                <UserIconOutline size={24} fill={activeTab === 'PROFILE' && !isLocked ? "currentColor" : "none"} />
+                                {isLocked && <div className="absolute -top-1 -right-1 bg-red-500 rounded-full p-0.5 border border-white"><Lock size={8} className="text-white"/></div>}
+                            </div>
+                            <span className="text-[10px] font-bold mt-1">Profile</span>
+                        </button>
+                    );
+                })()}
             </div>
         </div>
 
