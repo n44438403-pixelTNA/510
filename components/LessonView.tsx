@@ -109,13 +109,27 @@ export const LessonView: React.FC<Props> = ({
 
   // Full Screen Ref
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
   const toggleFullScreen = () => {
       if (!document.fullscreenElement) {
-          containerRef.current?.requestFullscreen().catch(e => console.error(e));
+          containerRef.current?.requestFullscreen().then(() => {
+              setIsFullscreen(true);
+          }).catch(e => console.error(e));
       } else {
-          document.exitFullscreen();
+          document.exitFullscreen().then(() => {
+              setIsFullscreen(false);
+          });
       }
   };
+
+  useEffect(() => {
+      const handleFullscreenChange = () => {
+          setIsFullscreen(!!document.fullscreenElement);
+      };
+      document.addEventListener('fullscreenchange', handleFullscreenChange);
+      return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
 
   // TIMER STATE
   const [sessionTime, setSessionTime] = useState(0); // Total seconds
