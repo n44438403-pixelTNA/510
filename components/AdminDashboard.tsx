@@ -2313,68 +2313,114 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
                               // Needs at least Q + 4 Options + Ans = 6 lines remaining
                               if (i + 5 >= lines.length) break;
 
-                              // Clean Question Text (Remove Markdown ** if present)
-                              const q = line.replace(/^\*\*|\*\*$/g, '');
+                              // 3. EXTRACT QUESTION PROPERTIES (Options, Answer, etc.)
+                              // Flexible property extraction to handle varying formats
+                              let currentQ = line.replace(/^\*\*|\*\*$/g, '').replace(QUESTION_START_REGEX, '').trim();
 
-                              const opts = [lines[i+1], lines[i+2], lines[i+3], lines[i+4]];
-
-                              let ansLine = lines[i+5];
-                              // Remove ** wrapper
-                              ansLine = ansLine.replace(/^\*\*|\*\*$/g, '');
-                              // Remove Label
-                              let ansRaw = ansLine.replace(/^(Answer|Ans|Correct|उत्तर)\s*[:\s-]*\s*/i, '').trim();
-
-                              // Flexible Answer Parsing
+                              let opts: string[] = [];
                               let ansIdx = -1;
-                              if (/^\d+$/.test(ansRaw)) {
-                                  ansIdx = parseInt(ansRaw) - 1;
-                              } else {
-                                  // Extract first letter (A, B, C, D)
-                                  const firstChar = ansRaw.charAt(0).toUpperCase();
-                                  const map: any = { 'A': 0, 'B': 1, 'C': 2, 'D': 3 };
-                                  if (map[firstChar] !== undefined) ansIdx = map[firstChar];
-                              }
-                              // Default to 0 (A) if parsing fails
-                              if (ansIdx < 0 || ansIdx > 3) ansIdx = 0;
+                              let explanation = '';
+                              let concept = '';
+                              let commonMistake = '';
+                              let examTip = '';
+                              let mnemonic = '';
+                              let topic = currentGlobalTopic;
 
-                              // Parse Explanation (Optional lines until next Q/Topic)
-                              let expLines = [];
-                              let nextIndex = i + 6;
+                              let nextIndex = i + 1;
+                              let currentSection = 'question'; // 'question', 'options', 'answer', 'explanation', etc.
 
                               while (nextIndex < lines.length) {
-                                  const nextLine = lines[nextIndex];
-                                  const isNextTopic = /^<TOPIC:\s*(.*?)>/i.test(nextLine);
-                                  const isNextQ = QUESTION_START_REGEX.test(nextLine) || looksLikeQuestionBlock(lines, nextIndex);
+                                  let nextLine = lines[nextIndex];
 
+                                  const isNextQ = QUESTION_START_REGEX.test(nextLine) || looksLikeQuestionBlock(lines, nextIndex);
+                                  const isNextTopic = /^<TOPIC:\s*(.*?)>/i.test(nextLine);
                                   if (isNextQ || isNextTopic) break;
 
-                                  expLines.push(nextLine);
+                                  // Detect Sections
+                                  if (/^(Options\s*:?|विकल्प\s*:?)/i.test(nextLine)) {
+                                      currentSection = 'options_header';
+                                      nextIndex++;
+                                      continue;
+                                  } else if (/^[A-D]\)|^[A-D]\.|^\([A-D]\)/i.test(nextLine) && opts.length < 4) {
+                                      currentSection = 'options';
+                                  } else if (/^(✅\s*)?(Correct Answer|Answer|Ans|उत्तर)\s*[:\s-]*\s*/i.test(nextLine)) {
+                                      currentSection = 'answer';
+                                  } else if (/^(💡\s*)?(Concept|संकल्पना)\s*[:\s-]*\s*/i.test(nextLine)) {
+                                      currentSection = 'concept';
+                                  } else if (/^(🔎\s*)?(Explanation|Exp|व्याख्या)\s*[:\s-]*\s*/i.test(nextLine)) {
+                                      currentSection = 'explanation';
+                                  } else if (/^(🎯\s*)?(Exam Tip|परीक्षा टिप)\s*[:\s-]*\s*/i.test(nextLine)) {
+                                      currentSection = 'exam_tip';
+                                  } else if (/^(⚠\s*)?(Common Mistake|सामान्य गलती)\s*[:\s-]*\s*/i.test(nextLine)) {
+                                      currentSection = 'common_mistake';
+                                  } else if (/^(🧠\s*)?(Memory Trick|मेमोरी ट्रिक)\s*[:\s-]*\s*/i.test(nextLine)) {
+                                      currentSection = 'mnemonic';
+                                  } else if (/^(📖\s*)?Topic\s*[:\s-]*\s*(.*)/i.test(nextLine)) {
+                                      topic = nextLine.replace(/^(📖\s*)?Topic\s*[:\s-]*\s*/i, '').trim();
+                                      nextIndex++;
+                                      continue;
+                                  } else if (/^(🔥\s*)?PYQ Inspired/i.test(nextLine) || /^(📊\s*)?Difficulty Level/i.test(nextLine) || /^❓\s*Question:/i.test(nextLine)) {
+                                      // Skip metadata lines
+                                      nextIndex++;
+                                      continue;
+                                  }
+
+                                  // Process Sections
+                                  if (currentSection === 'question') {
+                                      currentQ += '\n' + nextLine;
+                                  } else if (currentSection === 'options') {
+                                      opts.push(nextLine.replace(/^[A-D]\s*[.)]\s*|^\([A-D]\)\s*/i, '').trim());
+                                  } else if (currentSection === 'answer') {
+                                      let ansRaw = nextLine.replace(/^(✅\s*)?(Correct Answer|Answer|Ans|उत्तर)\s*[:\s-]*\s*/i, '').trim();
+
+                                      // Flexible Answer Parsing
+                                      if (/^\d+$/.test(ansRaw)) {
+                                          ansIdx = parseInt(ansRaw) - 1;
+                                      } else {
+                                          // Extract first letter (A, B, C, D)
+                                          const firstCharMatch = ansRaw.match(/^[A-D]/i);
+                                          if (firstCharMatch) {
+                                              const map: any = { 'A': 0, 'B': 1, 'C': 2, 'D': 3 };
+                                              ansIdx = map[firstCharMatch[0].toUpperCase()];
+                                          } else {
+                                               // Check if the answer matches option text
+                                               const optionIndex = opts.findIndex(o => ansRaw.includes(o));
+                                               if (optionIndex !== -1) ansIdx = optionIndex;
+                                          }
+                                      }
+                                      // If it's a multiline answer, don't keep adding to it
+                                      currentSection = 'post_answer';
+                                  } else if (currentSection === 'concept') {
+                                      concept += (concept ? '\n' : '') + nextLine.replace(/^(💡\s*)?(Concept|संकल्पना)\s*[:\s-]*\s*/i, '').trim();
+                                  } else if (currentSection === 'explanation') {
+                                      explanation += (explanation ? '\n' : '') + nextLine.replace(/^(🔎\s*)?(Explanation|Exp|व्याख्या)\s*[:\s-]*\s*/i, '').trim();
+                                  } else if (currentSection === 'exam_tip') {
+                                      examTip += (examTip ? '\n' : '') + nextLine.replace(/^(🎯\s*)?(Exam Tip|परीक्षा टिप)\s*[:\s-]*\s*/i, '').trim();
+                                  } else if (currentSection === 'common_mistake') {
+                                      commonMistake += (commonMistake ? '\n' : '') + nextLine.replace(/^(⚠\s*)?(Common Mistake|सामान्य गलती)\s*[:\s-]*\s*/i, '').trim();
+                                  } else if (currentSection === 'mnemonic') {
+                                      mnemonic += (mnemonic ? '\n' : '') + nextLine.replace(/^(🧠\s*)?(Memory Trick|मेमोरी ट्रिक)\s*[:\s-]*\s*/i, '').trim();
+                                  }
+
                                   nextIndex++;
                               }
 
-                              let explanation = expLines.join('\n').trim();
-                              // Improved Explanation Parsing
-                              // 1. Remove leading **
-                              explanation = explanation.replace(/^\*\*/, '');
-                              // 2. Remove Label
-                              explanation = explanation.replace(/^(Explanation|Exp|व्याख्या)\s*[:\s-]*(\*\*)?\s*/i, '');
-                              // 3. Remove leading ** again if left
-                              explanation = explanation.replace(/^\*\*/, '').trim();
-
-                              // Parse Inline Topic (if any) overrides global
-                              let topic = '';
-                              const inlineTopicMatch = explanation.match(/Topic:\s*(.*)/i);
-                              if (inlineTopicMatch) {
-                                  topic = inlineTopicMatch[1].trim();
-                                  explanation = explanation.replace(/Topic:\s*.*$/im, '').trim();
+                              if (ansIdx < 0 || ansIdx > 3) ansIdx = 0;
+                              if (opts.length < 4) {
+                                  // Pad options if not enough were found
+                                  while(opts.length < 4) opts.push("Option");
                               }
 
                               newQuestions.push({
-                                  question: q,
-                                  options: opts,
+                                  question: currentQ.trim(),
+                                  options: [opts[0], opts[1], opts[2], opts[3]],
                                   correctAnswer: ansIdx,
-                                  explanation: explanation,
-                                  topic: topic || currentGlobalTopic
+                                  explanation: explanation.trim(),
+                                  concept: concept.trim(),
+                                  commonMistake: commonMistake.trim(),
+                                  examTip: examTip.trim(),
+                                  mnemonic: mnemonic.trim(),
+                                  topic: topic
                               });
 
                               i = nextIndex;
