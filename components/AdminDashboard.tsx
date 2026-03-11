@@ -5079,7 +5079,7 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                                       </div>
                                   ))}
                               </div>
-                              <div className="fixed md:static bottom-0 left-0 w-full p-4 bg-white/90 backdrop-blur-md border-t border-slate-200 md:bg-transparent md:border-t-0 z-50 md:p-0 md:mt-4">
+                              <div className="sticky bottom-0 left-0 w-full p-4 bg-white/95 backdrop-blur-md border-t border-slate-200 z-50 mt-4 md:static md:bg-transparent md:border-t-0 md:p-0 rounded-b-2xl md:rounded-none shadow-[0_-8px_15px_-3px_rgba(0,0,0,0.1)] md:shadow-none">
                                   <button onClick={() => saveChapterContent()} className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow hover:bg-blue-700 border-2 border-white">Save All MCQs</button>
                               </div>
                           </div>
@@ -5537,7 +5537,7 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                                       <Key size={16} /> Code
                                   </button>
                               </div>
-                              <div className="fixed md:static bottom-0 left-0 w-full p-4 bg-white/90 backdrop-blur-md border-t border-slate-200 md:bg-transparent md:border-t-0 z-50 md:p-0 md:mt-4">
+                              <div className="sticky bottom-0 left-0 w-full p-4 bg-white/95 backdrop-blur-md border-t border-slate-200 z-50 mt-4 md:static md:bg-transparent md:border-t-0 md:p-0 rounded-b-2xl md:rounded-none shadow-[0_-8px_15px_-3px_rgba(0,0,0,0.1)] md:shadow-none">
                                   <button onClick={() => saveChapterContent()} className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow hover:bg-blue-700 border-2 border-white">Save PDF Links</button>
                               </div>
                           </div>
@@ -5614,7 +5614,7 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                                       + Add Topic Video
                                   </button>
 
-                                  <div className="fixed md:static bottom-0 left-0 w-full p-4 bg-white/90 backdrop-blur-md border-t border-slate-200 md:bg-transparent md:border-t-0 z-50 md:p-0 md:mt-4">
+                                  <div className="sticky bottom-0 left-0 w-full p-4 bg-white/95 backdrop-blur-md border-t border-slate-200 z-50 mt-4 md:static md:bg-transparent md:border-t-0 md:p-0 rounded-b-2xl md:rounded-none shadow-[0_-8px_15px_-3px_rgba(0,0,0,0.1)] md:shadow-none">
                                       <button onClick={saveChapterContent} className="w-full mt-2 bg-purple-600 text-white font-bold py-3 rounded-xl shadow hover:bg-purple-700 transition flex items-center justify-center gap-2 border-2 border-white">
                                           <Save size={18} /> Save Topic Videos
                                       </button>
@@ -5692,7 +5692,7 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                                           + Add Premium Video
                                       </button>
                                   </div>
-                                  <div className="fixed md:static bottom-0 left-0 w-full p-4 bg-white/90 backdrop-blur-md border-t border-slate-200 md:bg-transparent md:border-t-0 z-50 md:p-0 md:mt-4">
+                                  <div className="sticky bottom-0 left-0 w-full p-4 bg-white/95 backdrop-blur-md border-t border-slate-200 z-50 mt-4 md:static md:bg-transparent md:border-t-0 md:p-0 rounded-b-2xl md:rounded-none shadow-[0_-8px_15px_-3px_rgba(0,0,0,0.1)] md:shadow-none">
                                       <button onClick={saveChapterContent} className="w-full mt-2 bg-yellow-600 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-yellow-700 transition-all flex items-center justify-center gap-2 border-2 border-white">
                                           <Save size={18} /> Save Premium Series
                                       </button>
@@ -5957,7 +5957,7 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                                   </button>
                               </div>
 
-                              <div className="fixed md:static bottom-0 left-0 w-full p-4 bg-white/90 backdrop-blur-md border-t border-slate-200 md:bg-transparent md:border-t-0 z-50 md:p-0 md:mt-4">
+                              <div className="sticky bottom-0 left-0 w-full p-4 bg-white/95 backdrop-blur-md border-t border-slate-200 z-50 mt-4 md:static md:bg-transparent md:border-t-0 md:p-0 rounded-b-2xl md:rounded-none shadow-[0_-8px_15px_-3px_rgba(0,0,0,0.1)] md:shadow-none">
                                   <button onClick={saveChapterContent} className="w-full bg-pink-600 text-white font-bold py-3 rounded-xl shadow hover:bg-pink-700 transition border-2 border-white">
                                       <Save size={18} className="inline mr-2" /> Save Audio Playlist
                                   </button>
@@ -9628,7 +9628,7 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                                           <Save size={16} /> Save Changes
                                       </button>
                                   </div>
-                                  <div className="fixed md:static bottom-0 left-0 w-full p-4 bg-white/90 backdrop-blur-md border-t border-slate-200 md:bg-transparent md:border-t-0 z-50 md:p-0 md:mt-4">
+                                  <div className="sticky bottom-0 left-0 w-full p-4 bg-white/95 backdrop-blur-md border-t border-slate-200 z-50 mt-4 md:static md:bg-transparent md:border-t-0 md:p-0 rounded-b-2xl md:rounded-none shadow-[0_-8px_15px_-3px_rgba(0,0,0,0.1)] md:shadow-none">
                                       <button onClick={saveChapterContent} className="w-full bg-cyan-600 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-cyan-700 transition flex items-center justify-center gap-2 border-2 border-white">
                                           <Save size={18} /> SAVE ALL CHANGES
                                       </button>
