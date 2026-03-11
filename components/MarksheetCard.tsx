@@ -753,31 +753,121 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                                                           <ChevronDown size={14} className="text-slate-400 group-open:rotate-180 transition-transform" />
                                                       </div>
                                                   </summary>
-                                                  <div className="px-3 pb-3 pt-0 border-t border-dashed border-slate-200 mt-2 bg-white">
-                                                      <div className="mt-2 text-slate-800 font-bold mb-2" dangerouslySetInnerHTML={{__html: renderMathInHtml(q.question)}} />
-                                                      <div className="space-y-1 mb-2">
-                                                          {q.options?.map((opt, optIdx) => {
-                                                              const isAns = optIdx === q.correctAnswer;
-                                                              const isSel = optIdx === userSelected;
-                                                              let cls = "text-slate-500";
-                                                              if (isAns) cls = "text-green-700 font-bold";
-                                                              if (isSel && !isAns) cls = "text-red-700 font-bold line-through decoration-red-500";
+                                                  <div className="px-3 pb-3 pt-4 border-t border-dashed border-slate-200 mt-2 bg-white">
+                                                      <div className="mb-4">
+                                                          <p className="text-[10px] font-black text-blue-600 mb-2 uppercase tracking-widest flex items-center gap-1">Question (प्रश्न): ❓ Question:</p>
+                                                          <div className="flex gap-3 pr-24">
+                                                              <span className={`w-8 h-8 flex-shrink-0 rounded-xl flex items-center justify-center text-sm font-black shadow-sm ${isCorrect ? 'bg-green-500 text-white' : isSkipped ? 'bg-slate-200 text-slate-600' : 'bg-red-500 text-white'}`}>
+                                                                  Q{globalIdx + 1}
+                                                              </span>
+                                                              <div className="text-sm font-bold text-slate-800 leading-relaxed pt-1" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.question) }} />
+                                                          </div>
+                                                      </div>
 
-                                                              return (
-                                                                  <div key={optIdx} className={`flex gap-2 ${cls}`}>
-                                                                      <span className="w-4 shrink-0">{String.fromCharCode(65+optIdx)}.</span>
-                                                                      <span dangerouslySetInnerHTML={{__html: renderMathInHtml(opt)}} />
-                                                                      {isAns && <CheckCircle size={12} className="ml-1 text-green-600 inline" />}
-                                                                      {isSel && !isAns && <XCircle size={12} className="ml-1 text-red-600 inline" />}
+                                                      {q.options && (
+                                                          <div className="mb-4 pl-11">
+                                                              <p className="text-[10px] font-black text-blue-600 mb-2 uppercase tracking-widest flex items-center gap-1">Options (विकल्प): Options: A), B), C), D)</p>
+                                                              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                                                  {q.options.map((opt: string, oIdx: number) => {
+                                                                      const isThisCorrect = oIdx === q.correctAnswer;
+                                                                      const isThisSelected = oIdx === userSelected;
+                                                                      let optClass = "bg-slate-50 border-slate-200 text-slate-600";
+
+                                                                      if (isThisCorrect) {
+                                                                          optClass = "bg-green-50 border-green-500 text-green-800 shadow-sm";
+                                                                      } else if (isThisSelected && !isThisCorrect) {
+                                                                          optClass = "bg-red-50 border-red-300 text-red-800";
+                                                                      }
+
+                                                                      return (
+                                                                          <div key={oIdx} className={`p-3 rounded-xl border ${optClass} flex items-start gap-3`}>
+                                                                              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${isThisCorrect ? 'bg-green-500 text-white' : isThisSelected ? 'bg-red-500 text-white' : 'bg-white border border-slate-300'}`}>
+                                                                                  {String.fromCharCode(65 + oIdx)}
+                                                                              </span>
+                                                                              <div className="text-xs font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(opt) }} />
+                                                                          </div>
+                                                                      );
+                                                                  })}
+                                                              </div>
+                                                          </div>
+                                                      )}
+
+                                                      <div className="mb-4 pl-11">
+                                                           <p className="text-[10px] font-black text-blue-600 mb-2 uppercase tracking-widest flex items-center gap-1">Correct Answer (सही उत्तर): ✅ Correct Answer:</p>
+                                                           <div className="p-3 bg-green-50 border border-green-200 rounded-xl text-xs font-bold text-green-800 shadow-sm flex items-start gap-3">
+                                                               <span className="w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-bold shrink-0">{String.fromCharCode(65 + q.correctAnswer)}</span>
+                                                               <div dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.options ? q.options[q.correctAnswer] : '') }} />
+                                                           </div>
+                                                      </div>
+
+                                                      {q.concept && (
+                                                          <div className="mb-4 ml-11 p-4 bg-emerald-50 border border-emerald-200 rounded-xl relative overflow-hidden">
+                                                              <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
+                                                              <p className="text-[10px] font-black text-emerald-700 mb-2 uppercase tracking-widest flex items-center gap-1">
+                                                                  Concept (अवधारणा): 💡 Concept:
+                                                              </p>
+                                                              <div className="text-xs text-emerald-900 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.concept) }} />
+                                                          </div>
+                                                      )}
+
+                                                      {q.explanation && (
+                                                          <div className="mb-4 ml-11 p-4 bg-blue-50 border border-blue-100 rounded-xl relative overflow-hidden">
+                                                              <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                                                              <p className="text-[10px] font-black text-blue-600 mb-2 uppercase tracking-widest flex items-center gap-1">
+                                                                  Explanation (व्याख्या): 🔎 Explanation:
+                                                              </p>
+                                                              <div className="text-xs text-slate-700 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.explanation) }} />
+                                                          </div>
+                                                      )}
+
+                                                      {q.examTip && (
+                                                          <div className="mb-4 ml-11 p-4 bg-amber-50 border border-amber-200 rounded-xl relative overflow-hidden">
+                                                              <div className="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
+                                                              <p className="text-[10px] font-black text-amber-700 mb-2 uppercase tracking-widest flex items-center gap-1">
+                                                                  Exam Tip (परीक्षा टिप): 🎯 Exam Tip:
+                                                              </p>
+                                                              <div className="text-xs text-amber-900 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.examTip) }} />
+                                                          </div>
+                                                      )}
+
+                                                      {q.commonMistake && (
+                                                          <div className="mb-4 ml-11 p-4 bg-red-50 border border-red-200 rounded-xl relative overflow-hidden">
+                                                              <div className="absolute top-0 left-0 w-1 h-full bg-red-500"></div>
+                                                              <p className="text-[10px] font-black text-red-700 mb-2 uppercase tracking-widest flex items-center gap-1">
+                                                                  Common Mistake (सामान्य गलती): ⚠ Common Mistake:
+                                                              </p>
+                                                              <div className="text-xs text-red-900 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.commonMistake) }} />
+                                                          </div>
+                                                      )}
+
+                                                      {q.mnemonic && (
+                                                          <div className="mb-4 ml-11 p-4 bg-purple-50 border border-purple-200 rounded-xl relative overflow-hidden">
+                                                              <div className="absolute top-0 left-0 w-1 h-full bg-purple-500"></div>
+                                                              <p className="text-[10px] font-black text-purple-700 mb-2 uppercase tracking-widest flex items-center gap-1">
+                                                                  Memory Trick (याद रखने का तरीका): 🧠 Memory Trick:
+                                                              </p>
+                                                              <div className="text-xs text-purple-900 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.mnemonic) }} />
+                                                          </div>
+                                                      )}
+
+                                                      {(q.topic || q.difficultyLevel) && (
+                                                          <div className="mb-4 ml-11 flex flex-wrap gap-2">
+                                                              {q.difficultyLevel && (
+                                                                  <div className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl">
+                                                                       <p className="text-[10px] font-black text-slate-500 mb-1 uppercase tracking-widest flex items-center gap-1">Difficulty Level (कठिनाई): 📊 Difficulty Level:</p>
+                                                                       <span className="text-xs font-bold text-slate-700">{q.difficultyLevel}</span>
                                                                   </div>
-                                                              );
-                                                          })}
-                                                      </div>
-                                                      <div className="p-2 bg-blue-50 rounded text-blue-800 italic text-[10px]">
-                                                          <span className="font-bold not-italic">Explanation: </span>
-                                                          <span dangerouslySetInnerHTML={{__html: renderMathInHtml(q.explanation || 'Not available')}} />
-                                                      </div>
-                                                      <div className="mt-2 text-right">
+                                                              )}
+                                                              {q.topic && (
+                                                                  <div className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl flex-1">
+                                                                       <p className="text-[10px] font-black text-slate-500 mb-1 uppercase tracking-widest flex items-center gap-1">Topic (विषय): 📖 Topic:</p>
+                                                                       <span className="text-xs font-bold text-slate-700">{q.topic}</span>
+                                                                  </div>
+                                                              )}
+                                                          </div>
+                                                      )}
+
+                                                      <div className="mt-2 text-right border-t border-slate-100 pt-3">
                                                           <SpeakButton
                                                               text={`Question ${globalIdx + 1}. ${stripHtml(q.question)}. The correct answer is option ${String.fromCharCode(65 + q.correctAnswer)}. Explanation: ${stripHtml(q.explanation || '')}`}
                                                               className="text-slate-400 hover:text-indigo-600 inline-flex"
@@ -1007,7 +1097,7 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
   const renderDetailedSolutions = () => (
       <div className="mt-8">
           <h3 className="font-black text-slate-800 text-xl mb-6 flex items-center gap-2 border-b-2 border-slate-100 pb-3">
-              <BookOpen size={24} className="text-blue-600" /> Full Solution & Analysis
+              <BookOpen size={24} className="text-blue-600" /> Explanation
           </h3>
           <div className="space-y-6">
               {questions?.map((q, idx) => {
@@ -1079,16 +1169,6 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                                </div>
                           </div>
 
-                          {q.concept && (
-                              <div className="mb-4 ml-11 p-4 bg-emerald-50 border border-emerald-200 rounded-xl relative overflow-hidden">
-                                  <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
-                                  <p className="text-[10px] font-black text-emerald-700 mb-2 uppercase tracking-widest flex items-center gap-1">
-                                      Concept (अवधारणा): 💡 Concept:
-                                  </p>
-                                  <div className="text-xs text-emerald-900 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.concept) }} />
-                              </div>
-                          )}
-
                           {q.explanation && (
                               <div className="mb-4 ml-11 p-4 bg-blue-50 border border-blue-100 rounded-xl relative overflow-hidden">
                                   <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
@@ -1096,49 +1176,6 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                                       Explanation (व्याख्या): 🔎 Explanation:
                                   </p>
                                   <div className="text-xs text-slate-700 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.explanation) }} />
-                              </div>
-                          )}
-                          {q.examTip && (
-                              <div className="mb-4 ml-11 p-4 bg-amber-50 border border-amber-200 rounded-xl relative overflow-hidden">
-                                  <div className="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
-                                  <p className="text-[10px] font-black text-amber-700 mb-2 uppercase tracking-widest flex items-center gap-1">
-                                      Exam Tip (परीक्षा टिप): 🎯 Exam Tip:
-                                  </p>
-                                  <div className="text-xs text-amber-900 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.examTip) }} />
-                              </div>
-                          )}
-                          {q.commonMistake && (
-                              <div className="mb-4 ml-11 p-4 bg-red-50 border border-red-200 rounded-xl relative overflow-hidden">
-                                  <div className="absolute top-0 left-0 w-1 h-full bg-red-500"></div>
-                                  <p className="text-[10px] font-black text-red-700 mb-2 uppercase tracking-widest flex items-center gap-1">
-                                      Common Mistake (सामान्य गलती): ⚠ Common Mistake:
-                                  </p>
-                                  <div className="text-xs text-red-900 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.commonMistake) }} />
-                              </div>
-                          )}
-                          {q.mnemonic && (
-                              <div className="mb-4 ml-11 p-4 bg-purple-50 border border-purple-200 rounded-xl relative overflow-hidden">
-                                  <div className="absolute top-0 left-0 w-1 h-full bg-purple-500"></div>
-                                  <p className="text-[10px] font-black text-purple-700 mb-2 uppercase tracking-widest flex items-center gap-1">
-                                      Memory Trick (याद रखने का तरीका): 🧠 Memory Trick:
-                                  </p>
-                                  <div className="text-xs text-purple-900 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.mnemonic) }} />
-                              </div>
-                          )}
-                          {(q.topic || q.difficultyLevel) && (
-                              <div className="mb-4 ml-11 flex flex-wrap gap-2">
-                                  {q.difficultyLevel && (
-                                      <div className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl">
-                                           <p className="text-[10px] font-black text-slate-500 mb-1 uppercase tracking-widest flex items-center gap-1">Difficulty Level (कठिनाई): 📊 Difficulty Level:</p>
-                                           <span className="text-xs font-bold text-slate-700">{q.difficultyLevel}</span>
-                                      </div>
-                                  )}
-                                  {q.topic && (
-                                      <div className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl flex-1">
-                                           <p className="text-[10px] font-black text-slate-500 mb-1 uppercase tracking-widest flex items-center gap-1">Topic (विषय): 📖 Topic:</p>
-                                           <span className="text-xs font-bold text-slate-700">{q.topic}</span>
-                                      </div>
-                                  )}
                               </div>
                           )}
                       </div>
@@ -1216,7 +1253,7 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
 
                 {/* Solutions Tab (Always Free) */}
                 <button onClick={() => setActiveTab('SOLUTION')} className={`px-4 py-2 text-xs font-bold rounded-t-lg border-b-2 transition-colors whitespace-nowrap ${activeTab === 'SOLUTION' ? 'border-indigo-600 text-indigo-600 bg-indigo-50' : 'border-transparent text-slate-500 hover:bg-slate-50'}`}>
-                    <BookOpen size={14} className="inline mr-1 mb-0.5" /> Explanations
+                    <BookOpen size={14} className="inline mr-1 mb-0.5" /> Explanation
                 </button>
 
                 {/* Analysis / OMR Tabs (Premium or Unlockable) */}
@@ -1277,7 +1314,7 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                         <div className="text-center p-6 bg-indigo-50 border border-indigo-100 rounded-xl mt-6">
                             <p className="text-indigo-800 font-bold mb-3">Want to see the detailed question-by-question breakdown?</p>
                             <button onClick={() => setActiveTab('SOLUTION')} className="px-6 py-2 bg-indigo-600 text-white rounded-lg shadow-sm hover:bg-indigo-700 transition font-bold text-sm">
-                                View Full Solutions
+                                View Explanations
                             </button>
                         </div>
                     </div>
@@ -1285,58 +1322,7 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
 
                 {activeTab === 'SOLUTION' && (
                     <div className="animate-in slide-in-from-bottom-4">
-                        {questions && questions.length > 0 ? (
-                            <div className="space-y-6">
-                                {questions.map((q, idx) => {
-                                    const omrEntry = result.omrData?.find(d => d.qIndex === idx);
-                                    const userSelected = omrEntry ? omrEntry.selected : -1;
-                                    const isCorrect = userSelected === q.correctAnswer;
-                                    const isSkipped = userSelected === -1;
-                                    return (
-                                        <div key={idx} className={`bg-white rounded-2xl border ${isCorrect ? 'border-green-200' : isSkipped ? 'border-slate-200' : 'border-red-200'} shadow-sm overflow-hidden`}>
-                                            <div className={`p-4 ${isCorrect ? 'bg-green-50' : isSkipped ? 'bg-slate-50' : 'bg-red-50'} border-b ${isCorrect ? 'border-green-100' : isSkipped ? 'border-slate-100' : 'border-red-100'} flex flex-col gap-2`}>
-                                                <p className="text-[10px] font-black text-blue-600 mb-1 uppercase tracking-widest flex items-center gap-1">Question (प्रश्न): ❓ Question:</p>
-                                                <div className="flex gap-3">
-                                                    <span className={`w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-xs font-bold mt-0.5 ${isCorrect ? 'bg-green-100 text-green-700' : isSkipped ? 'bg-slate-200 text-slate-600' : 'bg-red-100 text-red-600'}`}>{idx + 1}</span>
-                                                    <div className="flex-1"><div className="text-sm font-bold text-slate-800 leading-snug" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.question) }} /></div>
-                                                </div>
-                                            </div>
-                                            {q.options && (
-                                                <div className="p-4 space-y-2 border-b border-slate-100 bg-white">
-                                                    <p className="text-[10px] font-black text-blue-600 mb-2 uppercase tracking-widest flex items-center gap-1">Options (विकल्प): Options: A), B), C), D)</p>
-                                                    {q.options.map((opt: string, optIdx: number) => {
-                                                        const isSelected = userSelected === optIdx;
-                                                        const isAnswer = q.correctAnswer === optIdx;
-                                                        let cls = "border-slate-100 bg-slate-50 text-slate-600";
-                                                        if (isAnswer) cls = "border-green-300 bg-green-50 text-green-800 font-bold";
-                                                        else if (isSelected) cls = "border-red-300 bg-red-50 text-red-800 font-bold";
-                                                        return (
-                                                            <div key={optIdx} className={`p-3 rounded-xl border flex items-center gap-3 text-xs transition-colors ${cls}`}>
-                                                                <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-[10px] border ${isAnswer ? 'border-green-400 bg-green-100 text-green-700' : isSelected ? 'border-red-400 bg-red-100 text-red-700' : 'border-slate-200 bg-white text-slate-400'}`}>{String.fromCharCode(65 + optIdx)}</div>
-                                                                <div className="flex-1" dangerouslySetInnerHTML={{ __html: renderMathInHtml(opt) }} />
-                                                            </div>
-                                                        );
-                                                    })}
-                                                </div>
-                                            )}
-                                            <div className="p-4 bg-white border-b border-slate-100">
-                                                 <p className="text-[10px] font-black text-blue-600 mb-2 uppercase tracking-widest flex items-center gap-1">Correct Answer (सही उत्तर): ✅ Correct Answer:</p>
-                                                 <div className="p-3 bg-green-50 border border-green-200 rounded-xl text-xs font-bold text-green-800 shadow-sm flex items-start gap-3">
-                                                     <span className="w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-bold shrink-0">{String.fromCharCode(65 + q.correctAnswer)}</span>
-                                                     <div dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.options ? q.options[q.correctAnswer] : '') }} />
-                                                 </div>
-                                            </div>
-                                            {q.explanation && (
-                                                <div className="p-4 bg-blue-50">
-                                                    <p className="text-[10px] font-black text-blue-600 mb-2 uppercase tracking-widest flex items-center gap-1">Explanation (व्याख्या): 🔎 Explanation:</p>
-                                                    <div className="text-xs text-slate-700 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.explanation) }} />
-                                                </div>
-                                            )}
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        ) : <p>No questions data.</p>}
+                        {renderDetailedSolutions()}
                     </div>
                 )}
 
