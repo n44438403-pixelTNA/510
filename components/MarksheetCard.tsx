@@ -767,11 +767,16 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                                                           <ChevronDown size={14} className="text-slate-400 group-open:rotate-180 transition-transform" />
                                                       </div>
                                                   </summary>
+
                                                   <div className="px-3 pb-3 pt-0 border-t border-dashed border-slate-200 mt-2 bg-white">
                                                       {/* Question */}
                                                       <div className="mt-2 mb-4">
                                                           <div className="text-sm font-bold text-slate-800 leading-relaxed pt-1" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.question) }} />
                                                       </div>
+
+
+
+                                                  <div className="px-3 pb-3 pt-0 border-t border-dashed border-slate-200 mt-0 bg-white">
 
                                                       {/* Options */}
                                                       {q.options && (
@@ -797,6 +802,8 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                                                               </div>
                                                           </div>
                                                       )}
+
+                                                      {/* Single Insights Box */}
 
                                                       {(q.concept || q.explanation || q.examTip || q.commonMistake || q.mnemonic) && (
                                                           <div className="mt-4 p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-4">
