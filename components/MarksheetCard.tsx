@@ -747,7 +747,7 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                                                           <span className={`w-5 h-5 shrink-0 rounded-full flex items-center justify-center font-bold text-[10px] ${isCorrect ? 'bg-green-100 text-green-700' : isSkipped ? 'bg-slate-200 text-slate-600' : 'bg-red-100 text-red-600'}`}>
                                                               {globalIdx + 1}
                                                           </span>
-                                                          <div className="font-medium text-slate-700 truncate pr-2" dangerouslySetInnerHTML={{__html: stripHtml(q.question)}} />
+                                                          <div className="font-medium text-slate-700 truncate pr-2" dangerouslySetInnerHTML={{__html: renderMathInHtml(stripHtml(q.question))}} />
                                                       </div>
                                                       <div className="shrink-0">
                                                           <ChevronDown size={14} className="text-slate-400 group-open:rotate-180 transition-transform" />
