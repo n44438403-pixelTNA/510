@@ -2235,9 +2235,10 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
               let rawText = importText.trim();
               const newTopicNotes: typeof topicNotes = [];
 
-              // 1. EXTRACT EXPLICIT <NOTE: > BLOCKS
+              // 1. EXTRACT EXPLICIT <NOTE: > BLOCKS AND HTML NOTES
+              let textForMcq = '';
               const noteRegex = /<NOTE:\s*(.*?)>([\s\S]*?)<\/NOTE>/gi;
-              let textForMcq = rawText.replace(noteRegex, (match, p1, p2) => {
+              let intermediateText = rawText.replace(noteRegex, (match, p1, p2) => {
                   newTopicNotes.push({
                       id: `note-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
                       title: `Note: ${p1.trim()}`,
@@ -2247,6 +2248,56 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
                   });
                   return "";
               });
+
+              const lines = intermediateText.split('\n');
+              let lineIdx = 0;
+              let currentGlobalTopic = '';
+
+              while (lineIdx < lines.length) {
+                  const line = lines[lineIdx];
+
+                  const topicMatch = line.match(/^(?:📖\s*)?Topic\s*[:\s-]*\s*(.*)/i) || line.match(/^<TOPIC:\s*(.*?)>/i);
+                  if (topicMatch) {
+                      currentGlobalTopic = topicMatch[1].trim();
+                  }
+
+                  const isHtmlStart = /^<(h[1-6]|div|p|ul|ol|li|b|strong|i|em|u|strike)/i.test(line.trim());
+
+                  // Extract raw HTML blocks as topic notes if they appear between questions
+                  if (isHtmlStart && !line.trim().includes('Options:') && !line.trim().includes('Question:')) {
+                      let noteContent = '';
+                      let noteTitle = line.replace(/<[^>]+>/g, '').trim() || 'Imported Note';
+                      if (!noteTitle && line.trim().startsWith('<p>')) {
+                           noteTitle = 'Important Note';
+                      }
+
+                      while (lineIdx < lines.length) {
+                          const nextLine = lines[lineIdx];
+                          const isNextQuestion = /^(\*\*)?(Question|Q)\s*\d+[.:)]?.*(\*\*)?\s*$/i.test(nextLine) || /^❓\s*Question/i.test(nextLine);
+                          const isNextTopicTag = /^<TOPIC:\s*(.*?)>/i.test(nextLine);
+
+                          if (isNextQuestion || isNextTopicTag) {
+                              break;
+                          }
+                          noteContent += nextLine + '\n';
+                          lineIdx++;
+                      }
+
+                      if (noteContent.trim()) {
+                          newTopicNotes.push({
+                              id: `note-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                              title: noteTitle.length > 50 ? noteTitle.substring(0,50) + '...' : noteTitle,
+                              topic: currentGlobalTopic || noteTitle,
+                              content: noteContent.trim(),
+                              isPremium: false
+                          });
+                      }
+                      continue;
+                  }
+
+                  textForMcq += line + '\n';
+                  lineIdx++;
+              }
 
               // Try the new robust parser first for MCQs
               let newQuestions: MCQItem[] = parseMCQText(textForMcq);
