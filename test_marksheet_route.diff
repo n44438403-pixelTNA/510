@@ -1,0 +1,68 @@
+<<<<<<< SEARCH
+        <Route path="/revision" element={
+          <ProtectedRoute>
+            <RevisionHub />
+          </ProtectedRoute>
+        } />
+=======
+        <Route path="/revision" element={
+          <ProtectedRoute>
+            <RevisionHub />
+          </ProtectedRoute>
+        } />
+        <Route path="/test-marksheet" element={
+          <div className="p-4 bg-gray-100 min-h-screen">
+            <MarksheetCard
+              result={{
+                id: "1",
+                date: new Date().toISOString(),
+                subjectId: "sub1",
+                subjectName: "Science",
+                chapterId: "chap1",
+                chapterTitle: "Chemical Reactions",
+                score: 8,
+                totalQuestions: 10,
+                correctCount: 8,
+                totalTimeSeconds: 120,
+                averageTimePerQuestion: 12,
+                performanceTag: "EXCELLENT",
+                classLevel: "10",
+                omrData: [
+                  { qIndex: 0, selected: 1, correct: 1 },
+                  { qIndex: 1, selected: 0, correct: 1 }
+                ],
+                topicAnalysis: {
+                  "Reactions": { total: 2, correct: 1, percentage: 50 }
+                }
+              }}
+              questions={[
+                {
+                  id: "q1",
+                  text: "1. What happens when magnesium ribbon is burnt in air?",
+                  options: ["It melts", "It forms magnesium oxide", "It evaporates", "Nothing happens"],
+                  correctAnswer: 1,
+                  explanation: "Magnesium reacts with oxygen in the air to form magnesium oxide, which is a white powder.",
+                  concept: "Oxidation Reaction",
+                  examTip: "Always remember the flame color is dazzling white.",
+                  commonMistake: "Confusing it with combustion of carbon.",
+                  mnemonic: "MgO = Magnesium + Oxygen",
+                  topic: "Reactions"
+                },
+                {
+                  id: "q2",
+                  text: "2. Which of the following is a physical change?",
+                  options: ["Melting of ice", "Rusting of iron", "Burning of paper", "Digestion of food"],
+                  correctAnswer: 0,
+                  explanation: "Melting of ice only changes the state from solid to liquid, no new substance is formed.",
+                  concept: "Physical vs Chemical Changes",
+                  examTip: "Physical changes are usually reversible.",
+                  commonMistake: "Thinking all phase changes are chemical.",
+                  mnemonic: "Physical = Phase",
+                  topic: "Reactions"
+                }
+              ]}
+              onClose={() => {}}
+            />
+          </div>
+        } />
+>>>>>>> REPLACE
