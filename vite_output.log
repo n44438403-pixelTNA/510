@@ -95,3 +95,4 @@
 6:02:49 AM [vite] (client) hmr update /components/MarksheetCard.tsx
 6:03:20 AM [vite] (client) hmr update /components/MarksheetCard.tsx
 6:08:42 AM [vite] (client) hmr update /components/MarksheetCard.tsx
+6:18:05 AM [vite] (client) hmr update /App.tsx, /components/SubjectSelection.tsx, /components/StudentDashboard.tsx, /components/AdminDashboard.tsx, /components/StudentAiAssistant.tsx, /components/SyllabusManager.tsx, /components/admin/ChallengeCreator20.tsx, /components/RevisionHub.tsx, /components/admin/NstaFeatureManager.tsx
