@@ -6168,43 +6168,42 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                                   </div>
                               </div>
 
-                              <div className="flex justify-between items-center mb-2">
-                                  <span className="font-bold text-slate-700">Total Questions: {(activeTab === 'CONTENT_TEST' ? editingTestMcqs : editingMcqs).length}</span>
-                                  <div className="flex gap-2">
-                                      <button onClick={() => deleteAllMcqs(activeTab === 'CONTENT_TEST')} className="bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors">Delete All</button>
-                                      <button onClick={() => addMcq(activeTab === 'CONTENT_TEST')} className="bg-white border border-blue-200 text-blue-600 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-50">+ Add Question</button>
-                                  <button 
-                                      onClick={() => {
-                                          const list = activeTab === 'CONTENT_TEST' ? editingTestMcqs : editingMcqs;
-                                          if (list.length === 0) { alert("No questions to copy!"); return; }
-                                          
-                                          // Format: Question \t OptA \t OptB \t OptC \t OptD \t AnswerIndex(1-4) \t Explanation
-                                          const text = list.map(q => {
-                                              return `${q.question}\t${q.options[0]}\t${q.options[1]}\t${q.options[2]}\t${q.options[3]}\t${q.correctAnswer + 1}\t${q.explanation || ''}`;
-                                          }).join('\n');
-                                          
-                                          navigator.clipboard.writeText(text);
-                                          alert(`✅ Copied ${list.length} questions to clipboard!\n\nPaste directly into Google Sheets or Excel.`);
-                                      }}
-                                      className="bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-indigo-200 flex items-center gap-1"
-                                  >
-                                      <Copy size={14} /> Copy for Sheets
-                                  </button>
-                                  <button onClick={() => addMcq(activeTab === 'CONTENT_TEST')} className="bg-white border border-blue-200 text-blue-600 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-50">+ Add Question</button>
-                                      <label className="flex items-center gap-2 cursor-pointer bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+                              <div className="mb-4">
+                                  <h3 className="font-bold text-slate-700 text-lg mb-3">Total Questions: {(activeTab === 'CONTENT_TEST' ? editingTestMcqs : editingMcqs).length}</h3>
+                                  <div className="flex flex-wrap gap-2.5 items-center">
+                                      <button onClick={() => deleteAllMcqs(activeTab === 'CONTENT_TEST')} className="bg-red-50 text-red-600 border border-red-200 px-3.5 py-2 rounded-lg text-sm font-bold hover:bg-red-100 transition-colors">Delete All</button>
+                                      <button onClick={() => addMcq(activeTab === 'CONTENT_TEST')} className="bg-white border border-blue-200 text-blue-600 px-3.5 py-2 rounded-lg text-sm font-bold hover:bg-blue-50">+ Add Question</button>
+                                      <button
+                                          onClick={() => {
+                                              const list = activeTab === 'CONTENT_TEST' ? editingTestMcqs : editingMcqs;
+                                              if (list.length === 0) { alert("No questions to copy!"); return; }
+
+                                              // Format: Question \t OptA \t OptB \t OptC \t OptD \t AnswerIndex(1-4) \t Explanation
+                                              const text = list.map(q => {
+                                                  return `${q.question}\t${q.options[0]}\t${q.options[1]}\t${q.options[2]}\t${q.options[3]}\t${q.correctAnswer + 1}\t${q.explanation || ''}`;
+                                              }).join('\n');
+
+                                              navigator.clipboard.writeText(text);
+                                              alert(`✅ Copied ${list.length} questions to clipboard!\n\nPaste directly into Google Sheets or Excel.`);
+                                          }}
+                                          className="bg-indigo-100 text-indigo-700 border border-indigo-200 px-3.5 py-2 rounded-lg text-sm font-bold hover:bg-indigo-200 flex items-center gap-1.5"
+                                      >
+                                          <Copy size={16} /> Copy for Sheets
+                                      </button>
+                                      <label className="flex items-center gap-2 cursor-pointer bg-white px-3.5 py-2 rounded-lg border border-slate-200 shadow-sm">
                                           <input 
                                               type="checkbox" 
                                               checked={editConfig.isMcqHidden || false} 
                                               onChange={e => setEditConfig({...editConfig, isMcqHidden: e.target.checked})}
-                                              className="accent-red-600"
+                                              className="accent-red-600 w-4 h-4"
                                           />
-                                          <span className="text-xs font-bold text-slate-500">Hide</span>
+                                          <span className="text-sm font-bold text-slate-600">Hide</span>
                                       </label>
-                                      <button onClick={() => generateDirectCode('MCQ', editingChapterId!)} className="px-3 bg-yellow-400 text-black font-bold py-1.5 rounded-lg shadow hover:bg-yellow-500 flex items-center justify-center gap-2 text-xs">
-                                          <Key size={14} /> Code
+                                      <button onClick={() => generateDirectCode('MCQ', editingChapterId!)} className="px-3.5 bg-yellow-400 text-black font-bold py-2 rounded-lg shadow-sm hover:bg-yellow-500 flex items-center justify-center gap-1.5 text-sm">
+                                          <Key size={16} /> Code
                                       </button>
-                                      <button onClick={saveChapterContent} className="px-4 py-1.5 bg-cyan-600 text-white font-bold rounded-lg shadow hover:bg-cyan-700 flex items-center justify-center gap-2 text-xs hidden sm:flex">
-                                          <Save size={14} /> Save
+                                      <button onClick={saveChapterContent} className="px-4 py-2 bg-cyan-600 text-white font-bold rounded-lg shadow-sm hover:bg-cyan-700 flex items-center justify-center gap-1.5 text-sm">
+                                          <Save size={16} /> Save
                                       </button>
                                   </div>
                               </div>
