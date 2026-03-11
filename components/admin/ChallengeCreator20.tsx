@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Challenge20, ClassLevel, MCQItem, Subject } from '../../types';
 import { fetchLessonContent } from '../../services/groq';
+import { parseMCQText } from '../../utils/mcqParser';
 import { saveChallenge20, saveQuestionsToBank, fetchRandomQuestionsFromBank } from '../../services/questionBank';
 import { DEFAULT_SUBJECTS, getSubjectsList } from '../../constants';
 import { Sparkles, Trophy, Calendar, Save, RefreshCw, Plus, Layers, Trash2 } from 'lucide-react';
@@ -87,60 +88,65 @@ export const ChallengeCreator20: React.FC<Props> = ({ onBack, language }) => {
       setTimeout(() => {
           try {
               const rawText = importText.trim();
-              let newQuestions: MCQItem[] = [];
 
-              if (rawText.includes('\t')) {
-                  const rows = rawText.split('\n').filter(r => r.trim());
-                  newQuestions = rows.map((row, idx) => {
-                      let cols = row.split('\t');
-                      if (cols.length < 3 && row.includes(',')) cols = row.split(',');
-                      cols = cols.map(c => c.trim());
+              // First try parsing using our custom emoji format parser
+              let newQuestions: MCQItem[] = parseMCQText(rawText);
 
-                      if (cols.length < 6) return null;
+              // If it didn't find any, fallback to TSV or Vertical blocks
+              if (newQuestions.length === 0) {
+                  if (rawText.includes('\t')) {
+                      const rows = rawText.split('\n').filter(r => r.trim());
+                      newQuestions = rows.map((row, idx) => {
+                          let cols = row.split('\t');
+                          if (cols.length < 3 && row.includes(',')) cols = row.split(',');
+                          cols = cols.map(c => c.trim());
 
-                      let ansIdx = parseInt(cols[5]) - 1;
-                      if (isNaN(ansIdx)) {
-                          const map: any = { 'A': 0, 'B': 1, 'C': 2, 'D': 3, 'a': 0, 'b': 1, 'c': 2, 'd': 3 };
-                          if (map[cols[5]] !== undefined) ansIdx = map[cols[5]];
+                          if (cols.length < 6) return null;
+
+                          let ansIdx = parseInt(cols[5]) - 1;
+                          if (isNaN(ansIdx)) {
+                              const map: any = { 'A': 0, 'B': 1, 'C': 2, 'D': 3, 'a': 0, 'b': 1, 'c': 2, 'd': 3 };
+                              if (map[cols[5]] !== undefined) ansIdx = map[cols[5]];
+                          }
+
+                          return {
+                              question: cols[0],
+                              options: [cols[1], cols[2], cols[3], cols[4]],
+                              correctAnswer: (ansIdx >= 0 && ansIdx <= 3) ? ansIdx : 0,
+                              explanation: cols[6] || ''
+                          };
+                      }).filter(q => q !== null) as MCQItem[];
+                  }
+                  else {
+                      // Fallback Vertical Block
+                      const lines = rawText.split('\n').map(l => l.trim()).filter(l => l);
+                      let i = 0;
+                      while (i + 5 < lines.length) {
+                          const q = lines[i];
+                          const opts = [lines[i+1], lines[i+2], lines[i+3], lines[i+4]];
+                          let ansRaw = lines[i+5].replace(/^(Answer|Ans|Correct)[:\s-]*/i, '').trim();
+                          let ansIdx = parseInt(ansRaw) - 1;
+                          if (isNaN(ansIdx)) {
+                              const firstChar = ansRaw.charAt(0).toUpperCase();
+                              const map: any = { 'A': 0, 'B': 1, 'C': 2, 'D': 3 };
+                              if (map[firstChar] !== undefined) ansIdx = map[firstChar];
+                          }
+
+                          // Check for Explanation
+                          let exp = '';
+                          if (i + 6 < lines.length && !/^(Q\d+|Question|\d+[\.)])\s/.test(lines[i+6])) {
+                              exp = lines[i+6];
+                              i++; // Skip extra line
+                          }
+
+                          newQuestions.push({
+                              question: q,
+                              options: opts,
+                              correctAnswer: (ansIdx >= 0 && ansIdx <= 3) ? ansIdx : 0,
+                              explanation: exp
+                          });
+                          i += 6;
                       }
-
-                      return {
-                          question: cols[0],
-                          options: [cols[1], cols[2], cols[3], cols[4]],
-                          correctAnswer: (ansIdx >= 0 && ansIdx <= 3) ? ansIdx : 0,
-                          explanation: cols[6] || ''
-                      };
-                  }).filter(q => q !== null) as MCQItem[];
-              } 
-              else {
-                  // Fallback Vertical Block
-                  const lines = rawText.split('\n').map(l => l.trim()).filter(l => l);
-                  let i = 0;
-                  while (i + 5 < lines.length) {
-                      const q = lines[i];
-                      const opts = [lines[i+1], lines[i+2], lines[i+3], lines[i+4]];
-                      let ansRaw = lines[i+5].replace(/^(Answer|Ans|Correct)[:\s-]*/i, '').trim();
-                      let ansIdx = parseInt(ansRaw) - 1;
-                      if (isNaN(ansIdx)) {
-                          const firstChar = ansRaw.charAt(0).toUpperCase();
-                          const map: any = { 'A': 0, 'B': 1, 'C': 2, 'D': 3 };
-                          if (map[firstChar] !== undefined) ansIdx = map[firstChar];
-                      }
-                      
-                      // Check for Explanation
-                      let exp = '';
-                      if (i + 6 < lines.length && !/^(Q\d+|Question|\d+[\.)])\s/.test(lines[i+6])) {
-                          exp = lines[i+6];
-                          i++; // Skip extra line
-                      }
-
-                      newQuestions.push({
-                          question: q,
-                          options: opts,
-                          correctAnswer: (ansIdx >= 0 && ansIdx <= 3) ? ansIdx : 0,
-                          explanation: exp
-                      });
-                      i += 6;
                   }
               }
 
