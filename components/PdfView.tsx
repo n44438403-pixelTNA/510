@@ -373,16 +373,7 @@ export const PdfView: React.FC<Props> = ({
 
                         const currentTopicPoints: string[] = [];
 
-                        // 1. Fallback regex approach to grab specific blocks
-                        const regex = /(?:<b>|<strong>)?\s*(Quick Revision|Mini Revision|Recap):?\s*(?:<\/b>|<\/strong>)?\s*(.*?)(?:<hr\/?>|<\/p>|<br\/?>|$)/gi;
-                        let match;
-                        while ((match = regex.exec(entry.htmlContent)) !== null) {
-                            if (match[2] && match[2].trim().length > 0) {
-                                currentTopicPoints.push(`<b>${match[1]}:</b> ${match[2].trim()}`);
-                            }
-                        }
-
-                        // 2. DOM based extraction using TreeWalker
+                        // 1. DOM based extraction logic (handles headers + lists or direct paragraphs)
                         const walker = document.createTreeWalker(tempDiv, NodeFilter.SHOW_ELEMENT, {
                             acceptNode: (node: Element) => {
                                 const tag = node.tagName.toLowerCase();
@@ -407,38 +398,61 @@ export const PdfView: React.FC<Props> = ({
                                     continue;
                                 }
 
+                                // Extract the matched text to prefix it
+                                const match = lowerText.match(/(quick revision|mini revision|recap)/);
+                                const prefix = match ? match[1].replace(/\b\w/g, c => c.toUpperCase()) : 'Revision';
+
                                 if (/^h[1-6]$/.test(currentNode.tagName.toLowerCase())) {
+                                    // Found a header (e.g., <h3>Recap</h3>) - grab the next structural element
                                     let nextSibling = currentNode.nextElementSibling;
 
+                                    // Skip non-content tags
                                     while (nextSibling && !['p', 'ul', 'ol', 'div', 'blockquote'].includes(nextSibling.tagName.toLowerCase())) {
                                         nextSibling = nextSibling.nextElementSibling;
                                     }
 
                                     if (nextSibling) {
                                         if (['ul', 'ol'].includes(nextSibling.tagName.toLowerCase())) {
+                                            // Extract all list items
                                             const listItems = Array.from(nextSibling.querySelectorAll('li'));
                                             listItems.forEach(li => {
                                                 const cleanLiHtml = li.innerHTML.trim();
                                                 if (cleanLiHtml && !currentTopicPoints.some(qp => qp.includes(cleanLiHtml) || cleanLiHtml.includes(qp))) {
-                                                    currentTopicPoints.push(`<li>${cleanLiHtml}</li>`);
+                                                    currentTopicPoints.push(`<b>${prefix}:</b> ${cleanLiHtml}`);
                                                 }
                                             });
                                         } else {
+                                            // Extract a block of text
                                             const cleanBlockHtml = nextSibling.innerHTML.trim();
                                             if (cleanBlockHtml && !currentTopicPoints.some(qp => qp.includes(cleanBlockHtml) || cleanBlockHtml.includes(qp))) {
-                                                currentTopicPoints.push(cleanBlockHtml);
+                                                currentTopicPoints.push(`<b>${prefix}:</b> ${cleanBlockHtml}`);
                                             }
                                         }
                                     }
                                 } else {
+                                    // Found the phrase inside a paragraph/div (e.g., <p><strong>Recap:</strong> The cell is...</p>)
                                     const cleanHtml = currentNode.innerHTML.trim();
+                                    // Remove the trigger word from the text to prevent doubling up (e.g. "Recap: Recap: text")
+                                    const strippedHtml = cleanHtml.replace(/(?:<b>|<strong>)?\s*(Quick Revision|Mini Revision|Recap):?\s*(?:<\/b>|<\/strong>)?/gi, '').trim();
 
-                                    if (cleanHtml && !currentTopicPoints.some(qp => qp.includes(cleanHtml) || cleanHtml.includes(qp.replace(/<(?:b|strong)>.*?(?:<\/b>|<\/strong>)/gi, '').trim()))) {
-                                         currentTopicPoints.push(cleanHtml);
+                                    if (strippedHtml && !currentTopicPoints.some(qp => qp.includes(strippedHtml) || strippedHtml.includes(qp.replace(/<(?:b|strong)>.*?(?:<\/b>|<\/strong>)/gi, '').trim()))) {
+                                         currentTopicPoints.push(`<b>${prefix}:</b> ${strippedHtml}`);
                                     }
                                 }
                             }
                             currentNode = walker.nextNode() as Element | null;
+                        }
+
+                        // 2. Fallback regex approach (catches inline stuff the walker might miss)
+                        const regex = /(?:<b>|<strong>)?\s*(Quick Revision|Mini Revision|Recap):?\s*(?:<\/b>|<\/strong>)?\s*([\s\S]*?)(?:<br\/?>|<\/p>|<hr\/?>|$)/gi;
+                        let matchRegex;
+                        while ((matchRegex = regex.exec(entry.htmlContent)) !== null) {
+                            if (matchRegex[2] && matchRegex[2].trim().length > 0) {
+                                const cleanMatch = matchRegex[2].trim();
+                                if (!currentTopicPoints.some(qp => qp.includes(cleanMatch) || cleanMatch.includes(qp.replace(/<(?:b|strong)>.*?(?:<\/b>|<\/strong>)/gi, '').trim()))) {
+                                    currentTopicPoints.push(`<b>${matchRegex[1]}:</b> ${cleanMatch}`);
+                                }
+                            }
                         }
 
                         if (currentTopicPoints.length > 0) {
