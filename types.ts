@@ -797,6 +797,9 @@ export interface MCQItem {
   mnemonic?: string; // Memory Trick
   concept?: string; // Full concept explanation
   topic?: string; // NEW
+  examTip?: string; // Exam Tip
+  commonMistake?: string; // Common Mistake
+  difficulty?: 'EASY' | 'MEDIUM' | 'HARD'; // Difficulty Level
 }
 
 // NEW: Performance Analytics
