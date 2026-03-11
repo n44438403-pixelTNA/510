@@ -585,9 +585,11 @@ const App: React.FC = () => {
                  const currentStr = JSON.stringify(state.user);
                  const cloudStr = JSON.stringify(cloudUser);
                  if (currentStr !== cloudStr) {
+                     // MERGE user_data to make sure mcqHistory and other bulky data are completely loaded.
+                     const mergedUser = { ...state.user, ...cloudUser };
                      // console.log("Syncing User Profile from Cloud...");
-                     localStorage.setItem('nst_current_user', cloudStr);
-                     setState(prev => ({...prev, user: cloudUser}));
+                     localStorage.setItem('nst_current_user', JSON.stringify(mergedUser));
+                     setState(prev => ({...prev, user: mergedUser}));
                  }
              }
           });

@@ -353,7 +353,11 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
 
                 if (appUser.isArchived) { setError('Account Deleted.'); return; }
 
-                // SUCCESS: Log them in instantly
+                // SUCCESS: Fetch fresh bulky data before logging them in instantly
+                let freshUser = await getUserData(appUser.id);
+                if (freshUser) {
+                     appUser = { ...appUser, ...freshUser };
+                }
                 logActivity("LOGIN", "Student Logged In (Custom DB Auth)", appUser);
                 onLogin(appUser);
 
