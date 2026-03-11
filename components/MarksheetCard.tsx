@@ -1092,6 +1092,38 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                                   <div className="text-xs text-red-900 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.commonMistake) }} />
                               </div>
                           )}
+                          {q.concept && (
+                              <div className="mt-4 ml-11 p-4 bg-emerald-50 border border-emerald-200 rounded-xl relative overflow-hidden">
+                                  <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
+                                  <p className="text-[10px] font-black text-emerald-700 mb-2 uppercase tracking-widest flex items-center gap-1">
+                                      <Lightbulb size={12} /> Concept
+                                  </p>
+                                  <div className="text-xs text-emerald-900 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.concept) }} />
+                              </div>
+                          )}
+                          {q.mnemonic && (
+                              <div className="mt-4 ml-11 p-4 bg-purple-50 border border-purple-200 rounded-xl relative overflow-hidden">
+                                  <div className="absolute top-0 left-0 w-1 h-full bg-purple-500"></div>
+                                  <p className="text-[10px] font-black text-purple-700 mb-2 uppercase tracking-widest flex items-center gap-1">
+                                      <BrainCircuit size={12} /> Memory Trick
+                                  </p>
+                                  <div className="text-xs text-purple-900 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.mnemonic) }} />
+                              </div>
+                          )}
+                          {(q.topic || q.difficultyLevel) && (
+                              <div className="mt-4 ml-11 flex flex-wrap gap-2">
+                                  {q.topic && (
+                                      <span className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-[10px] font-bold border border-slate-200 flex items-center gap-1">
+                                          <BookOpen size={10} /> {q.topic}
+                                      </span>
+                                  )}
+                                  {q.difficultyLevel && (
+                                      <span className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-[10px] font-bold border border-slate-200 flex items-center gap-1">
+                                          <BarChart size={10} /> {q.difficultyLevel}
+                                      </span>
+                                  )}
+                              </div>
+                          )}
                       </div>
                   );
               })}
@@ -1278,9 +1310,36 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                                             )}
                                             {q.commonMistake && (
                                                 <div className="p-4 bg-red-50 border-t border-red-200">
+                                                     <p className="text-[10px] font-black text-red-700 mb-2 flex items-center gap-1"><AlertTriangle size={12}/> Common Mistake</p>
                                                     <div className="text-xs text-red-900 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.commonMistake) }} />
                                                 </div>
                                             )}
+                                             {q.concept && (
+                                                 <div className="p-4 bg-emerald-50 border-t border-emerald-200">
+                                                     <p className="text-[10px] font-black text-emerald-700 mb-2 flex items-center gap-1"><Lightbulb size={12}/> Concept</p>
+                                                     <div className="text-xs text-emerald-900 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.concept) }} />
+                                                 </div>
+                                             )}
+                                             {q.mnemonic && (
+                                                 <div className="p-4 bg-purple-50 border-t border-purple-200">
+                                                     <p className="text-[10px] font-black text-purple-700 mb-2 flex items-center gap-1"><BrainCircuit size={12}/> Memory Trick</p>
+                                                     <div className="text-xs text-purple-900 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.mnemonic) }} />
+                                                 </div>
+                                             )}
+                                             {(q.topic || q.difficultyLevel) && (
+                                                 <div className="p-4 bg-slate-50 border-t border-slate-100 flex flex-wrap gap-2">
+                                                     {q.topic && (
+                                                         <span className="px-3 py-1 bg-white text-slate-600 rounded-full text-[10px] font-bold border border-slate-200 flex items-center gap-1">
+                                                             <BookOpen size={10} /> {q.topic}
+                                                         </span>
+                                                     )}
+                                                     {q.difficultyLevel && (
+                                                         <span className="px-3 py-1 bg-white text-slate-600 rounded-full text-[10px] font-bold border border-slate-200 flex items-center gap-1">
+                                                             <BarChart size={10} /> {q.difficultyLevel}
+                                                         </span>
+                                                     )}
+                                                 </div>
+                                             )}
                                         </div>
                                     );
                                 })}
