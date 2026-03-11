@@ -2084,9 +2084,87 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
           try {
               const rawText = importText.trim();
               let newQuestions: MCQItem[] = [];
+              let newTopicNotes: DeepDiveEntry[] = []; // To capture HTML notes
 
-              // MODE A: Tab-Separated (Excel/Sheets/Copy-Paste) - PREFERRED
-              if (rawText.includes('\t')) {
+              // MODE A: Advanced Structured Format (BSEB format with Concept, Memory Trick etc)
+              if (rawText.includes('**Question 1**') || rawText.includes('❓ **Question:**')) {
+                  const blocks = rawText.split(/\n\n(?=\*\*Question|\<h3\>|❓\s*\*\*Question)/g);
+
+                  blocks.forEach(block => {
+                      const text = block.trim();
+                      if (!text) return;
+
+                      // Extract Notes if it starts with HTML header
+                      if (/^<(h[1-6]|div)/i.test(text)) {
+                          const noteTitle = text.match(/<h[1-6]>(.*?)<\/h[1-6]>/)?.[1] || 'Imported Note';
+                          newTopicNotes.push({
+                              id: `note-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                              title: noteTitle.replace(/<[^>]+>/g, '').trim(),
+                              topic: 'Reading Material',
+                              content: text,
+                              isPremium: false
+                          });
+                          return;
+                      }
+
+                      // Parse MCQ Block
+                      let q: MCQItem = { question: '', options: [], correctAnswer: 0, explanation: '' };
+                      const lines = text.split('\n').map(l => l.trim());
+
+                      let mode = '';
+                      for (let line of lines) {
+                          if (/^\*\*Question\s*\d+\*\*/i.test(line)) continue;
+                          if (line.startsWith('📖 Topic:')) { q.topic = line.replace('📖 Topic:', '').trim(); continue; }
+                          if (line.startsWith('🔥')) continue;
+
+                          if (line.startsWith('❓ **Question:**')) { mode = 'q'; q.question = line.replace('❓ **Question:**', '').trim(); continue; }
+                          if (line.startsWith('Options:')) { mode = 'opt'; continue; }
+                          if (line.startsWith('✅ **Correct Answer:**')) { mode = 'ans'; continue; }
+                          if (line.startsWith('💡 **Concept:**')) { mode = 'concept'; q.concept = line.replace('💡 **Concept:**', '').trim(); continue; }
+                          if (line.startsWith('🔎 **Explanation:**')) { mode = 'exp'; q.explanation = line.replace('🔎 **Explanation:**', '').trim(); continue; }
+                          if (line.startsWith('🎯 **Exam Tip:**')) { q.examTip = line.replace('🎯 **Exam Tip:**', '').trim(); mode = ''; continue; }
+                          if (line.startsWith('⚠ **Common Mistake:**')) { q.commonMistake = line.replace('⚠ **Common Mistake:**', '').trim(); mode = ''; continue; }
+                          if (line.startsWith('🧠 **Memory Trick:**')) { q.mnemonic = line.replace('🧠 **Memory Trick:**', '').trim(); mode = ''; continue; }
+                          if (line.startsWith('📊 **Difficulty Level:**')) {
+                              const diff = line.toLowerCase();
+                              if (diff.includes('easy')) q.difficultyLevel = 'EASY';
+                              else if (diff.includes('hard')) q.difficultyLevel = 'HARD';
+                              else q.difficultyLevel = 'MEDIUM';
+                              mode = ''; continue;
+                          }
+
+                          // Multi-line builder
+                          if (mode === 'q') q.question += (q.question ? '\n' : '') + line;
+                          if (mode === 'opt' && /^[A-D]\)/i.test(line)) {
+                              q.options.push(line.replace(/^[A-D]\)\s*/i, '').trim());
+                          }
+                          if (mode === 'ans' && /^[A-D]\)/i.test(line)) {
+                              const ansStr = line.replace(/^[A-D]\)\s*/i, '').trim();
+                              // Try to find the matching option or fall back to character index
+                              const idx = q.options.findIndex(o => o === ansStr);
+                              if (idx !== -1) {
+                                  q.correctAnswer = idx;
+                              } else {
+                                  q.correctAnswer = ['A', 'B', 'C', 'D'].indexOf(line.charAt(0).toUpperCase());
+                              }
+                          } else if (mode === 'ans' && /^[A-D]\s*$/.test(line)) {
+                              q.correctAnswer = ['A', 'B', 'C', 'D'].indexOf(line.charAt(0).toUpperCase());
+                          }
+
+                          if (mode === 'concept') q.concept += (q.concept ? '\n' : '') + line;
+                          if (mode === 'exp') q.explanation += (q.explanation ? '\n' : '') + line;
+                      }
+
+                      // Default to index 0 if parsing failed
+                      if (q.correctAnswer === -1) q.correctAnswer = 0;
+
+                      if (q.question && q.options.length >= 2) {
+                          newQuestions.push(q);
+                      }
+                  });
+              }
+              // MODE B: Tab-Separated (Excel/Sheets/Copy-Paste)
+              else if (rawText.includes('\t')) {
                   const rows = rawText.split('\n').filter(r => r.trim());
                   newQuestions = rows.map((row, idx) => {
                       let cols = row.split('\t');
@@ -2246,8 +2324,85 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
               let newQuestions: MCQItem[] = [];
 
               if (textForMcq.trim().length > 0) {
-                  // MODE A: Tab-Separated
-                  if (textForMcq.includes('\t')) {
+                  // MODE A: Advanced Structured Format (BSEB format with Concept, Memory Trick etc)
+                  if (textForMcq.includes('**Question 1**') || textForMcq.includes('❓ **Question:**')) {
+                      const blocks = textForMcq.split(/\n\n(?=\*\*Question|\<h3\>|❓\s*\*\*Question)/g);
+
+                      blocks.forEach(block => {
+                          const text = block.trim();
+                          if (!text) return;
+
+                          // Extract Notes if it starts with HTML header
+                          if (/^<(h[1-6]|div)/i.test(text)) {
+                              const noteTitle = text.match(/<h[1-6]>(.*?)<\/h[1-6]>/)?.[1] || 'Imported Note';
+                              newTopicNotes.push({
+                                  id: `note-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                                  title: noteTitle.replace(/<[^>]+>/g, '').trim(),
+                                  topic: 'Reading Material',
+                                  content: text,
+                                  isPremium: false
+                              });
+                              return;
+                          }
+
+                          // Parse MCQ Block
+                          let q: MCQItem = { question: '', options: [], correctAnswer: 0, explanation: '' };
+                          const lines = text.split('\n').map(l => l.trim());
+
+                          let mode = '';
+                          for (let line of lines) {
+                              if (/^\*\*Question\s*\d+\*\*/i.test(line)) continue;
+                              if (line.startsWith('📖 Topic:')) { q.topic = line.replace('📖 Topic:', '').trim(); continue; }
+                              if (line.startsWith('🔥')) continue;
+
+                              if (line.startsWith('❓ **Question:**')) { mode = 'q'; q.question = line.replace('❓ **Question:**', '').trim(); continue; }
+                              if (line.startsWith('Options:')) { mode = 'opt'; continue; }
+                              if (line.startsWith('✅ **Correct Answer:**')) { mode = 'ans'; continue; }
+                              if (line.startsWith('💡 **Concept:**')) { mode = 'concept'; q.concept = line.replace('💡 **Concept:**', '').trim(); continue; }
+                              if (line.startsWith('🔎 **Explanation:**')) { mode = 'exp'; q.explanation = line.replace('🔎 **Explanation:**', '').trim(); continue; }
+                              if (line.startsWith('🎯 **Exam Tip:**')) { q.examTip = line.replace('🎯 **Exam Tip:**', '').trim(); mode = ''; continue; }
+                              if (line.startsWith('⚠ **Common Mistake:**')) { q.commonMistake = line.replace('⚠ **Common Mistake:**', '').trim(); mode = ''; continue; }
+                              if (line.startsWith('🧠 **Memory Trick:**')) { q.mnemonic = line.replace('🧠 **Memory Trick:**', '').trim(); mode = ''; continue; }
+                              if (line.startsWith('📊 **Difficulty Level:**')) {
+                                  const diff = line.toLowerCase();
+                                  if (diff.includes('easy')) q.difficultyLevel = 'EASY';
+                                  else if (diff.includes('hard')) q.difficultyLevel = 'HARD';
+                                  else q.difficultyLevel = 'MEDIUM';
+                                  mode = ''; continue;
+                              }
+
+                              // Multi-line builder
+                              if (mode === 'q') q.question += (q.question ? '\n' : '') + line;
+                              if (mode === 'opt' && /^[A-D]\)/i.test(line)) {
+                                  q.options.push(line.replace(/^[A-D]\)\s*/i, '').trim());
+                              }
+                              if (mode === 'ans' && /^[A-D]\)/i.test(line)) {
+                                  const ansStr = line.replace(/^[A-D]\)\s*/i, '').trim();
+                                  // Try to find the matching option or fall back to character index
+                                  const idx = q.options.findIndex(o => o === ansStr);
+                                  if (idx !== -1) {
+                                      q.correctAnswer = idx;
+                                  } else {
+                                      q.correctAnswer = ['A', 'B', 'C', 'D'].indexOf(line.charAt(0).toUpperCase());
+                                  }
+                              } else if (mode === 'ans' && /^[A-D]\s*$/.test(line)) {
+                                  q.correctAnswer = ['A', 'B', 'C', 'D'].indexOf(line.charAt(0).toUpperCase());
+                              }
+
+                              if (mode === 'concept') q.concept += (q.concept ? '\n' : '') + line;
+                              if (mode === 'exp') q.explanation += (q.explanation ? '\n' : '') + line;
+                          }
+
+                          // Default to index 0 if parsing failed
+                          if (q.correctAnswer === -1) q.correctAnswer = 0;
+
+                          if (q.question && q.options.length >= 2) {
+                              newQuestions.push(q);
+                          }
+                      });
+                  }
+                  // MODE B: Tab-Separated
+                  else if (textForMcq.includes('\t')) {
                       const rows = textForMcq.split('\n').filter(r => r.trim());
                       newQuestions = rows.map((row, idx) => {
                           let cols = row.split('\t');

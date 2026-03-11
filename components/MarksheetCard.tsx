@@ -753,7 +753,7 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                                                   <div className="px-3 pb-3 pt-0 border-t border-dashed border-slate-200 mt-2 bg-white">
                                                       {/* Question */}
                                                       <div className="mt-2 mb-4">
-                                                          <p className="text-[10px] font-black text-blue-600 mb-2 uppercase tracking-widest flex items-center gap-1">Question (प्रश्न): ❓ Question:</p>
+                                                          <p className="text-[10px] font-black text-blue-600 mb-2 uppercase tracking-widest flex items-center gap-1">Question (प्रश्न):</p>
                                                           <div className="text-sm font-bold text-slate-800 leading-relaxed pt-1" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.question) }} />
                                                       </div>
 
@@ -1105,7 +1105,7 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                           </div>
 
                           <div className="mb-4">
-                              <p className="text-[10px] font-black text-blue-600 mb-2 uppercase tracking-widest flex items-center gap-1">Question (प्रश्न): ❓ Question:</p>
+                              <p className="text-[10px] font-black text-blue-600 mb-2 uppercase tracking-widest flex items-center gap-1">Question (प्रश्न):</p>
                               <div className="flex gap-3 pr-24">
                                   <div className="text-sm font-bold text-slate-800 leading-relaxed pt-1" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.question) }} />
                               </div>
@@ -1363,7 +1363,7 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                                     return (
                                         <div key={idx} className={`bg-white rounded-2xl border ${isCorrect ? 'border-green-200' : isSkipped ? 'border-slate-200' : 'border-red-200'} shadow-sm overflow-hidden`}>
                                             <div className={`p-4 ${isCorrect ? 'bg-green-50' : isSkipped ? 'bg-slate-50' : 'bg-red-50'} border-b ${isCorrect ? 'border-green-100' : isSkipped ? 'border-slate-100' : 'border-red-100'} flex flex-col gap-2`}>
-                                                <p className="text-[10px] font-black text-blue-600 mb-1 uppercase tracking-widest flex items-center gap-1">Question (प्रश्न): ❓ Question:</p>
+                                                <p className="text-[10px] font-black text-blue-600 mb-1 uppercase tracking-widest flex items-center gap-1">Question (प्रश्न):</p>
                                                 <div className="flex gap-3">
                                                     <div className="flex-1"><div className="text-sm font-bold text-slate-800 leading-snug" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.question) }} /></div>
                                                 </div>
