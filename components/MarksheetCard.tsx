@@ -1074,6 +1074,24 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                                   <div className="text-xs text-slate-700 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.explanation) }} />
                               </div>
                           )}
+                          {q.examTip && (
+                              <div className="mt-4 ml-11 p-4 bg-amber-50 border border-amber-200 rounded-xl relative overflow-hidden">
+                                  <div className="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
+                                  <p className="text-[10px] font-black text-amber-700 mb-2 uppercase tracking-widest flex items-center gap-1">
+                                      <Lightbulb size={12} /> Exam Tip
+                                  </p>
+                                  <div className="text-xs text-amber-900 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.examTip) }} />
+                              </div>
+                          )}
+                          {q.commonMistake && (
+                              <div className="mt-4 ml-11 p-4 bg-red-50 border border-red-200 rounded-xl relative overflow-hidden">
+                                  <div className="absolute top-0 left-0 w-1 h-full bg-red-500"></div>
+                                  <p className="text-[10px] font-black text-red-700 mb-2 uppercase tracking-widest flex items-center gap-1">
+                                      <AlertTriangle size={12} /> Common Mistake
+                                  </p>
+                                  <div className="text-xs text-red-900 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.commonMistake) }} />
+                              </div>
+                          )}
                       </div>
                   );
               })}
@@ -1251,6 +1269,16 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                                             {q.explanation && (
                                                 <div className="p-4 bg-blue-50 border-t border-blue-100">
                                                     <div className="text-xs text-slate-700 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.explanation) }} />
+                                                </div>
+                                            )}
+                                            {q.examTip && (
+                                                <div className="p-4 bg-amber-50 border-t border-amber-200">
+                                                    <div className="text-xs text-amber-900 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.examTip) }} />
+                                                </div>
+                                            )}
+                                            {q.commonMistake && (
+                                                <div className="p-4 bg-red-50 border-t border-red-200">
+                                                    <div className="text-xs text-red-900 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.commonMistake) }} />
                                                 </div>
                                             )}
                                         </div>

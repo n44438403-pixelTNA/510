@@ -610,14 +610,19 @@ export const fetchLessonContent = async (
           
           STRICT FORMAT RULE:
           Return ONLY a valid JSON array. No markdown blocks, no extra text.
+          The output must use exactly these JSON keys to map to the user's requested format:
           [
             {
-              "question": "Question text",
-              "options": ["A", "B", "C", "D"],
-              "correctAnswer": 0, // Index 0-3
-              "explanation": "Logical explanation here",
-              "mnemonic": "Short memory trick",
-              "concept": "Core concept"
+              "question": "Question text (Question (प्रश्न): ❓)",
+              "options": ["A", "B", "C", "D"] (Options (विकल्प): A), B), C), D)),
+              "correctAnswer": 0, // Index 0-3 (Correct Answer (सही उत्तर): ✅)
+              "explanation": "Logical explanation here (Explanation (व्याख्या): 🔎)",
+              "mnemonic": "Short memory trick (Memory Trick (याद रखने का तरीका): 🧠)",
+              "concept": "Core concept (Concept (अवधारणा): 💡)",
+              "examTip": "Useful tip for exams (Exam Tip (परीक्षा टिप): 🎯)",
+              "commonMistake": "A common mistake students make (Common Mistake (सामान्य गलती): ⚠)",
+              "difficulty": "EASY, MEDIUM, or HARD (Difficulty Level (कठिनाई): 📊)",
+              "topic": "Topic Name (Topic (विषय): 📖)"
             }
           ]
           
