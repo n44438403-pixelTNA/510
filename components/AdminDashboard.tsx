@@ -5,6 +5,7 @@ import { List, LayoutDashboard, Users, Search, Trash2, Save, X, Eye, EyeOff, Shi
 import { getSubjectsList, DEFAULT_SUBJECTS, DEFAULT_APP_FEATURES, ALL_APP_FEATURES, STUDENT_APP_FEATURES, DEFAULT_CONTENT_INFO_CONFIG, ADMIN_PERMISSIONS, APP_VERSION, STATIC_SYLLABUS, LEVEL_UNLOCKABLE_FEATURES } from '../constants';
 import { fetchChapters, fetchLessonContent } from '../services/groq';
 import { runAutoPilot, runCommandMode } from '../services/autoPilot';
+import { parseMCQText } from '../utils/mcqParser';
 import { saveChapterData, bulkSaveLinks, checkFirebaseConnection, saveSystemSettings, subscribeToUsers, rtdb, saveUserToLive, db, getChapterData, saveCustomSyllabus, deleteCustomSyllabus, subscribeToUniversalAnalysis, saveAiInteraction, saveSecureKeys, getSecureKeys, subscribeToApiUsage, subscribeToDrafts, resetAllContent, subscribeToDemands } from '../firebase'; // IMPORT FIREBASE
 import { ref, set, onValue, update, push, get } from "firebase/database";
 import { doc, deleteDoc } from "firebase/firestore";
@@ -2083,10 +2084,13 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
       setTimeout(() => {
           try {
               const rawText = importText.trim();
-              let newQuestions: MCQItem[] = [];
 
-              // MODE A: Tab-Separated (Excel/Sheets/Copy-Paste) - PREFERRED
-              if (rawText.includes('\t')) {
+              let newQuestions: MCQItem[] = parseMCQText(rawText);
+
+              // If it didn't find any questions using the new robust parser, fallback to old TSV/Vertical logic
+              if (newQuestions.length === 0) {
+                  // MODE A: Tab-Separated (Excel/Sheets/Copy-Paste) - PREFERRED
+                  if (rawText.includes('\t')) {
                   const rows = rawText.split('\n').filter(r => r.trim());
                   newQuestions = rows.map((row, idx) => {
                       let cols = row.split('\t');
@@ -2124,11 +2128,11 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
                           topic: topic
                       };
                   }).filter(q => q !== null) as MCQItem[];
-              } 
-              // MODE B: Vertical Block Format (Flexible for Long Explanation)
-              else {
-                  const lines = rawText.split('\n').map(l => l.trim()).filter(l => l);
-                  let i = 0;
+                  }
+                  // MODE B: Vertical Block Format (Flexible for Long Explanation)
+                  else {
+                      const lines = rawText.split('\n').map(l => l.trim()).filter(l => l);
+                      let i = 0;
                   
                   while (i < lines.length) {
                       const line = lines[i];
@@ -2193,6 +2197,7 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
                           i++;
                       }
                   }
+                  }
               }
 
               if (newQuestions.length === 0) {
@@ -2243,9 +2248,11 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
                   return "";
               });
 
-              let newQuestions: MCQItem[] = [];
+              // Try the new robust parser first for MCQs
+              let newQuestions: MCQItem[] = parseMCQText(textForMcq);
 
-              if (textForMcq.trim().length > 0) {
+              // If it didn't find any questions using the new robust parser, fallback to old TSV/Vertical logic
+              if (newQuestions.length === 0 && textForMcq.trim().length > 0) {
                   // MODE A: Tab-Separated
                   if (textForMcq.includes('\t')) {
                       const rows = textForMcq.split('\n').filter(r => r.trim());
