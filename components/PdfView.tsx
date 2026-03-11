@@ -749,10 +749,10 @@ export const PdfView: React.FC<Props> = ({
                       </>
                   ) : (
                       // TEXT ONLY VIEW (Dark Mode Reader)
-                      <div className="flex-1 overflow-y-auto p-6 bg-slate-900 text-slate-300">
-                          <div className="max-w-4xl mx-auto pt-16">
+                      <div className="flex-1 overflow-y-auto px-4 md:px-6 py-6 bg-slate-900 text-slate-300">
+                          <div className="w-full max-w-4xl mx-auto pt-16">
                               <h2 className="text-2xl font-black text-white mb-6">{activeNoteContent.title}</h2>
-                              <div className="prose prose-invert prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: activeNoteContent.content }} />
+                              <div className="prose prose-invert prose-lg max-w-none px-2" dangerouslySetInnerHTML={{ __html: activeNoteContent.content }} />
                           </div>
                       </div>
                   )}
@@ -892,7 +892,7 @@ export const PdfView: React.FC<Props> = ({
 
            {/* 2. DEEP DIVE (HTML + SCROLL) */}
            {activeTab === 'DEEP_DIVE' && (
-               <div className="p-4 space-y-6 max-w-2xl mx-auto">
+               <div className="p-0 sm:p-4 space-y-6 w-full max-w-3xl mx-auto">
                    {(() => {
                         const access = getTabAccess('DEEP_DIVE');
 
@@ -957,7 +957,7 @@ export const PdfView: React.FC<Props> = ({
                                       <div
                                           id={`topic-card-${idx}`}
                                           key={idx}
-                                          className={`bg-white rounded-2xl p-6 shadow-sm border-2 transition-all ${isActive ? 'border-teal-400 ring-2 ring-teal-100 scale-[1.01]' : 'border-transparent'}`}
+                                          className={`bg-white rounded-none sm:rounded-2xl p-4 sm:p-6 shadow-sm border-2 transition-all w-full ${isActive ? 'border-teal-400 ring-2 ring-teal-100 scale-[1.01] sm:scale-100' : 'border-transparent'}`}
                                       >
                                           <div className="flex justify-between items-start mb-4 border-b border-slate-100 pb-2">
                                               <div>
@@ -1197,7 +1197,7 @@ export const PdfView: React.FC<Props> = ({
 
            {/* 4. RESOURCES (ADDITIONAL NOTES) */}
            {activeTab === 'RESOURCES' && (
-               <div className="p-4 space-y-4">
+               <div className="p-0 sm:p-4 space-y-4 w-full max-w-3xl mx-auto">
                    {(() => {
                         const access = getTabAccess('RESOURCES');
 
@@ -1242,7 +1242,7 @@ export const PdfView: React.FC<Props> = ({
                                    if (!freeLink && (!freeHtml || freeHtml.length < 10)) return null;
 
                                    return (
-                                       <button onClick={() => handlePdfClick('FREE')} className="w-full p-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center gap-3 transition-all">
+                                       <button onClick={() => handlePdfClick('FREE')} className="w-full p-4 rounded-none sm:rounded-xl border-y sm:border border-slate-200 bg-white hover:bg-slate-50 flex items-center gap-3 transition-all">
                                            <div className="w-10 h-10 rounded-full bg-green-50 text-green-600 flex items-center justify-center"><FileText size={20} /></div>
                                            <div className="flex-1 text-left"><h4 className="font-bold text-slate-700 text-sm">Standard Notes</h4><p className="text-[10px] text-slate-400">Basic Reading Material</p></div>
                                        </button>
@@ -1280,7 +1280,7 @@ export const PdfView: React.FC<Props> = ({
                                                    });
                                                }
                                            }}
-                                           className="w-full p-4 rounded-xl border border-cyan-100 bg-white hover:bg-cyan-50 flex items-center gap-3 transition-all"
+                                           className="w-full p-4 rounded-none sm:rounded-xl border-y sm:border border-cyan-100 bg-white hover:bg-cyan-50 flex items-center gap-3 transition-all"
                                        >
                                            <div className="w-10 h-10 rounded-full bg-cyan-50 text-cyan-600 flex items-center justify-center"><Book size={20} /></div>
                                            <div className="flex-1 text-left">

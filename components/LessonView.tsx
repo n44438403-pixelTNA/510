@@ -278,10 +278,10 @@ export const LessonView: React.FC<Props> = ({
                           <button onClick={onBack} className="p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors"><X size={20} /></button>
                       </div>
                   </header>
-                  <div className="flex-1 overflow-y-auto w-full pt-16 pb-20 px-4 md:px-8 bg-slate-50">
+                  <div className="flex-1 overflow-y-auto w-full pt-16 pb-20 px-0 md:px-8 bg-slate-50">
                       <div 
                           ref={contentRef}
-                          className="prose prose-slate max-w-none w-full prose-p:leading-relaxed prose-p:text-slate-700 prose-headings:font-black font-sans"
+                          className="prose prose-slate max-w-none w-full px-2 prose-p:leading-relaxed prose-p:text-slate-700 prose-headings:font-black font-sans"
                           dangerouslySetInnerHTML={{ __html: decodedContent }}
                       />
                       {isStreaming && (
