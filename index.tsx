@@ -5,6 +5,17 @@ import './index.css';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { registerSW } from 'virtual:pwa-register';
 
+const updateSW = registerSW({
+  onNeedRefresh() {
+    if (confirm('New content available. Reload?')) {
+      updateSW(true);
+    }
+  },
+  onOfflineReady() {
+    console.log('App ready to work offline');
+  },
+});
+
 const rootElement = document.getElementById('root');
 if (!rootElement) {
   throw new Error("Could not find root element to mount to");
@@ -18,26 +29,3 @@ root.render(
     </ErrorBoundary>
   </React.StrictMode>
 );
-
-
-import { registerSW } from 'virtual:pwa-register';
-
-const updateSW = registerSW({
-  onNeedRefresh() {
-    if (confirm('New content available. Reload?')) {
-      updateSW(true);
-    }
-  },
-  onOfflineReady() {
-    console.log('App ready to work offline');
-
-// Register PWA service worker automatically handles updates
-const updateSW = registerSW({
-  onNeedRefresh() {
-    console.log("New content available, click on reload button to update.");
-  },
-  onOfflineReady() {
-    console.log("App ready to work offline");
-
-  },
-});
