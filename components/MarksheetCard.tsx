@@ -752,24 +752,10 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                                                       </div>
                                                       <div className="shrink-0">
                                                           <ChevronDown size={14} className="text-slate-400 group-open:rotate-180 transition-transform" />
-
-                                                          <div className="flex-1 font-bold text-slate-800 leading-relaxed pt-1" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.question) }} />
-                                                          <div className="shrink-0 mt-1">
-                                                              <ChevronDown size={14} className="text-slate-400 group-open:rotate-180 transition-transform" />
-                                                          </div>
-
                                                       </div>
                                                   </summary>
 
                                                   <div className="px-3 pb-3 pt-0 border-t border-dashed border-slate-200 mt-0 bg-white">
-
-                                                  <div className="px-3 pb-3 pt-0 border-t border-dashed border-slate-200 mt-2 bg-white">
-                                                      {/* Question */}
-                                                      <div className="mt-2 mb-4">
-                                                          <div className="text-sm font-bold text-slate-800 leading-relaxed pt-1" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.question) }} />
-                                                      </div>
-
-
                                                       {/* Options */}
                                                       {q.options && (
                                                           <div className="mt-4 mb-4">
@@ -795,47 +781,7 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                                                           </div>
                                                       )}
 
-
                                                       {/* Single Insights Box */}
-                                                      {(q.concept || q.explanation || q.examTip || q.commonMistake || q.mnemonic) && (
-                                                          <div className="mb-4 rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-                                                              <div className="bg-slate-50 border-b border-slate-200 px-4 py-2 flex items-center gap-2">
-                                                                  <Lightbulb size={14} className="text-indigo-600" />
-                                                                  <p className="text-[10px] font-black text-slate-700 uppercase tracking-widest">Insights & Explanations</p>
-                                                              </div>
-                                                              <div className="p-4 space-y-4">
-                                                                  {q.explanation && (
-                                                                      <div>
-                                                                          <p className="text-[10px] font-black text-blue-600 mb-1 flex items-center gap-1">व्याख्या: 🔎</p>
-                                                                          <div className="text-xs text-slate-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.explanation) }} />
-                                                                      </div>
-                                                                  )}
-                                                                  {q.concept && (
-                                                                      <div className="pt-3 border-t border-slate-100">
-                                                                          <p className="text-[10px] font-black text-emerald-600 mb-1 flex items-center gap-1">अवधारणा: 💡</p>
-                                                                          <div className="text-xs text-slate-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.concept) }} />
-                                                                      </div>
-                                                                  )}
-                                                                  {q.examTip && (
-                                                                      <div className="pt-3 border-t border-slate-100">
-                                                                          <p className="text-[10px] font-black text-amber-600 mb-1 flex items-center gap-1">परीक्षा टिप: 🎯</p>
-                                                                          <div className="text-xs text-slate-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.examTip) }} />
-                                                                      </div>
-                                                                  )}
-                                                                  {q.commonMistake && (
-                                                                      <div className="pt-3 border-t border-slate-100">
-                                                                          <p className="text-[10px] font-black text-red-600 mb-1 flex items-center gap-1">सामान्य गलती: ⚠</p>
-                                                                          <div className="text-xs text-slate-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.commonMistake) }} />
-                                                                      </div>
-                                                                  )}
-                                                                  {q.mnemonic && (
-                                                                      <div className="pt-3 border-t border-slate-100">
-                                                                          <p className="text-[10px] font-black text-purple-600 mb-1 flex items-center gap-1">याद रखने का तरीका: 🧠</p>
-                                                                          <div className="text-xs text-slate-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.mnemonic) }} />
-                                                                      </div>
-                                                                  )}
-                                                              </div>
-
                                                       {(q.concept || q.explanation || q.examTip || q.commonMistake || q.mnemonic) && (
                                                           <div className="mt-4 p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-4">
                                                               {q.concept && (
@@ -868,7 +814,6 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                                                                       <div className="text-xs text-slate-800 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.mnemonic) }} />
                                                                   </div>
                                                               )}
-
                                                           </div>
                                                       )}
 
