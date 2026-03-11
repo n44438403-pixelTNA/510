@@ -744,9 +744,6 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                                               <details className="group">
                                                   <summary className="flex items-center justify-between p-3 cursor-pointer list-none select-none">
                                                       <div className="flex items-center gap-2 overflow-hidden">
-                                                          <span className={`w-5 h-5 shrink-0 rounded-full flex items-center justify-center font-bold text-[10px] ${isCorrect ? 'bg-green-100 text-green-700' : isSkipped ? 'bg-slate-200 text-slate-600' : 'bg-red-100 text-red-600'}`}>
-                                                              {globalIdx + 1}
-                                                          </span>
                                                           <div className="font-medium text-slate-700 truncate pr-2" dangerouslySetInnerHTML={{__html: stripHtml(q.question)}} />
                                                       </div>
                                                       <div className="shrink-0">
@@ -853,7 +850,7 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
 
                                                       <div className="mt-2 text-right">
                                                           <SpeakButton
-                                                              text={`Question ${globalIdx + 1}. ${stripHtml(q.question)}. The correct answer is option ${String.fromCharCode(65 + q.correctAnswer)}. Explanation: ${stripHtml(q.explanation || '')}`}
+                                                      text={`${stripHtml(q.question)}. The correct answer is option ${String.fromCharCode(65 + q.correctAnswer)}. Explanation: ${stripHtml(q.explanation || '')}`}
                                                               className="text-slate-400 hover:text-indigo-600 inline-flex"
                                                               iconSize={14}
                                                           />
@@ -1094,7 +1091,7 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                   const cleanQuestion = stripHtml(q.question);
                   const cleanExplanation = q.explanation ? stripHtml(q.explanation) : '';
                   const correctAnswerText = q.options ? stripHtml(q.options[q.correctAnswer]) : '';
-                  const ttsText = `Question ${idx + 1}. ${cleanQuestion}. The correct answer is option ${String.fromCharCode(65 + q.correctAnswer)}, which is ${correctAnswerText}. Explanation: ${cleanExplanation}`;
+                  const ttsText = `${cleanQuestion}. The correct answer is option ${String.fromCharCode(65 + q.correctAnswer)}, which is ${correctAnswerText}. Explanation: ${cleanExplanation}`;
 
                   return (
                       <div key={idx} className={`bg-white rounded-2xl border-2 p-5 shadow-sm break-inside-avoid relative group transition-all ${isCorrect ? 'border-green-100 hover:border-green-200' : isSkipped ? 'border-slate-200 hover:border-slate-300' : 'border-red-100 hover:border-red-200'}`}>
@@ -1110,9 +1107,6 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                           <div className="mb-4">
                               <p className="text-[10px] font-black text-blue-600 mb-2 uppercase tracking-widest flex items-center gap-1">Question (प्रश्न): ❓ Question:</p>
                               <div className="flex gap-3 pr-24">
-                                  <span className={`w-8 h-8 flex-shrink-0 rounded-xl flex items-center justify-center text-sm font-black shadow-sm ${isCorrect ? 'bg-green-500 text-white' : isSkipped ? 'bg-slate-200 text-slate-600' : 'bg-red-500 text-white'}`}>
-                                      Q{idx + 1}
-                                  </span>
                                   <div className="text-sm font-bold text-slate-800 leading-relaxed pt-1" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.question) }} />
                               </div>
                           </div>
@@ -1371,7 +1365,6 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                                             <div className={`p-4 ${isCorrect ? 'bg-green-50' : isSkipped ? 'bg-slate-50' : 'bg-red-50'} border-b ${isCorrect ? 'border-green-100' : isSkipped ? 'border-slate-100' : 'border-red-100'} flex flex-col gap-2`}>
                                                 <p className="text-[10px] font-black text-blue-600 mb-1 uppercase tracking-widest flex items-center gap-1">Question (प्रश्न): ❓ Question:</p>
                                                 <div className="flex gap-3">
-                                                    <span className={`w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-xs font-bold mt-0.5 ${isCorrect ? 'bg-green-100 text-green-700' : isSkipped ? 'bg-slate-200 text-slate-600' : 'bg-red-100 text-red-600'}`}>{idx + 1}</span>
                                                     <div className="flex-1"><div className="text-sm font-bold text-slate-800 leading-snug" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.question) }} /></div>
                                                 </div>
                                             </div>

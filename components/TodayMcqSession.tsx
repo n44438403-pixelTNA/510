@@ -429,7 +429,7 @@ export const TodayMcqSession: React.FC<Props> = ({ user, topics, onClose, onComp
                     </button>
                     <div>
                         <h3 className="font-black text-slate-800 text-sm uppercase tracking-wide max-w-[150px] truncate">{topic.name}</h3>
-                        <p className="text-xs text-slate-400 font-bold">Q {qIndex + 1} / {currentMcqData.length}</p>
+                        <p className="text-xs text-slate-400 font-bold">{qIndex + 1} / {currentMcqData.length}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">

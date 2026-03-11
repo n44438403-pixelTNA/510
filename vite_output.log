@@ -3,12 +3,12 @@
 > vite
 
 
-  VITE v6.4.1  ready in 206 ms
+  VITE v6.4.1  ready in 220 ms
 
   ➜  Local:   http://localhost:5000/
   ➜  Network: http://192.168.0.2:5000/
 [BABEL] Note: The code generator has deoptimised the styling of /app/components/AdminDashboard.tsx as it exceeds the max of 500KB.
-5:15:36 AM [vite] (client) warning: Duplicate key "BSEB-9-History" in object literal
+7:18:17 AM [vite] (client) warning: Duplicate key "BSEB-9-History" in object literal
 1879|      "संविधान में किये गए प्रमुख संशोधन"
 1880|    ],
 1881|    "BSEB-9-History": [
@@ -18,7 +18,7 @@
 
   Plugin: vite:esbuild
   File: /app/utils/full_syllabus_data.ts
-5:15:36 AM [vite] (client) warning: Duplicate key "BSEB-9-Geography" in object literal
+7:18:17 AM [vite] (client) warning: Duplicate key "BSEB-9-Geography" in object literal
 1889|      "कृषि और खेतिहर समाज"
 1890|    ],
 1891|    "BSEB-9-Geography": [
@@ -28,7 +28,7 @@
 
   Plugin: vite:esbuild
   File: /app/utils/full_syllabus_data.ts
-5:15:36 AM [vite] (client) warning: Duplicate key "BSEB-9-Political Science" in object literal
+7:18:17 AM [vite] (client) warning: Duplicate key "BSEB-9-Political Science" in object literal
 1904|      "समुदाय आधारित आपदा प्रबंधन"
 1905|    ],
 1906|    "BSEB-9-Political Science": [
@@ -38,7 +38,7 @@
 
   Plugin: vite:esbuild
   File: /app/utils/full_syllabus_data.ts
-5:15:36 AM [vite] (client) warning: Duplicate key "BSEB-9-Economics" in object literal
+7:18:17 AM [vite] (client) warning: Duplicate key "BSEB-9-Economics" in object literal
 1912|      "लोकतांत्रिक अधिकार"
 1913|    ],
 1914|    "BSEB-9-Economics": [
@@ -48,7 +48,7 @@
 
   Plugin: vite:esbuild
   File: /app/utils/full_syllabus_data.ts
-5:15:36 AM [vite] (client) warning: Duplicate key "BSEB-10-History" in object literal
+7:18:17 AM [vite] (client) warning: Duplicate key "BSEB-10-History" in object literal
 1920|      "कृषि मजदूरों की समस्याएँ"
 1921|    ],
 1922|    "BSEB-10-History": [
@@ -58,7 +58,7 @@
 
   Plugin: vite:esbuild
   File: /app/utils/full_syllabus_data.ts
-5:15:36 AM [vite] (client) warning: Duplicate key "BSEB-10-Geography" in object literal
+7:18:17 AM [vite] (client) warning: Duplicate key "BSEB-10-Geography" in object literal
 1930|      "प्रेस-संस्कृति एवं राष्ट्रवाद"
 1931|    ],
 1932|    "BSEB-10-Geography": [
@@ -68,7 +68,7 @@
 
   Plugin: vite:esbuild
   File: /app/utils/full_syllabus_data.ts
-5:15:36 AM [vite] (client) warning: Duplicate key "BSEB-10-Political Science" in object literal
+7:18:17 AM [vite] (client) warning: Duplicate key "BSEB-10-Political Science" in object literal
 1945|      "आपदा प्रबंधन"
 1946|    ],
 1947|    "BSEB-10-Political Science": [
@@ -78,7 +78,7 @@
 
   Plugin: vite:esbuild
   File: /app/utils/full_syllabus_data.ts
-5:15:36 AM [vite] (client) warning: Duplicate key "BSEB-10-Economics" in object literal
+7:18:17 AM [vite] (client) warning: Duplicate key "BSEB-10-Economics" in object literal
 1952|      "लोकतंत्र की चुनौतियों"
 1953|    ],
 1954|    "BSEB-10-Economics": [
@@ -88,10 +88,3 @@
 
   Plugin: vite:esbuild
   File: /app/utils/full_syllabus_data.ts
-5:26:27 AM [vite] (client) hmr update /components/MarksheetCard.tsx
-5:26:36 AM [vite] (client) hmr update /components/MarksheetCard.tsx
-5:28:39 AM [vite] (client) hmr update /components/Auth.tsx
-5:30:27 AM [vite] (client) hmr update /App.tsx
-6:02:49 AM [vite] (client) hmr update /components/MarksheetCard.tsx
-6:03:20 AM [vite] (client) hmr update /components/MarksheetCard.tsx
-6:08:42 AM [vite] (client) hmr update /components/MarksheetCard.tsx

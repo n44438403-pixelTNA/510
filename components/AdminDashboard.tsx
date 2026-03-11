@@ -4991,7 +4991,6 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                               {editingTestMcqs.map((q, idx) => (
                                   <div key={idx} className="p-3 bg-orange-50 border border-orange-100 rounded-lg">
                                       <div className="flex justify-between items-start mb-2">
-                                          <span className="font-bold text-orange-700">Q{idx+1}</span>
                                           <button onClick={() => removeMcq(true, idx)} className="text-red-500 hover:text-red-700"><Trash2 size={14} /></button>
                                       </div>
                                       <p className="text-sm font-medium text-slate-700 truncate">{q.question}</p>

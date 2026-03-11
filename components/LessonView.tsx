@@ -1446,9 +1446,6 @@ export const LessonView: React.FC<Props> = ({
                                                    <div key={idx} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                                                        <div className="flex justify-between items-start mb-4 gap-3">
                                                            <div className="font-bold text-slate-800 flex gap-3 leading-relaxed flex-1">
-                                                               <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs shrink-0 font-bold mt-0.5 ${isCorrect ? 'bg-green-100 text-green-700' : isWrong ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-500'}`}>
-                                                                   {idx + 1}
-                                                               </span>
                                                                <div dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.question) }} className="prose prose-sm max-w-none w-full" />
                                                            </div>
                                                            <SpeakButton text={fullQuestionText} className="shrink-0" settings={settings} />
@@ -1521,7 +1518,6 @@ export const LessonView: React.FC<Props> = ({
                                    <div key={idx} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm transition-all hover:shadow-md">
                                        <div className="flex justify-between items-start mb-4 gap-3">
                                            <div className="font-bold text-slate-800 flex gap-3 leading-relaxed flex-1">
-                                               <span className="bg-blue-100 text-blue-700 w-6 h-6 rounded-full flex items-center justify-center text-xs shrink-0 font-bold mt-0.5">{idx + 1}</span>
                                                <div dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.question) }} className="prose prose-sm max-w-none w-full" />
                                            </div>
                                            <SpeakButton
@@ -1662,9 +1658,6 @@ export const LessonView: React.FC<Props> = ({
                             return (
                                 <div key={idx} className="border border-slate-200 rounded-xl p-4">
                                     <div className="flex gap-3 mb-2">
-                                        <span className={`w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-xs font-bold ${isCorrect ? 'bg-green-100 text-green-700' : isAnswered ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-500'}`}>
-                                            {idx + 1}
-                                        </span>
                                         <div className="font-bold text-slate-800 text-sm" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.question) }}></div>
                                     </div>
                                     <div className="ml-9 space-y-1 mb-2">
