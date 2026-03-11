@@ -3707,7 +3707,7 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
                                   <button onClick={() => setEditingChapterId(null)} className="text-xs font-bold text-slate-400 hover:text-slate-600">Close Editor</button>
                               </div>
 
-                              <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-2">
+                              <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 pb-24">
                                   {universalNotes.filter(n => n.chapterId === editingChapterId).map((note, idx) => (
                                       <div key={note.id || idx} className="flex flex-col gap-2 bg-slate-50 p-3 rounded-lg border border-slate-200">
                                           <div className="flex gap-2 items-center">
@@ -5079,7 +5079,9 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                                       </div>
                                   ))}
                               </div>
-                              <button onClick={() => saveChapterContent()} className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow hover:bg-blue-700 sticky bottom-0 z-10 border-2 border-white">Save All MCQs</button>
+                              <div className="fixed md:static bottom-0 left-0 w-full p-4 bg-white/90 backdrop-blur-md border-t border-slate-200 md:bg-transparent md:border-t-0 z-50 md:p-0 md:mt-4">
+                                  <button onClick={() => saveChapterContent()} className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow hover:bg-blue-700 border-2 border-white">Save All MCQs</button>
+                              </div>
                           </div>
                       )}
                   </div>
@@ -5535,7 +5537,9 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                                       <Key size={16} /> Code
                                   </button>
                               </div>
-                              <button onClick={() => saveChapterContent()} className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow hover:bg-blue-700 sticky bottom-0 z-10 border-2 border-white">Save PDF Links</button>
+                              <div className="fixed md:static bottom-0 left-0 w-full p-4 bg-white/90 backdrop-blur-md border-t border-slate-200 md:bg-transparent md:border-t-0 z-50 md:p-0 md:mt-4">
+                                  <button onClick={() => saveChapterContent()} className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow hover:bg-blue-700 border-2 border-white">Save PDF Links</button>
+                              </div>
                           </div>
                       )}
 
@@ -5610,9 +5614,11 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                                       + Add Topic Video
                                   </button>
 
-                                  <button onClick={saveChapterContent} className="w-full mt-2 bg-purple-600 text-white font-bold py-3 rounded-xl shadow hover:bg-purple-700 transition flex items-center justify-center gap-2 sticky bottom-0 z-10 border-2 border-white">
-                                      <Save size={18} /> Save Topic Videos
-                                  </button>
+                                  <div className="fixed md:static bottom-0 left-0 w-full p-4 bg-white/90 backdrop-blur-md border-t border-slate-200 md:bg-transparent md:border-t-0 z-50 md:p-0 md:mt-4">
+                                      <button onClick={saveChapterContent} className="w-full mt-2 bg-purple-600 text-white font-bold py-3 rounded-xl shadow hover:bg-purple-700 transition flex items-center justify-center gap-2 border-2 border-white">
+                                          <Save size={18} /> Save Topic Videos
+                                      </button>
+                                  </div>
                               </div>
 
                               {/* PREMIUM SERIES MANAGER */}
@@ -5686,9 +5692,11 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                                           + Add Premium Video
                                       </button>
                                   </div>
-                                  <button onClick={saveChapterContent} className="w-full mt-2 bg-yellow-600 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-yellow-700 transition-all flex items-center justify-center gap-2 sticky bottom-0 z-10 border-2 border-white">
-                                      <Save size={18} /> Save Premium Series
-                                  </button>
+                                  <div className="fixed md:static bottom-0 left-0 w-full p-4 bg-white/90 backdrop-blur-md border-t border-slate-200 md:bg-transparent md:border-t-0 z-50 md:p-0 md:mt-4">
+                                      <button onClick={saveChapterContent} className="w-full mt-2 bg-yellow-600 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-yellow-700 transition-all flex items-center justify-center gap-2 border-2 border-white">
+                                          <Save size={18} /> Save Premium Series
+                                      </button>
+                                  </div>
                               </div>
 
                           <div className="space-y-6 bg-gradient-to-br from-rose-50 to-pink-50 p-6 rounded-xl border border-rose-200 opacity-50 pointer-events-none grayscale">
@@ -5822,7 +5830,7 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                           </div>
 
                           {/* GLOBAL SAVE BUTTON FOR VIDEOS */}
-                          <div className="p-4 bg-white rounded-xl border border-slate-200 sticky bottom-0 z-10 shadow-lg">
+                          <div className="p-4 bg-white rounded-xl border border-slate-200 sticky bottom-0 z-50 shadow-lg">
                               <button onClick={saveChapterContent} className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow hover:bg-blue-700 transition flex items-center justify-center gap-2">
                                   <Save size={20} /> Save All Video Content
                               </button>
@@ -5949,9 +5957,11 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                                   </button>
                               </div>
 
-                              <button onClick={saveChapterContent} className="w-full bg-pink-600 text-white font-bold py-3 rounded-xl shadow hover:bg-pink-700 transition sticky bottom-0 z-10 border-2 border-white">
-                                  <Save size={18} className="inline mr-2" /> Save Audio Playlist
-                              </button>
+                              <div className="fixed md:static bottom-0 left-0 w-full p-4 bg-white/90 backdrop-blur-md border-t border-slate-200 md:bg-transparent md:border-t-0 z-50 md:p-0 md:mt-4">
+                                  <button onClick={saveChapterContent} className="w-full bg-pink-600 text-white font-bold py-3 rounded-xl shadow hover:bg-pink-700 transition border-2 border-white">
+                                      <Save size={18} className="inline mr-2" /> Save Audio Playlist
+                                  </button>
+                              </div>
                           </div>
                       )}
 
@@ -6193,13 +6203,13 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                                       <button onClick={() => generateDirectCode('MCQ', editingChapterId!)} className="px-3 bg-yellow-400 text-black font-bold py-1.5 rounded-lg shadow hover:bg-yellow-500 flex items-center justify-center gap-2 text-xs">
                                           <Key size={14} /> Code
                                       </button>
-                                      <button onClick={saveChapterContent} className="px-4 py-1.5 bg-cyan-600 text-white font-bold rounded-lg shadow hover:bg-cyan-700 flex items-center justify-center gap-2 text-xs">
+                                      <button onClick={saveChapterContent} className="px-4 py-1.5 bg-cyan-600 text-white font-bold rounded-lg shadow hover:bg-cyan-700 flex items-center justify-center gap-2 text-xs hidden sm:flex">
                                           <Save size={14} /> Save
                                       </button>
                                   </div>
                               </div>
                               
-                              <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2 pb-10">
+                              <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 pb-24">
                                   {(activeTab === 'CONTENT_TEST' ? editingTestMcqs : editingMcqs).map((q, idx) => (
                                       <div key={idx} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative group">
                                           <button onClick={() => removeMcq(activeTab === 'CONTENT_TEST', idx)} className="absolute top-2 right-2 text-slate-300 hover:text-red-500"><Trash2 size={16} /></button>
@@ -9424,7 +9434,7 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                                   <button onClick={() => setEditingChapterId(null)} className="text-xs font-bold text-slate-400 hover:text-slate-600">Close Editor</button>
                               </div>
 
-                              <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-2">
+                              <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 pb-24">
                                   {topicNotes.map((note, idx) => (
                                       <div key={note.id || idx} className="flex flex-col gap-2 bg-slate-50 p-3 rounded-lg border border-slate-200">
                                           <div className="flex gap-2 items-center">
@@ -9603,24 +9613,26 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                                       <Plus size={16} /> Add Topic Note
                                   </button>
                               <div className="flex gap-2">
-                                  <button onClick={() => generateDirectCode('NOTES', editingChapterId!)} className="px-4 bg-yellow-400 text-black font-bold py-3 rounded-xl shadow hover:bg-yellow-500 flex items-center justify-center gap-2">
+                                  <button onClick={() => generateDirectCode('NOTES', editingChapterId!)} className="px-4 bg-yellow-400 text-black font-bold py-3 rounded-xl shadow hover:bg-yellow-500 flex items-center justify-center gap-2 hidden md:flex">
                                       <Key size={16} /> Code
                                   </button>
-                                  <button onClick={saveChapterContent} className="flex-1 bg-blue-600 text-white font-bold py-3 rounded-xl shadow hover:bg-blue-700 transition flex items-center justify-center gap-2">
+                                  <button onClick={saveChapterContent} className="flex-1 bg-blue-600 text-white font-bold py-3 rounded-xl shadow hover:bg-blue-700 transition flex items-center justify-center gap-2 hidden md:flex">
                                       <Save size={16} /> Save Changes
                                   </button>
                               </div>
                                   <div className="flex gap-2">
-                                      <button onClick={() => generateDirectCode('MCQ', editingChapterId!)} className="px-4 bg-yellow-400 text-black font-bold py-3 rounded-xl shadow hover:bg-yellow-500 flex items-center justify-center gap-2">
+                                  <button onClick={() => generateDirectCode('MCQ', editingChapterId!)} className="px-4 bg-yellow-400 text-black font-bold py-3 rounded-xl shadow hover:bg-yellow-500 flex items-center justify-center gap-2 hidden md:flex">
                                           <Key size={16} /> Code
                                       </button>
-                                      <button onClick={saveChapterContent} className="flex-1 bg-cyan-600 text-white font-bold py-3 rounded-xl shadow hover:bg-cyan-700 transition flex items-center justify-center gap-2">
+                                  <button onClick={saveChapterContent} className="flex-1 bg-cyan-600 text-white font-bold py-3 rounded-xl shadow hover:bg-cyan-700 transition flex items-center justify-center gap-2 hidden md:flex">
                                           <Save size={16} /> Save Changes
                                       </button>
                                   </div>
-                                  <button onClick={saveChapterContent} className="w-full mt-4 bg-cyan-600 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-cyan-700 transition flex items-center justify-center gap-2 sticky bottom-0 z-10 border-2 border-white">
-                                      <Save size={18} /> SAVE ALL CHANGES
-                                  </button>
+                                  <div className="fixed md:static bottom-0 left-0 w-full p-4 bg-white/90 backdrop-blur-md border-t border-slate-200 md:bg-transparent md:border-t-0 z-50 md:p-0 md:mt-4">
+                                      <button onClick={saveChapterContent} className="w-full bg-cyan-600 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-cyan-700 transition flex items-center justify-center gap-2 border-2 border-white">
+                                          <Save size={18} /> SAVE ALL CHANGES
+                                      </button>
+                                  </div>
                               </div>
                           </div>
                       )}
