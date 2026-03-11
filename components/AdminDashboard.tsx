@@ -2332,6 +2332,7 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
                               let examTip = '';
                               let mnemonic = '';
                               let topic = currentGlobalTopic;
+                              let difficultyLevel = '';
 
                               let nextIndex = i + 1;
                               let currentSection = 'meta'; // 'meta', 'question', 'options', 'answer', 'explanation', etc.
@@ -2372,7 +2373,11 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
                                       topic = nextLine.replace(/^(📖\s*)?Topic\s*[:\s-]*\s*/i, '').replace(/^\*\*|\*\*$/g, '').trim();
                                       nextIndex++;
                                       continue;
-                                  } else if (/^(🔥\s*)?PYQ Inspired/i.test(nextLine) || /^(📊\s*)?Difficulty Level/i.test(nextLine)) {
+                                  } else if (/^(📊\s*)?Difficulty Level\s*[:\s-]*\s*(.*)/i.test(nextLine)) {
+                                      difficultyLevel = nextLine.replace(/^(📊\s*)?Difficulty Level\s*[:\s-]*\s*/i, '').replace(/^\*\*|\*\*$/g, '').trim();
+                                      nextIndex++;
+                                      continue;
+                                  } else if (/^(🔥\s*)?PYQ Inspired/i.test(nextLine)) {
                                       currentSection = 'meta';
                                       nextIndex++;
                                       continue;
@@ -2435,7 +2440,8 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
                                   commonMistake: commonMistake.trim(),
                                   examTip: examTip.trim(),
                                   mnemonic: mnemonic.trim(),
-                                  topic: topic
+                                  topic: topic,
+                                  difficultyLevel: difficultyLevel.trim()
                               });
 
                               i = nextIndex;
@@ -6138,6 +6144,7 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                                       <button onClick={saveChapterContent} className="px-4 py-1.5 bg-cyan-600 text-white font-bold rounded-lg shadow hover:bg-cyan-700 flex items-center justify-center gap-2 text-xs">
                                           <Save size={14} /> Save
                                       </button>
+                                      <button onClick={() => saveChapterContent()} className="bg-blue-600 text-white font-bold px-4 py-1.5 rounded-lg shadow hover:bg-blue-700 flex items-center justify-center gap-2 text-xs border border-white">Save All MCQs</button>
                                   </div>
                               </div>
                               

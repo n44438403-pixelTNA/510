@@ -1229,7 +1229,7 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                                         <div key={idx} className={`bg-white rounded-2xl border ${isCorrect ? 'border-green-200' : isSkipped ? 'border-slate-200' : 'border-red-200'} shadow-sm overflow-hidden`}>
                                             <div className={`p-4 ${isCorrect ? 'bg-green-50' : isSkipped ? 'bg-slate-50' : 'bg-red-50'} border-b ${isCorrect ? 'border-green-100' : isSkipped ? 'border-slate-100' : 'border-red-100'} flex gap-3`}>
                                                 <span className={`w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-xs font-bold mt-0.5 ${isCorrect ? 'bg-green-100 text-green-700' : isSkipped ? 'bg-slate-200 text-slate-600' : 'bg-red-100 text-red-600'}`}>{idx + 1}</span>
-                                                <div className="flex-1"><div className="text-sm font-bold text-slate-800 leading-snug" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.question) }} /></div>
+                                                <div className="flex-1"><div className="text-sm font-bold text-slate-800 leading-snug flex gap-2"><span className="shrink-0 text-slate-400">❓ Question:</span> <span dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.question) }} /></div></div>
                                             </div>
                                             {q.options && (
                                                 <div className="p-4 space-y-2">
@@ -1248,11 +1248,61 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                                                     })}
                                                 </div>
                                             )}
-                                            {q.explanation && (
-                                                <div className="p-4 bg-blue-50 border-t border-blue-100">
-                                                    <div className="text-xs text-slate-700 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.explanation) }} />
+                                            <div className="p-4 bg-slate-50 border-t border-slate-100 space-y-3">
+                                                <div className="flex items-start gap-2">
+                                                    <span className="font-bold text-green-700 text-xs shrink-0">✅ Correct Answer:</span>
+                                                    <span className="text-xs text-slate-700 font-bold" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.options[q.correctAnswer] || `Option ${String.fromCharCode(65 + q.correctAnswer)}`) }} />
                                                 </div>
-                                            )}
+
+                                                {q.concept && (
+                                                    <div className="flex items-start gap-2 bg-yellow-50 p-2 rounded-lg border border-yellow-100">
+                                                        <span className="font-bold text-yellow-700 text-xs shrink-0">💡 Concept:</span>
+                                                        <span className="text-xs text-slate-700 font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.concept) }} />
+                                                    </div>
+                                                )}
+
+                                                {q.explanation && (
+                                                    <div className="flex items-start gap-2 bg-blue-50 p-2 rounded-lg border border-blue-100">
+                                                        <span className="font-bold text-blue-700 text-xs shrink-0">🔎 Explanation:</span>
+                                                        <span className="text-xs text-slate-700 font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.explanation) }} />
+                                                    </div>
+                                                )}
+
+                                                {q.examTip && (
+                                                    <div className="flex items-start gap-2 bg-purple-50 p-2 rounded-lg border border-purple-100">
+                                                        <span className="font-bold text-purple-700 text-xs shrink-0">🎯 Exam Tip:</span>
+                                                        <span className="text-xs text-slate-700 font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.examTip) }} />
+                                                    </div>
+                                                )}
+
+                                                {q.commonMistake && (
+                                                    <div className="flex items-start gap-2 bg-red-50 p-2 rounded-lg border border-red-100">
+                                                        <span className="font-bold text-red-700 text-xs shrink-0">⚠ Common Mistake:</span>
+                                                        <span className="text-xs text-slate-700 font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.commonMistake) }} />
+                                                    </div>
+                                                )}
+
+                                                {q.mnemonic && (
+                                                    <div className="flex items-start gap-2 bg-orange-50 p-2 rounded-lg border border-orange-100">
+                                                        <span className="font-bold text-orange-700 text-xs shrink-0">🧠 Memory Trick:</span>
+                                                        <span className="text-xs text-slate-700 font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.mnemonic) }} />
+                                                    </div>
+                                                )}
+
+                                                {(q as any).difficultyLevel && (
+                                                    <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-200">
+                                                        <span className="font-bold text-slate-500 text-[10px] uppercase tracking-wider">📊 Difficulty Level:</span>
+                                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${String((q as any).difficultyLevel).toLowerCase().includes('hard') ? 'bg-red-100 text-red-700' : String((q as any).difficultyLevel).toLowerCase().includes('medium') ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'}`}>{(q as any).difficultyLevel}</span>
+                                                    </div>
+                                                )}
+
+                                                {q.topic && (
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <span className="font-bold text-slate-500 text-[10px] uppercase tracking-wider">📖 Topic:</span>
+                                                        <span className="text-[10px] text-slate-600 bg-slate-200 px-2 py-0.5 rounded-full font-medium">{q.topic}</span>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     );
                                 })}

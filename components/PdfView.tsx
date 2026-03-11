@@ -711,6 +711,9 @@ export const PdfView: React.FC<Props> = ({
           <div className="fixed inset-0 z-[9999] bg-black flex flex-col animate-in fade-in zoom-in-95 h-screen w-screen overflow-hidden">
               {/* Minimal Floating Controls */}
               <div className="absolute top-4 left-4 z-50 flex gap-4">
+                  <button onClick={toggleFullScreen} className="bg-black/50 backdrop-blur-md text-white p-3 rounded-full hover:bg-black/70 border border-white/20 shadow-lg" title="Toggle Fullscreen">
+                      <Maximize size={24} />
+                  </button>
                   <button onClick={() => { setActiveNoteContent(null); stopAllSpeech(); }} className="bg-black/50 backdrop-blur-md text-white p-3 rounded-full hover:bg-black/70 border border-white/20 shadow-lg">
                       <ArrowLeft size={24} />
                   </button>
@@ -892,7 +895,7 @@ export const PdfView: React.FC<Props> = ({
 
            {/* 2. DEEP DIVE (HTML + SCROLL) */}
            {activeTab === 'DEEP_DIVE' && (
-               <div className="p-4 space-y-6 max-w-2xl mx-auto">
+               <div className="p-4 space-y-6 max-w-none w-full mx-auto">
                    {(() => {
                         const access = getTabAccess('DEEP_DIVE');
 

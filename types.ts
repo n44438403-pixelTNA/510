@@ -797,6 +797,7 @@ export interface MCQItem {
   mnemonic?: string; // Memory Trick
   concept?: string; // Full concept explanation
   topic?: string; // NEW
+  difficultyLevel?: string;
 }
 
 // NEW: Performance Analytics
@@ -825,6 +826,7 @@ export interface MCQResult {
   // OMR DATA
   classLevel?: string;
   topic?: string; // NEW: If test was specific to a topic
+  difficultyLevel?: string;
   omrData?: {
       qIndex: number;
       selected: number; // -1 if skipped

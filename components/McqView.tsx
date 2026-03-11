@@ -499,7 +499,10 @@ export const McqView: React.FC<Props> = ({
           score: score,
           totalQuestions: submittedQuestions.length,
           userAnswers: remappedAnswers, // Save remapped answers
-          analytics: result 
+          analytics: result,
+          subjectId: subject.id,
+          subjectName: subject.name,
+          chapterTitle: chapter.title
       };
       
       const existingHistoryStr = localStorage.getItem('nst_user_history');
