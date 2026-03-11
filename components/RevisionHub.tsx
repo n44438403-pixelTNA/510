@@ -568,6 +568,11 @@ const RevisionHubComponent: React.FC<Props> = ({ user, onTabChange, settings, on
         return weeks;
     };
 
+    const totalTopics = topics.length;
+    const strongTopics = topics.filter(t => t.status === 'EXCELLENT' || t.status === 'STRONG').length;
+    const weakTopics = topics.filter(t => t.status === 'WEAK').length;
+    const masteryScore = totalTopics > 0 ? Math.round((strongTopics / totalTopics) * 100) : 0;
+
     // TTS LOGIC (Updated for Weekly View)
     const handleReadPage = (weeks: Record<string, TopicItem[]>) => {
         let textToSpeak = "";
