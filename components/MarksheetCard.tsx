@@ -1294,29 +1294,41 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                                     const isSkipped = userSelected === -1;
                                     return (
                                         <div key={idx} className={`bg-white rounded-2xl border ${isCorrect ? 'border-green-200' : isSkipped ? 'border-slate-200' : 'border-red-200'} shadow-sm overflow-hidden`}>
-                                            <div className={`p-4 ${isCorrect ? 'bg-green-50' : isSkipped ? 'bg-slate-50' : 'bg-red-50'} border-b ${isCorrect ? 'border-green-100' : isSkipped ? 'border-slate-100' : 'border-red-100'} flex gap-3`}>
-                                                <span className={`w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-xs font-bold mt-0.5 ${isCorrect ? 'bg-green-100 text-green-700' : isSkipped ? 'bg-slate-200 text-slate-600' : 'bg-red-100 text-red-600'}`}>{idx + 1}</span>
-                                                <div className="flex-1"><div className="text-sm font-bold text-slate-800 leading-snug" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.question) }} /></div>
+                                            <div className={`p-4 ${isCorrect ? 'bg-green-50' : isSkipped ? 'bg-slate-50' : 'bg-red-50'} border-b ${isCorrect ? 'border-green-100' : isSkipped ? 'border-slate-100' : 'border-red-100'} flex flex-col gap-2`}>
+                                                <p className="text-[10px] font-black text-blue-600 mb-1 uppercase tracking-widest flex items-center gap-1">Question (प्रश्न): ❓ Question:</p>
+                                                <div className="flex gap-3">
+                                                    <span className={`w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-xs font-bold mt-0.5 ${isCorrect ? 'bg-green-100 text-green-700' : isSkipped ? 'bg-slate-200 text-slate-600' : 'bg-red-100 text-red-600'}`}>{idx + 1}</span>
+                                                    <div className="flex-1"><div className="text-sm font-bold text-slate-800 leading-snug" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.question) }} /></div>
+                                                </div>
                                             </div>
                                             {q.options && (
-                                                <div className="p-4 space-y-2">
+                                                <div className="p-4 space-y-2 border-b border-slate-100 bg-white">
+                                                    <p className="text-[10px] font-black text-blue-600 mb-2 uppercase tracking-widest flex items-center gap-1">Options (विकल्प): Options: A), B), C), D)</p>
                                                     {q.options.map((opt: string, optIdx: number) => {
                                                         const isSelected = userSelected === optIdx;
                                                         const isAnswer = q.correctAnswer === optIdx;
-                                                        let cls = "border-slate-100 bg-white text-slate-600";
+                                                        let cls = "border-slate-100 bg-slate-50 text-slate-600";
                                                         if (isAnswer) cls = "border-green-300 bg-green-50 text-green-800 font-bold";
                                                         else if (isSelected) cls = "border-red-300 bg-red-50 text-red-800 font-bold";
                                                         return (
                                                             <div key={optIdx} className={`p-3 rounded-xl border flex items-center gap-3 text-xs transition-colors ${cls}`}>
-                                                                <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-[10px] border ${isAnswer ? 'border-green-400 bg-green-100 text-green-700' : isSelected ? 'border-red-400 bg-red-100 text-red-700' : 'border-slate-200 bg-slate-50 text-slate-400'}`}>{String.fromCharCode(65 + optIdx)}</div>
+                                                                <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-[10px] border ${isAnswer ? 'border-green-400 bg-green-100 text-green-700' : isSelected ? 'border-red-400 bg-red-100 text-red-700' : 'border-slate-200 bg-white text-slate-400'}`}>{String.fromCharCode(65 + optIdx)}</div>
                                                                 <div className="flex-1" dangerouslySetInnerHTML={{ __html: renderMathInHtml(opt) }} />
                                                             </div>
                                                         );
                                                     })}
                                                 </div>
                                             )}
+                                            <div className="p-4 bg-white border-b border-slate-100">
+                                                 <p className="text-[10px] font-black text-blue-600 mb-2 uppercase tracking-widest flex items-center gap-1">Correct Answer (सही उत्तर): ✅ Correct Answer:</p>
+                                                 <div className="p-3 bg-green-50 border border-green-200 rounded-xl text-xs font-bold text-green-800 shadow-sm flex items-start gap-3">
+                                                     <span className="w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-bold shrink-0">{String.fromCharCode(65 + q.correctAnswer)}</span>
+                                                     <div dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.options ? q.options[q.correctAnswer] : '') }} />
+                                                 </div>
+                                            </div>
                                             {q.explanation && (
-                                                <div className="p-4 bg-blue-50 border-t border-blue-100">
+                                                <div className="p-4 bg-blue-50">
+                                                    <p className="text-[10px] font-black text-blue-600 mb-2 uppercase tracking-widest flex items-center gap-1">Explanation (व्याख्या): 🔎 Explanation:</p>
                                                     <div className="text-xs text-slate-700 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.explanation) }} />
                                                 </div>
                                             )}
