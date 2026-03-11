@@ -1023,6 +1023,8 @@ const App: React.FC = () => {
     let updatedUser = { ...state.user };
     if (!updatedUser.testResults) updatedUser.testResults = [];
     updatedUser.testResults.unshift(result);
+    if (!updatedUser.mcqHistory) updatedUser.mcqHistory = [];
+    updatedUser.mcqHistory.unshift(result);
 
     // AUTO-NOTIFICATION LOGIC (Low Score)
     const percentage = displayData.length > 0 ? (score / displayData.length) * 100 : 0;
