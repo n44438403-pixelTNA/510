@@ -131,7 +131,6 @@ export const WeeklyTestView: React.FC<Props> = ({ test, onComplete, onExit }) =>
           safeQuestions.map((q, idx) => (
             <div key={idx} className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
               <h4 className="font-bold text-slate-800 mb-4 flex gap-3">
-                <span className="bg-slate-100 text-slate-600 w-6 h-6 rounded-full flex items-center justify-center text-xs shrink-0 font-bold mt-0.5">{idx + 1}</span>
                 {q.question}
               </h4>
               <div className="space-y-2">

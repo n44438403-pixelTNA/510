@@ -442,7 +442,7 @@ export const ChallengeCreator20: React.FC<Props> = ({ onBack, language }) => {
                    {questions.map((q, i) => (
                        <div key={i} className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm group">
                            <div className="flex justify-between items-start mb-2">
-                               <p className="font-bold text-slate-800 text-sm">Q{i+1}. {q.question}</p>
+                               <p className="font-bold text-slate-800 text-sm">{q.question}</p>
                                <button 
                                   onClick={() => setQuestions(questions.filter((_, idx) => idx !== i))}
                                   className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"

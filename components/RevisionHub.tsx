@@ -1374,7 +1374,6 @@ const RevisionHubComponent: React.FC<Props> = ({ user, onTabChange, settings, on
                                                         {attempt.wrongQuestions?.map((q, qIdx) => (
                                                             <div key={qIdx} className="bg-white p-3 rounded-xl border border-red-100 shadow-sm">
                                                                 <div className="flex gap-2 mb-2">
-                                                                    <span className="text-xs font-black text-red-500 bg-red-50 px-1.5 py-0.5 rounded h-fit">Q{q.qIndex + 1}</span>
                                                                     <p className="text-xs font-bold text-slate-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: q.question }} />
                                                                 </div>
 
