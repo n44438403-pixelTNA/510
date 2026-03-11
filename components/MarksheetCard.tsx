@@ -45,6 +45,22 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
   const [viewingNote, setViewingNote] = useState<any>(null); // New state for HTML Note Modal
   const [comparisonMessage, setComparisonMessage] = useState<string | null>(null);
 
+  // SCROLL TO HIDE HEADER STATE
+  const [showHeader, setShowHeader] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const currentScrollY = e.currentTarget.scrollTop;
+    if (currentScrollY > lastScrollY && currentScrollY > 50) {
+      // Scrolling down
+      setShowHeader(false);
+    } else if (currentScrollY < lastScrollY) {
+      // Scrolling up
+      setShowHeader(true);
+    }
+    setLastScrollY(currentScrollY);
+  };
+
   // DOWNLOAD MODAL STATE
 
   // Comparison Logic (User Req)
@@ -627,8 +643,6 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                   <div className="absolute right-0 top-0 bottom-0 w-32 bg-white/5 skew-x-12 -mr-8"></div>
               </div>
 
-              {renderWeakAreasSummary()}
-
               {topics.map((topic, i) => {
                   const stats = topicStats[topic] || (result.topicAnalysis && result.topicAnalysis[topic] ? {
                       correct: result.topicAnalysis[topic].correct,
@@ -743,11 +757,10 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                                           <div key={localIdx} className={`text-xs border rounded-lg overflow-hidden transition-all ${isCorrect ? 'border-green-200 bg-green-50/30' : isSkipped ? 'border-slate-200 bg-slate-50' : 'border-red-200 bg-red-50/30'}`}>
                                               <details className="group">
                                                   <summary className="flex items-center justify-between p-3 cursor-pointer list-none select-none">
-                                                      <div className="flex items-start gap-3 w-full">
-                                                          <span className={`mt-0.5 w-7 h-7 shrink-0 rounded-full flex items-center justify-center font-black text-[12px] shadow-sm ${isCorrect ? 'bg-green-500 text-white' : isSkipped ? 'bg-slate-200 text-slate-600' : 'bg-red-500 text-white'}`}>
+                                                      <div className="flex items-center gap-2 overflow-hidden">
+                                                          <span className={`w-5 h-5 shrink-0 rounded-full flex items-center justify-center font-bold text-[10px] ${isCorrect ? 'bg-green-100 text-green-700' : isSkipped ? 'bg-slate-200 text-slate-600' : 'bg-red-100 text-red-600'}`}>
                                                               {globalIdx + 1}
                                                           </span>
-
                                                           <div className="font-medium text-slate-700 truncate pr-2" dangerouslySetInnerHTML={{__html: renderMathInHtml(stripHtml(q.question))}} />
                                                       </div>
                                                       <div className="shrink-0">
@@ -755,10 +768,19 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                                                       </div>
                                                   </summary>
 
+                                                  <div className="px-3 pb-3 pt-0 border-t border-dashed border-slate-200 mt-2 bg-white">
+                                                      {/* Question */}
+                                                      <div className="mt-2 mb-4">
+                                                          <div className="text-sm font-bold text-slate-800 leading-relaxed pt-1" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.question) }} />
+                                                      </div>
+
+
+
                                                   <div className="px-3 pb-3 pt-0 border-t border-dashed border-slate-200 mt-0 bg-white">
+
                                                       {/* Options */}
                                                       {q.options && (
-                                                          <div className="mt-4 mb-4">
+                                                          <div className="mb-4">
                                                               <p className="text-[10px] font-black text-blue-600 mb-2 uppercase tracking-widest flex items-center gap-1">Options (विकल्प):</p>
                                                               <div className="space-y-2">
                                                                   {q.options.map((opt, optIdx) => {
@@ -782,6 +804,7 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                                                       )}
 
                                                       {/* Single Insights Box */}
+
                                                       {(q.concept || q.explanation || q.examTip || q.commonMistake || q.mnemonic) && (
                                                           <div className="mt-4 p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-4">
                                                               {q.concept && (
@@ -829,14 +852,9 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                                                           </div>
                                                       )}
 
-                                                      <div className="mt-2 flex justify-end">
+                                                      <div className="mt-2 text-right">
                                                           <SpeakButton
-                                                              text={`Question ${globalIdx + 1}. ${stripHtml(q.question)}. The correct answer is option ${String.fromCharCode(65 + q.correctAnswer)}.
-                                                              ${q.explanation ? `Explanation: ${stripHtml(q.explanation)}` : ''}
-                                                              ${q.concept ? `Concept: ${stripHtml(q.concept)}` : ''}
-                                                              ${q.examTip ? `Exam Tip: ${stripHtml(q.examTip)}` : ''}
-                                                              ${q.commonMistake ? `Common Mistake: ${stripHtml(q.commonMistake)}` : ''}
-                                                              ${q.mnemonic ? `Memory Trick: ${stripHtml(q.mnemonic)}` : ''}`}
+                                                              text={`Question ${globalIdx + 1}. ${stripHtml(q.question)}. The correct answer is option ${String.fromCharCode(65 + q.correctAnswer)}. Explanation: ${stripHtml(q.explanation || '')}`}
                                                               className="text-slate-400 hover:text-indigo-600 inline-flex"
                                                               iconSize={14}
                                                           />
@@ -1212,9 +1230,9 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
             {renderFullReport()}
         </div>
 
-        <div className="w-full max-w-2xl h-full sm:h-auto sm:max-h-[90vh] bg-white sm:rounded-3xl shadow-2xl flex flex-col relative overflow-hidden">
-            {/* Header */}
-            <div className="bg-white text-slate-800 px-4 py-3 border-b border-slate-100 flex justify-between items-center z-10 sticky top-0 shrink-0">
+        <div className="w-full max-w-2xl h-full sm:h-auto sm:max-h-[90vh] bg-white sm:rounded-3xl shadow-2xl flex flex-col relative overflow-hidden transition-all duration-300">
+            {/* Header - Collapsible */}
+            <div className={`bg-white text-slate-800 border-b border-slate-100 flex justify-between items-center z-10 sticky top-0 shrink-0 transition-all duration-300 origin-top overflow-hidden ${showHeader ? 'px-4 py-3 max-h-20 opacity-100' : 'max-h-0 opacity-0 border-none'}`}>
                 <div className="flex items-center gap-3">
                     {settings?.appLogo && <img src={settings.appLogo} alt="Logo" className="w-8 h-8 rounded-lg object-contain bg-slate-50 border" />}
                     <div>
@@ -1225,9 +1243,14 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                 <button onClick={onClose} className="p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors"><X size={20} /></button>
             </div>
 
+            {/* Floating Close Button (when header is hidden) */}
+            <div className={`absolute top-2 right-2 z-50 transition-all duration-300 ${!showHeader ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10 pointer-events-none'}`}>
+                <button onClick={onClose} className="p-2 bg-white rounded-full shadow-md text-slate-600 hover:bg-slate-50"><X size={20} /></button>
+            </div>
+
             {/* Comparison Alert */}
-            {comparisonMessage && (
-                <div className="px-4 pt-2">
+            {comparisonMessage && showHeader && (
+                <div className="px-4 pt-2 shrink-0 transition-all duration-300">
                     <div className="bg-blue-50 border border-blue-200 p-3 rounded-xl flex gap-3 animate-in slide-in-from-top-2">
                         <div className="bg-white p-2 rounded-full h-fit shadow-sm text-blue-600"><TrendingUp size={16} /></div>
                         <p className="text-xs text-blue-800 font-medium leading-relaxed">{comparisonMessage}</p>
@@ -1289,7 +1312,7 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
             </div>
 
             {/* Scrollable Content */}
-            <div id="marksheet-content" className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 bg-slate-50">
+            <div id="marksheet-content" onScroll={handleScroll} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 bg-slate-50 relative">
                 {activeTab === 'OFFICIAL_MARKSHEET' && (
                     <>
                         {renderMarksheetStyle1()}
@@ -1372,6 +1395,7 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
 
                 {activeTab === 'OMR' && isAnalysisUnlocked && (
                     <div className="animate-in slide-in-from-bottom-4">
+                         {renderWeakAreasSummary()}
                          {renderTopicBreakdown()}
                          <div className="bg-white rounded-2xl p-6 shadow-xl border border-slate-200 mt-6 relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-full -z-10 opacity-50"></div>

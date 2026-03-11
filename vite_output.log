@@ -17,3 +17,8 @@
 1:30:20 PM [vite] vite.config.ts changed, restarting server...
 1:30:20 PM [vite] server restarted.
 [BABEL] Note: The code generator has deoptimised the styling of /app/components/AdminDashboard.tsx as it exceeds the max of 500KB.
+2:24:30 PM [vite] (client) page reload index.tsx
+2:24:36 PM [vite] vite.config.ts changed, restarting server...
+2:24:37 PM [vite] server restarted.
+2:25:24 PM [vite] (client) page reload index.html
+Killed

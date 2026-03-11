@@ -691,10 +691,73 @@ const RevisionHubComponent: React.FC<Props> = ({ user, onTabChange, settings, on
     }
 
     return (
-        <div className="space-y-6 pb-24 p-4 animate-in fade-in relative">
+        <div onScroll={handleScroll} className="space-y-6 pb-24 p-4 animate-in fade-in relative h-[calc(100vh-80px)] overflow-y-auto">
+
+            {/* --- HERO HEADER --- */}
+            <div className={`transition-all duration-300 origin-top overflow-hidden ${showHeader ? 'opacity-100 max-h-[500px] mb-6' : 'opacity-0 max-h-0 mb-0'}`}>
+                <div className="bg-gradient-to-br from-indigo-900 via-indigo-800 to-blue-900 rounded-[2.5rem] p-8 sm:p-12 text-white shadow-2xl relative">
+                    {/* Abstract Background Shapes */}
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                    <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-500/20 rounded-full blur-2xl translate-y-1/2 -translate-x-1/4"></div>
+
+                    <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+                        <div className="flex items-center gap-5">
+                            <div className="p-4 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-inner">
+                                <BrainCircuit size={40} className="text-blue-300 drop-shadow-md" />
+                            </div>
+                            <div>
+                                <h2 className="text-3xl sm:text-4xl font-black tracking-tight mb-2">Revision Hub</h2>
+                                <p className="text-indigo-200 font-medium max-w-sm leading-relaxed text-sm">
+                                    AI-powered Spaced Repetition. Master concepts permanently.
+                                </p>
+                                <div className="mt-3">
+                                    <span className={`text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border ${hubMode === 'PREMIUM' ? 'bg-yellow-500/20 border-yellow-400/50 text-yellow-300' : 'bg-white/10 border-white/20 text-indigo-100'}`}>
+                                        {hubMode === 'PREMIUM' ? 'Premium Mode Active' : 'Free Mode Active'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* --- STATS GRID --- */}
+            <div className={`grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 px-2 sm:px-0 transition-all duration-300 origin-top overflow-hidden ${showHeader ? 'opacity-100 max-h-40 mt-8 mb-6' : 'opacity-0 max-h-0 mt-0 mb-0 m-0 p-0 border-none'}`}>
+                {/* Summary Cards */}
+                <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-1 items-center justify-center text-center">
+                    <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl mb-1">
+                        <BrainCircuit size={20} />
+                    </div>
+                    <span className="text-2xl font-black text-slate-800">{masteryScore}%</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Mastery</span>
+                </div>
+                <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-1 items-center justify-center text-center">
+                    <div className="p-2 bg-blue-50 text-blue-600 rounded-xl mb-1">
+                        <BookOpen size={20} />
+                    </div>
+                    <span className="text-2xl font-black text-slate-800">{totalTopics}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Topics Tracked</span>
+                </div>
+                <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-1 items-center justify-center text-center">
+                    <div className="p-2 bg-green-50 text-green-600 rounded-xl mb-1">
+                        <CheckCircle size={20} />
+                    </div>
+                    <span className="text-2xl font-black text-slate-800">{strongTopics}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Strong/Mastered</span>
+                </div>
+                <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-1 items-center justify-center text-center relative overflow-hidden">
+                     <div className="absolute top-0 right-0 w-16 h-16 bg-red-50 rounded-bl-full -z-10"></div>
+                     <div className="p-2 bg-red-50 text-red-600 rounded-xl mb-1">
+                        <AlertTriangle size={20} />
+                    </div>
+                    <span className="text-2xl font-black text-red-600">{weakTopics}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Weak Areas</span>
+                </div>
+            </div>
+
             {/* MODE SWITCHER */}
-            <div className="flex justify-center mb-4">
-                <div className="bg-slate-100 p-1 rounded-full flex gap-1 shadow-inner">
+            <div className={`flex justify-center mb-4 sticky z-30 transition-all duration-300 ${!showHeader ? 'top-2' : ''}`}>
+                <div className="bg-slate-100 p-1 rounded-full flex gap-1 shadow-md border border-slate-200">
                     {(() => {
                         const freeAccess = checkFeatureAccess('REVISION_HUB_FREE', user, settings || {});
                         return (
@@ -1004,13 +1067,25 @@ const RevisionHubComponent: React.FC<Props> = ({ user, onTabChange, settings, on
                                     <h4 className="text-lg font-black text-slate-800 mb-2">Today's Tasks</h4>
                                     <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
                                         {pendingNotes.map((t, i) => (
-                                            <div key={i} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                            <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 gap-3">
                                                 <div>
                                                     <h5 className="font-bold text-slate-700 text-sm">{getCleanDisplayName(t.name, t.chapterName, t.subjectName)}</h5>
                                                     <p className="text-[10px] text-slate-400 uppercase font-bold">{t.chapterName}</p>
                                                 </div>
-                                                <div className="text-[10px] font-bold text-indigo-500 bg-indigo-50 px-2 py-1 rounded">
-                                                    Revision
+                                                <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-2">
+                                                    <div className="text-[10px] font-bold text-indigo-500 bg-indigo-50 px-2 py-1 rounded">
+                                                        Revision
+                                                    </div>
+                                                    <button
+                                                        onClick={() => {
+                                                            const isPremium = false;
+                                                            const notesKey = `nst_content_${user.board || 'CBSE'}_${user.classLevel || '10'}_${t.subjectName}_${t.chapterId}`;
+                                                            handleTopicLaunch(t.name, t.chapterId, t.chapterName, t.subjectName, notesKey, isPremium, hubMode, 'NOTES');
+                                                        }}
+                                                        className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-1 shrink-0"
+                                                    >
+                                                        <BookOpen size={14} /> Read Notes
+                                                    </button>
                                                 </div>
                                             </div>
                                         ))}
