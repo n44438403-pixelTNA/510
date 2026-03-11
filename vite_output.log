@@ -8,3 +8,12 @@
   ➜  Local:   http://localhost:5000/
   ➜  Network: http://192.168.0.2:5000/
 [BABEL] Note: The code generator has deoptimised the styling of /app/components/AdminDashboard.tsx as it exceeds the max of 500KB.
+11:29:16 AM [vite] (client) hmr update /components/LessonView.tsx, /components/MarksheetCard.tsx
+11:29:58 AM [vite] (client) hmr update /components/MarksheetCard.tsx
+1:29:10 PM [vite] vite.config.ts changed, restarting server...
+1:29:11 PM [vite] (client) Re-optimizing dependencies because lockfile has changed
+1:29:11 PM [vite] server restarted.
+1:29:16 PM [vite] (client) page reload index.html
+1:30:20 PM [vite] vite.config.ts changed, restarting server...
+1:30:20 PM [vite] server restarted.
+[BABEL] Note: The code generator has deoptimised the styling of /app/components/AdminDashboard.tsx as it exceeds the max of 500KB.
