@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Gift, ArrowRight, AlertCircle, CheckCircle } from 'lucide-react';
+import { Gift, ArrowRight, AlertCircle, CheckCircle, Map, ExternalLink, X } from 'lucide-react';
 import { User, SystemSettings, SubscriptionHistoryEntry } from '../types';
 import { ref, get, update, runTransaction } from "firebase/database";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
@@ -15,6 +15,8 @@ export const RedeemSection: React.FC<Props> = ({ user, onSuccess }) => {
   const [code, setCode] = useState('');
   const [status, setStatus] = useState<'IDLE' | 'LOADING' | 'SUCCESS' | 'ERROR'>('IDLE');
   const [msg, setMsg] = useState('');
+  const [showUnlockPopup, setShowUnlockPopup] = useState(false);
+  const [unlockedDetails, setUnlockedDetails] = useState<any>(null);
 
   const handleRedeem = async () => {
     const cleanCode = code.trim();
@@ -222,6 +224,16 @@ export const RedeemSection: React.FC<Props> = ({ user, onSuccess }) => {
         setStatus('SUCCESS');
         setMsg(successMessage);
         setCode('');
+
+        if (targetCode.type === 'CONTENT_UNLOCK') {
+            setUnlockedDetails({
+                type: targetCode.contentType || 'Item',
+                id: targetCode.contentId,
+                duration: targetCode.duration || { days: 1, hours: 0 } // Assuming 24h fallback if not specified
+            });
+            setShowUnlockPopup(true);
+        }
+
         onSuccess(updatedUser);
         
         setTimeout(() => {
@@ -278,6 +290,54 @@ export const RedeemSection: React.FC<Props> = ({ user, onSuccess }) => {
                 </div>
             )}
         </div>
+
+        {/* ROADMAP POPUP */}
+        {showUnlockPopup && unlockedDetails && (
+            <div className="fixed inset-0 z-[200] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
+                <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden transform transition-all">
+                    <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-6 text-white text-center relative">
+                        <Gift size={48} className="mx-auto mb-3 opacity-90 drop-shadow-md" />
+                        <h3 className="text-2xl font-black mb-1">Content Unlocked!</h3>
+                        <p className="text-purple-100 text-sm font-medium">Your redeem code was successful.</p>
+                    </div>
+
+                    <div className="p-6 space-y-6">
+                        <div className="bg-purple-50 rounded-2xl p-4 border border-purple-100">
+                            <div className="flex justify-between items-center mb-2">
+                                <span className="text-xs font-bold text-purple-600 uppercase tracking-wider">Content Type</span>
+                                <span className="text-sm font-black text-slate-800">{unlockedDetails.type}</span>
+                            </div>
+                            <div className="flex justify-between items-center mb-2">
+                                <span className="text-xs font-bold text-purple-600 uppercase tracking-wider">Valid For</span>
+                                <span className="text-sm font-bold text-slate-700">
+                                    {unlockedDetails.duration?.days ? `${unlockedDetails.duration.days} Days ` : ''}
+                                    {unlockedDetails.duration?.hours ? `${unlockedDetails.duration.hours} Hours` : ''}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                                <Map size={14} className="text-slate-400" /> How to Access
+                            </h4>
+                            <ol className="text-sm text-slate-600 space-y-2 list-decimal list-inside pl-2">
+                                <li>Go to the <span className="font-bold text-slate-800">Library / Search</span> tab.</li>
+                                <li>Find the specific Subject and Chapter.</li>
+                                <li>Look for the <span className="font-bold text-purple-600">Premium {unlockedDetails.type}</span> section.</li>
+                                <li>Tap to open and start learning immediately!</li>
+                            </ol>
+                        </div>
+
+                        <button
+                            onClick={() => setShowUnlockPopup(false)}
+                            className="w-full py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 active:scale-95 transition-all shadow-xl shadow-slate-900/20"
+                        >
+                            Got It, Thanks!
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )}
     </div>
   );
 };

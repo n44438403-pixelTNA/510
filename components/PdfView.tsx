@@ -360,11 +360,11 @@ export const PdfView: React.FC<Props> = ({
                         const currentTopicPoints: string[] = [];
 
                         // 1. Fallback regex approach to grab specific blocks
-                        const regex = /(?:<b>|<strong>)?\s*Quick Revision:?\s*(?:<\/b>|<\/strong>)?\s*(.*?)(?:<hr\/?>|<\/p>|<br\/?>|$)/gi;
+                        const regex = /(?:<b>|<strong>)?\s*(Quick Revision|Mini Revision|Recap):?\s*(?:<\/b>|<\/strong>)?\s*(.*?)(?:<hr\/?>|<\/p>|<br\/?>|$)/gi;
                         let match;
                         while ((match = regex.exec(entry.htmlContent)) !== null) {
-                            if (match[1] && match[1].trim().length > 0) {
-                                currentTopicPoints.push(`<b>Quick Revision:</b> ${match[1].trim()}`);
+                            if (match[2] && match[2].trim().length > 0) {
+                                currentTopicPoints.push(`<b>${match[1]}:</b> ${match[2].trim()}`);
                             }
                         }
 
@@ -388,7 +388,7 @@ export const PdfView: React.FC<Props> = ({
                             if (lowerText.includes('quick revision') || lowerText.includes('mini revision') || lowerText.includes('recap')) {
 
                                 // Avoid re-extracting the overall topic title if it contains the word "revision" by accident
-                                if (currentNode.textContent?.trim() === topicTitle) {
+                                if (currentNode.textContent?.trim().toLowerCase() === topicTitle.toLowerCase()) {
                                     currentNode = walker.nextNode() as Element | null;
                                     continue;
                                 }
