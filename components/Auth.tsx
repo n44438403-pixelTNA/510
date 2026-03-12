@@ -103,9 +103,6 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
   };
 
   const handleCompleteSignup = async () => {
-      const storedUsersStr = localStorage.getItem('nst_users');
-      const users: User[] = storedUsersStr ? JSON.parse(storedUsersStr) : [];
-
       try {
           // 1. Create in Firebase Auth
           await setPersistence(auth, browserLocalPersistence);
@@ -137,8 +134,7 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
             isPremium: true
           };
 
-          const updatedUsers = [...users, newUser];
-          localStorage.setItem('nst_users', JSON.stringify(updatedUsers));
+          // Removing reliance on nst_users
           
           // Sync to Firestore
           const firestoreUser = { ...newUser };
@@ -148,6 +144,7 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
           logActivity("SIGNUP", `New Student Registered: ${newUser.classLevel} - ${newUser.board}`, newUser);
           
           // AUTO LOGIN
+          setPendingLoginUser(newUser); // Store to pass down to SUCCESS_ID
           setGeneratedId(newId);
           setView('SUCCESS_ID'); 
       } catch (err: any) {
@@ -215,9 +212,7 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
           return;
       }
 
-      const storedUsersStr = localStorage.getItem('nst_users');
-      const users: User[] = storedUsersStr ? JSON.parse(storedUsersStr) : [];
-      const user = users.find(u => u.id === formData.id || u.displayId === formData.id || u.mobile === formData.id || u.email === formData.id);
+      const user = await getUserByMobileOrId(formData.id);
 
       if (!user) {
           setError("User not found. Please Register first.");
@@ -255,20 +250,22 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
           const result = await signInWithPopup(auth, provider);
           const firebaseUser = result.user;
 
-          const storedUsersStr = localStorage.getItem('nst_users');
-          const users: User[] = storedUsersStr ? JSON.parse(storedUsersStr) : [];
-
+          // STRICT FIREBASE ONLY FETCH (Prevent localStorage overriding/breaking flow)
           // Try fetching by ID first
           let appUser: any = await getUserData(firebaseUser.uid);
 
           // Fallback: Try by Email
           if (!appUser && firebaseUser.email) {
               appUser = await getUserByEmail(firebaseUser.email);
-          }
 
-          // Fallback: Local Storage
-          if (!appUser && firebaseUser.email) {
-               appUser = users.find(u => u.id === firebaseUser.uid || u.email === firebaseUser.email);
+              // CRITICAL: UID LINKING
+              // If found by email but UID is different, link the new Google UID
+              if (appUser && appUser.id !== firebaseUser.uid) {
+                  // We need to update the user's ID in Firestore to match the Google Auth UID
+                  const { updateUserUID } = await import('../firebase');
+                  await updateUserUID(appUser.id, firebaseUser.uid, appUser);
+                  appUser.id = firebaseUser.uid;
+              }
           }
 
           if (!appUser) {
@@ -296,9 +293,6 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
                   isPremium: false
               } as User;
 
-              const updatedUsers = [...users, appUser];
-              localStorage.setItem('nst_users', JSON.stringify(updatedUsers));
-
               await saveUserToLive(appUser);
               logActivity("SIGNUP_GOOGLE", "New Student Registered via Google", appUser);
           } else {
@@ -320,22 +314,16 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
     e.preventDefault();
     setError(null);
 
-    const storedUsersStr = localStorage.getItem('nst_users');
-    const users: User[] = storedUsersStr ? JSON.parse(storedUsersStr) : [];
+    // Completely remove `nst_users` local dependency.
+    // Fetch directly from Firebase only.
 
     if (view === 'LOGIN') {
         const input = formData.id.trim();
         const pass = formData.password.trim();
 
         try {
-            // STEP 1: FAST LOCAL/FIRESTORE LOOKUP
-            // We search for the user by Email, Mobile, or Display ID in local cache first.
-            let appUser: any = users.find(u => u.email === input || u.id === input || u.displayId === input || u.mobile === input);
-
-            // If not found locally, query Firestore in parallel
-            if (!appUser) {
-                appUser = await getUserByMobileOrId(input);
-            }
+            // STEP 1: QUERY FIRESTORE
+            let appUser: any = await getUserByMobileOrId(input);
 
             // STEP 2: VERIFY CREDENTIALS LOCALLY IF USER EXISTS
             if (appUser) {
@@ -507,10 +495,7 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
                 </div>
                 <button 
                     onClick={() => {
-                        const storedUsersStr = localStorage.getItem('nst_users');
-                        const users = storedUsersStr ? JSON.parse(storedUsersStr) : [];
-                        const newUser = users.find((u: User) => u.displayId === generatedId);
-                        if (newUser) onLogin(newUser);
+                        if (pendingLoginUser) onLogin(pendingLoginUser);
                         else setView('LOGIN'); 
                     }} 
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl"
