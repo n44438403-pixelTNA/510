@@ -19,11 +19,11 @@ export const AnalyticsPage: React.FC<Props> = ({ user, onBack, settings, onNavig
 
   const historyRaw = user.mcqHistory || [];
   
-  // Annual Report Requirement: Show only last 30 days data
+  // Annual Report Requirement: Show year data
   const history = historyRaw.filter(h => {
       const d = new Date(h.date);
       const limit = new Date();
-      limit.setDate(limit.getDate() - 7);
+      limit.setDate(limit.getDate() - 365);
       return d >= limit;
   });
 
@@ -124,7 +124,7 @@ export const AnalyticsPage: React.FC<Props> = ({ user, onBack, settings, onNavig
             <button onClick={onBack} className="p-2 hover:bg-slate-100 rounded-full"><TrendingUp size={20} className="text-slate-600" /></button>
             <div>
                 <h2 className="text-xl font-black text-slate-800">Annual Report</h2>
-                <p className="text-xs text-slate-500 font-bold uppercase">Performance Analytics (Last 30 Days)</p>
+                <p className="text-xs text-slate-500 font-bold uppercase">Performance Analytics (This Year)</p>
             </div>
         </div>
 
