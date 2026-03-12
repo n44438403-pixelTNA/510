@@ -2176,6 +2176,7 @@ const App: React.FC = () => {
                                    if (!state.user) return;
                                    const mergedUser = { ...state.user, ...cloudUser };
                                    localStorage.setItem('nst_current_user', JSON.stringify(mergedUser));
+                                   saveUserToLive(mergedUser as User);
                                    setState(prev => ({...prev, user: mergedUser as User}));
                                    setCloudUser(null);
                                    setShowCloudRecoveryModal(false);

@@ -17,7 +17,7 @@ import { LessonActionModal } from './LessonActionModal';
 import { RedeemSection } from './RedeemSection';
 import { PrizeList } from './PrizeList';
 import { Store } from './Store';
-import { Globe, Layout, Gift, Sparkles, Megaphone, Lock, BookOpen, AlertCircle, Edit, Settings, Play, Pause, RotateCcw, MessageCircle, Gamepad2, Timer, CreditCard, Send, CheckCircle, Mail, X, Ban, Smartphone, Trophy, ShoppingBag, ArrowRight, Video, Youtube, Home, User as UserIcon, Book, BookOpenText, List, BarChart3, Award, Bell, Headphones, LifeBuoy, WifiOff, Zap, Star, Crown, History, ListChecks, Rocket, Ticket, TrendingUp, BrainCircuit, FileText, CheckSquare, Menu, LayoutGrid, Compass, User as UserIconOutline, MessageSquare, Bot, HelpCircle, Database, Activity, Download, Calendar, LogOut } from 'lucide-react';
+import { Globe, Layout, Gift, Cloud, Sparkles, Megaphone, Lock, BookOpen, AlertCircle, Edit, Settings, Play, Pause, RotateCcw, MessageCircle, Gamepad2, Timer, CreditCard, Send, CheckCircle, Mail, X, Ban, Smartphone, Trophy, ShoppingBag, ArrowRight, Video, Youtube, Home, User as UserIcon, Book, BookOpenText, List, BarChart3, Award, Bell, Headphones, LifeBuoy, WifiOff, Zap, Star, Crown, History, ListChecks, Rocket, Ticket, TrendingUp, BrainCircuit, FileText, CheckSquare, Menu, LayoutGrid, Compass, User as UserIconOutline, MessageSquare, Bot, HelpCircle, Database, Activity, Download, Calendar, LogOut } from 'lucide-react';
 import { SubjectSelection } from './SubjectSelection';
 import { BannerCarousel } from './BannerCarousel';
 import { ChapterSelection } from './ChapterSelection'; // Imported for Video Flow
@@ -80,6 +80,8 @@ interface Props {
   onNavigateToChapter?: (chapterId: string, chapterTitle: string, subjectName: string, classLevel?: string) => void;
   isDarkMode?: boolean;
   onToggleDarkMode?: (v: boolean) => void;
+  onLogout?: () => void;
+  onRecoverData?: () => void;
 }
 
 const DashboardSectionWrapper = ({
@@ -121,7 +123,7 @@ const DashboardSectionWrapper = ({
     );
 };
 
-export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onSubjectSelect, onRedeemSuccess, settings, onStartWeeklyTest, activeTab, onTabChange, setFullScreen, onNavigate, isImpersonating, onNavigateToChapter, isDarkMode, onToggleDarkMode }) => {
+export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onSubjectSelect, onRedeemSuccess, settings, onStartWeeklyTest, activeTab, onTabChange, setFullScreen, onNavigate, isImpersonating, onNavigateToChapter, isDarkMode, onToggleDarkMode, onLogout, onRecoverData }) => {
   
   const analysisLogs = JSON.parse(localStorage.getItem('nst_universal_analysis_logs') || '[]');
   const isGameEnabled = settings?.isGameEnabled !== false;
@@ -1532,14 +1534,17 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
                             </button>
 
                             <button
-                                onClick={() => {
-                                    handleUserUpdate(user);
-                                    localStorage.removeItem('nst_current_user');
-                                    window.location.reload();
-                                }}
-                                className="col-span-2 bg-red-50 p-3 rounded-xl border border-red-100 flex items-center justify-center gap-2 hover:bg-red-100 transition-colors text-red-600 font-bold text-sm"
+                                onClick={onLogout}
+                                className="col-span-1 bg-red-50 p-3 rounded-xl border border-red-100 flex items-center justify-center gap-2 hover:bg-red-100 transition-colors text-red-600 font-bold text-sm"
                             >
                                 <LogOut size={16} /> Logout
+                            </button>
+
+                            <button
+                                onClick={onRecoverData}
+                                className="col-span-1 bg-blue-50 p-3 rounded-xl border border-blue-100 flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors text-blue-600 font-bold text-sm"
+                            >
+                                <Cloud size={16} /> Recover
                             </button>
                         </div>
                     </div>
