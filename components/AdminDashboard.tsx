@@ -680,6 +680,7 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
   const [editingMcqs, setEditingMcqs] = useState<MCQItem[]>([]);
   const [editingTestMcqs, setEditingTestMcqs] = useState<MCQItem[]>([]);
   const [importText, setImportText] = useState('');
+  const [importFormatMode, setImportFormatMode] = useState<'AUTO' | 'ADVANCED_EMOJI' | 'STANDARD_TSV'>('AUTO');
   const [syllabusImportText, setSyllabusImportText] = useState('');
   
   // --- PDF PREVIEW STATE ---
@@ -2299,14 +2300,41 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
                   lineIdx++;
               }
 
-              // Try the new robust parser first for MCQs
-              let newQuestions: MCQItem[] = parseMCQText(textForMcq);
+              // Extract explicit <NOTE: Topic> blocks before parsing MCQs to prevent conflicts
+              const explicitNoteRegex = /<NOTE:\s*([^>]+)>([\s\S]*?)<\/NOTE>/g;
+              let noteMatch;
+              let cleanMcqText = textForMcq;
 
-              // If it didn't find any questions using the new robust parser, fallback to old TSV/Vertical logic
-              if (newQuestions.length === 0 && textForMcq.trim().length > 0) {
+              while ((noteMatch = explicitNoteRegex.exec(textForMcq)) !== null) {
+                  const topicName = noteMatch[1].trim();
+                  const noteContent = noteMatch[2].trim();
+
+                  if (noteContent) {
+                      newTopicNotes.push({
+                          id: `note-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                          title: topicName.length > 50 ? topicName.substring(0, 50) + '...' : topicName,
+                          topic: topicName,
+                          content: noteContent,
+                          isPremium: false
+                      });
+                  }
+                  // Remove this block from the text so it doesn't confuse the MCQ parser
+                  cleanMcqText = cleanMcqText.replace(noteMatch[0], '');
+              }
+
+              let newQuestions: MCQItem[] = [];
+              const textToProcess = cleanMcqText;
+
+              if (importFormatMode === 'AUTO' || importFormatMode === 'ADVANCED_EMOJI') {
+                  // Try the new robust parser first for MCQs on the cleaned text
+                  newQuestions = parseMCQText(cleanMcqText);
+              }
+
+              // If it didn't find any questions using the new robust parser (or if forced standard), fallback to old TSV/Vertical logic
+              if ((newQuestions.length === 0 && textToProcess.trim().length > 0 && importFormatMode === 'AUTO') || importFormatMode === 'STANDARD_TSV') {
                   // MODE A: Tab-Separated
-                  if (textForMcq.includes('\t')) {
-                      const rows = textForMcq.split('\n').filter(r => r.trim());
+                  if (textToProcess.includes('\t')) {
+                      const rows = textToProcess.split('\n').filter(r => r.trim());
                       newQuestions = rows.map((row, idx) => {
                           let cols = row.split('\t');
                           if (cols.length < 3 && row.includes(',')) cols = row.split(',');
