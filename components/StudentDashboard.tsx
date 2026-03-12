@@ -624,7 +624,15 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
                      }
                 }
                 const updated: User = { ...currentUser, ...cloudData, ...protectedSub };
-                if ((!cloudData.mcqHistory || cloudData.mcqHistory.length === 0) && (currentUser.mcqHistory && currentUser.mcqHistory.length > 0)) { updated.mcqHistory = currentUser.mcqHistory; }
+
+                // CRITICAL FIX: The Firestore 'users/{uid}' document DOES NOT contain bulky data.
+                // We must preserve the bulky data from the current state so it doesn't get wiped by the core sync.
+                if (!cloudData.hasOwnProperty('mcqHistory')) updated.mcqHistory = currentUser.mcqHistory;
+                if (!cloudData.hasOwnProperty('testResults')) updated.testResults = currentUser.testResults;
+                if (!cloudData.hasOwnProperty('progress')) updated.progress = currentUser.progress;
+                if (!cloudData.hasOwnProperty('usageHistory')) updated.usageHistory = currentUser.usageHistory;
+                if (!cloudData.hasOwnProperty('inbox')) updated.inbox = currentUser.inbox;
+
                 onRedeemSuccess(updated); 
             }
         }
