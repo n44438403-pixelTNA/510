@@ -108,9 +108,8 @@ const RevisionHubComponent: React.FC<Props> = ({ user, onTabChange, settings, on
     // Memoize History Processing to prevent Infinite Loops / Auto Refresh
     const processedTopics = useMemo(() => {
         try {
-            // FILTER: Last 7 Days Only (As per "7 din ka history" requirement)
-            const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-            const history = (user.mcqHistory || []).filter(h => new Date(h.date).getTime() > sevenDaysAgo);
+            // Use all history to calculate spaced repetition accurately over time
+            const history = user.mcqHistory || [];
 
             const topicMap = new Map<string, TopicItem>();
 
