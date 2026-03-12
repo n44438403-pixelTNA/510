@@ -680,13 +680,23 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
   };
 
   const handleUserUpdate = (updatedUser: User) => {
-      const storedUsers = JSON.parse(localStorage.getItem('nst_users') || '[]');
-      const userIdx = storedUsers.findIndex((u:User) => u.id === updatedUser.id);
-      if (userIdx !== -1) {
-          storedUsers[userIdx] = updatedUser;
-          localStorage.setItem('nst_users', JSON.stringify(storedUsers));
-          if (!isImpersonating) { localStorage.setItem('nst_current_user', JSON.stringify(updatedUser)); saveUserToLive(updatedUser); }
-          onRedeemSuccess(updatedUser); 
+      // Ignore nst_users if empty, just save to live and current user directly
+      // since the system has moved away from 'nst_users' dependency.
+      if (!isImpersonating) {
+          localStorage.setItem('nst_current_user', JSON.stringify(updatedUser));
+          saveUserToLive(updatedUser);
+      }
+      onRedeemSuccess(updatedUser);
+
+      // Also keep legacy 'nst_users' updated just in case it's used elsewhere
+      const storedUsersStr = localStorage.getItem('nst_users');
+      if (storedUsersStr) {
+          const storedUsers = JSON.parse(storedUsersStr);
+          const userIdx = storedUsers.findIndex((u:User) => u.id === updatedUser.id);
+          if (userIdx !== -1) {
+              storedUsers[userIdx] = updatedUser;
+              localStorage.setItem('nst_users', JSON.stringify(storedUsers));
+          }
       }
   };
 

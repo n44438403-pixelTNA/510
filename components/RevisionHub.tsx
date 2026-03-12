@@ -83,14 +83,14 @@ const RevisionHubComponent: React.FC<Props> = ({ user, onTabChange, settings, on
         if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
 
         scrollTimeout.current = setTimeout(() => {
-            if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+            if (currentScrollY > lastScrollY.current && currentScrollY > 150) {
                 setShowHeader(false);
-            } else if (currentScrollY < lastScrollY.current - 20 || currentScrollY < 50) {
-                // Require a significant upward scroll (20px) or being near the top to show again
+            } else if (currentScrollY < lastScrollY.current - 50 || currentScrollY < 100) {
+                // Require a significant upward scroll (50px) or being near the top to show again
                 setShowHeader(true);
             }
             lastScrollY.current = currentScrollY;
-        }, 50); // Small delay to smooth out the scroll detection
+        }, 100); // Increased delay and thresholds to prevent blinking
     };
 
     // Track recently completed MCQs for Marksheet view
