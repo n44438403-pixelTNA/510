@@ -582,7 +582,7 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
 
               {view === 'LOGIN' && (
                   <>
-                     <div className="space-y-1.5"><label className="text-xs font-bold text-slate-500 uppercase">Mobile / User ID</label><input name="id" type="text" placeholder="Enter Mobile Number or ID" value={formData.id} onChange={handleChange} className="w-full px-4 py-3 border border-slate-200 rounded-xl font-bold" /></div>
+                     <div className="space-y-1.5"><label className="text-xs font-bold text-slate-500 uppercase">Mobile / Email / UID</label><input name="id" type="text" placeholder="Enter Mobile, Email or UID" value={formData.id} onChange={handleChange} className="w-full px-4 py-3 border border-slate-200 rounded-xl font-bold" /></div>
                      <div className="space-y-1.5">
                          <label className="text-xs font-bold text-slate-500 uppercase">Password</label>
                          <div className="relative">

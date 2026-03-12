@@ -74,14 +74,23 @@ const RevisionHubComponent: React.FC<Props> = ({ user, onTabChange, settings, on
     // SCROLL TO HIDE HEADER STATE
     const [showHeader, setShowHeader] = useState(true);
     const lastScrollY = useRef(0);
+    const scrollTimeout = useRef<any>(null);
+
     const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
         const currentScrollY = e.currentTarget.scrollTop;
-        if (currentScrollY > lastScrollY.current && currentScrollY > 50) {
-            setShowHeader(false);
-        } else if (currentScrollY < lastScrollY.current) {
-            setShowHeader(true);
-        }
-        lastScrollY.current = currentScrollY;
+
+        // Debounce to prevent rapid toggling/blinking
+        if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
+
+        scrollTimeout.current = setTimeout(() => {
+            if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+                setShowHeader(false);
+            } else if (currentScrollY < lastScrollY.current - 20 || currentScrollY < 50) {
+                // Require a significant upward scroll (20px) or being near the top to show again
+                setShowHeader(true);
+            }
+            lastScrollY.current = currentScrollY;
+        }, 50); // Small delay to smooth out the scroll detection
     };
 
     // Track recently completed MCQs for Marksheet view
