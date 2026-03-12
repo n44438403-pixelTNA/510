@@ -180,6 +180,7 @@ export interface ActiveSubscription {
 export interface MarksheetSettings {
   appName: string;
   developedBy: string;
+  pyqInspired?: string;
 }
 
 export interface SubscriptionHistoryEntry {
@@ -800,6 +801,8 @@ export interface MCQItem {
   examTip?: string; // Exam Tip
   commonMistake?: string; // Common Mistake
   difficulty?: 'EASY' | 'MEDIUM' | 'HARD'; // Difficulty Level
+  difficultyLevel?: string;
+  pyqInspired?: string;
 }
 
 // NEW: Performance Analytics

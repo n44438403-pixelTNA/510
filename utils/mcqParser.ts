@@ -29,13 +29,17 @@ export function parseMCQText(text: string): MCQItem[] {
   blocks.forEach(block => {
     let q: Partial<MCQItem> = {};
 
+    // Extract PYQ Inspired
+    const pyqMatch = block.match(/(?:🔥\s*)?PYQ Inspired:\s*(.+)/i);
+    if (pyqMatch) q.pyqInspired = pyqMatch[1].trim();
+
     // Extract Topic (supports English/Hindi dual headings)
-    const topicMatch = block.match(/(?:📖\s*)?(?:Topic|विषय).*?:\s*(.+)/);
+    const topicMatch = block.match(/(?:📖\s*)?(?:Topic|विषय).*?:\s*(.+)/i);
     if (topicMatch) q.topic = topicMatch[1].trim();
 
     // Extract Question text (multiline support before Options)
-    // Matches "❓ Question:", "Question (प्रश्न): ❓ Question:", etc.
-    const questionMatch = block.match(/(?:❓\s*)?(?:\*\*)?Question(?:\s*\(प्रश्न\))?:?(?:\*\*)?(?:\s*❓\s*Question:?)?\s*([\s\S]*?)(?=(?:Options(?:\s*\(विकल्प\))?:|विकल्प:))/i);
+    // We stop at "Options:" or "A)" or "A." to be safe.
+    const questionMatch = block.match(/(?:❓\s*)?(?:\*\*)?Question(?:\s*\(प्रश्न\))?:?(?:\*\*)?(?:\s*❓\s*Question:?)?\s*([\s\S]*?)(?=(?:Options(?:\s*\(विकल्प\))?:|विकल्प:|A\)|A\.|1\)|1\.))/i);
     if (questionMatch) {
       q.question = questionMatch[1].trim();
       // Remove any leading numbers like "1. " or "Q1. " just in case they slipped in
@@ -43,29 +47,35 @@ export function parseMCQText(text: string): MCQItem[] {
     }
 
     // Extract Options
-    const optionsMatch = block.match(/(?:Options(?:\s*\(विकल्प\))?:|विकल्प:)\s*([\s\S]*?)(?=✅|(?:Correct Answer(?:\s*\(सही उत्तर\))?:))/i);
+    // We look for block starting with "Options:" or just the options directly, ending at Correct Answer
+    const optionsMatch = block.match(/(?:(?:Options(?:\s*\(विकल्प\))?:|विकल्प:)\s*)?([\s\S]*?)(?=✅|(?:Correct Answer(?:\s*\(सही उत्तर\))?:))/i);
     if (optionsMatch) {
       const optionsText = optionsMatch[1].trim();
-      const optionLines = optionsText.split(/\n/).map(line => line.trim()).filter(Boolean);
-      // Support A), a), 1), A. etc.
-      q.options = optionLines.map(opt => opt.replace(/^(?:[A-D]|[1-4])[\)\.]\s*/i, '').trim());
+      // Only keep lines that look like valid options to filter out noise
+      const optionLines = optionsText.split(/\n/).map(line => line.trim()).filter(line => /^(?:[A-D]|[1-4])[\)\.]/i.test(line));
+
+      if (optionLines.length >= 2) {
+          q.options = optionLines.map(opt => opt.replace(/^(?:[A-D]|[1-4])[\)\.]\s*/i, '').trim());
+      }
     }
 
     // Extract Correct Answer
-    const answerMatch = block.match(/(?:✅\s*)?(?:\*\*)?Correct Answer(?:\s*\(सही उत्तर\))?:?(?:\*\*)?(?:\s*✅\s*Correct Answer:?)?\s*(?:[A-D]\))?\s*(.*)/i);
+    // Look for explicit letter A) or A. or just text.
+    const answerMatch = block.match(/(?:✅\s*)?(?:\*\*)?Correct Answer(?:\s*\(सही उत्तर\))?:?(?:\*\*)?(?:\s*✅\s*Correct Answer:?)?\s*([\s\S]*?)(?=💡|🔎|🎯|⚠|🧠|📊|Concept|Explanation|Exam Tip|Common Mistake|Memory Trick|Difficulty Level|$)/i);
     if (answerMatch) {
-        const answerText = answerMatch[1].trim();
-        // find index by matching option text
-        if (q.options) {
-            const index = q.options.findIndex(opt => answerText.includes(opt) || opt.includes(answerText));
+        const rawAns = answerMatch[1].trim();
+
+        // 1. Try to extract a clean letter (A, B, C, D) from the start of the string
+        const letterMatch = rawAns.match(/^([A-D])[\)\.]/i);
+        if (letterMatch) {
+            const letter = letterMatch[1].toUpperCase();
+            q.correctAnswer = ['A', 'B', 'C', 'D'].indexOf(letter);
+        } else if (q.options) {
+            // 2. Fallback: try matching the text against options
+            const ansTextClean = rawAns.replace(/^(?:[A-D])[\)\.]\s*/i, '').trim();
+            const index = q.options.findIndex(opt => ansTextClean.includes(opt) || opt.includes(ansTextClean));
             if (index !== -1) {
                 q.correctAnswer = index;
-            } else {
-                 // Fallback to letter if provided in format "A) text"
-                 const letterMatch = block.match(/✅\s*(?:\*\*)?Correct Answer:?(?:\*\*)?\s*([A-D])\)/);
-                 if(letterMatch) {
-                     q.correctAnswer = ['A', 'B', 'C', 'D'].indexOf(letterMatch[1]);
-                 }
             }
         }
     }
