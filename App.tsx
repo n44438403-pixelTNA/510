@@ -260,6 +260,10 @@ const App: React.FC = () => {
 
   // GLOBAL STUDY TIMER
   const [dailyStudySeconds, setDailyStudySeconds] = useState(0);
+
+  // DATA RECOVERY MODAL STATE
+  const [recoveryUser, setRecoveryUser] = useState<User | null>(null);
+  const [showRecoveryModal, setShowRecoveryModal] = useState(false);
   
   // FULL SCREEN MODE (Hides Header/Footer/Dock)
   const [isFullScreen, setIsFullScreen] = useState(false);
@@ -934,34 +938,76 @@ const App: React.FC = () => {
     }
   }, [state.user?.id, state.view, state.settings]);
 
-    const handleLogin = (user: User) => {
-    if (!state.originalAdmin) {
-        localStorage.setItem('nst_current_user', JSON.stringify(user));
-    }
-    saveUserToLive(user);
-    localStorage.setItem('nst_has_seen_welcome', 'true');
+  const proceedWithLogin = (user: User) => {
+      if (!state.originalAdmin) {
+          localStorage.setItem('nst_current_user', JSON.stringify(user));
+      }
+      // ONLY save to live here if it's a completely fresh user.
+      // If we recovered data, it's already in the cloud, no need to overwrite immediately.
+      // If they chose to delete, we overwrite below.
 
-    // Check if onboarding is needed
-    if (user.role === 'STUDENT' && !user.profileCompleted) {
-        setState(prev => ({
-          ...prev,
-          user,
-          view: 'ONBOARDING',
-          showWelcome: false
-        }));
-        return;
-    }
+      localStorage.setItem('nst_has_seen_welcome', 'true');
 
-    setState(prev => ({ 
-      ...prev, 
-      user, 
-      view: ((user.role === 'ADMIN' || user.role === 'SUB_ADMIN') ? 'ADMIN_DASHBOARD' : 'STUDENT_DASHBOARD') as any, 
-      selectedBoard: user.board || null, 
-      selectedClass: user.classLevel || null, 
-      selectedStream: user.stream || null, 
-      language: user.board === 'BSEB' ? 'Hindi' : 'English', 
-      showWelcome: false 
-    }));
+      // Check if onboarding is needed
+      if (user.role === 'STUDENT' && !user.profileCompleted) {
+          setState(prev => ({
+            ...prev,
+            user,
+            view: 'ONBOARDING',
+            showWelcome: false
+          }));
+          return;
+      }
+
+      setState(prev => ({
+        ...prev,
+        user,
+        view: ((user.role === 'ADMIN' || user.role === 'SUB_ADMIN') ? 'ADMIN_DASHBOARD' : 'STUDENT_DASHBOARD') as any,
+        selectedBoard: user.board || null,
+        selectedClass: user.classLevel || null,
+        selectedStream: user.stream || null,
+        language: user.board === 'BSEB' ? 'Hindi' : 'English',
+        showWelcome: false
+      }));
+  };
+
+  const handleLogin = (user: User) => {
+      // Check if this user has past data in their profile but the local state is fresh
+      const hasPastData = (user.mcqHistory && user.mcqHistory.length > 0) || (user.testResults && user.testResults.length > 0);
+
+      // If this is a true student login and they have history, intercept and show the modal
+      if (user.role === 'STUDENT' && hasPastData && !state.originalAdmin) {
+          setRecoveryUser(user);
+          setShowRecoveryModal(true);
+      } else {
+          // Normal flow (Admins, or students with no history)
+          proceedWithLogin(user);
+      }
+  };
+
+  const handleRecoverData = () => {
+      if (!recoveryUser) return;
+      setShowRecoveryModal(false);
+      // Data is already inside recoveryUser because getUserData fetched it.
+      // Just proceed to log them in with that data.
+      proceedWithLogin(recoveryUser);
+  };
+
+  const handleFreshStart = () => {
+      if (!recoveryUser) return;
+
+      // Wipe the history arrays but keep the profile
+      const wipedUser: User = {
+          ...recoveryUser,
+          mcqHistory: [],
+          testResults: [],
+          progress: {}
+      };
+
+      setShowRecoveryModal(false);
+      // Save this zeroed-out state to the cloud so it truly deletes their past
+      saveUserToLive(wipedUser);
+      proceedWithLogin(wipedUser);
   };
 
   const handleLogout = () => {
@@ -2189,6 +2235,60 @@ const App: React.FC = () => {
            )}
         </div>
       </header>
+      )}
+
+      {/* DATA RECOVERY MODAL */}
+      {showRecoveryModal && recoveryUser && (
+          <div className="fixed inset-0 z-[9999] bg-slate-900/90 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
+              <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-2xl w-full max-w-md border border-slate-200 text-center animate-in zoom-in-95 duration-300 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-full -z-10"></div>
+                  <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-white shadow-lg relative z-10">
+                      <Cloud size={40} />
+                  </div>
+                  <h2 className="text-2xl font-black text-slate-800 mb-2 relative z-10">Cloud Backup Found!</h2>
+                  <p className="text-slate-500 text-sm mb-6 leading-relaxed relative z-10">
+                      Welcome back, <b>{recoveryUser.name}</b>. We found your previous study history, test marks, and revision data in the cloud.
+                  </p>
+
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6 flex justify-around text-left relative z-10">
+                      <div>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tests Given</p>
+                          <p className="text-xl font-black text-slate-800">{recoveryUser.mcqHistory?.length || 0}</p>
+                      </div>
+                      <div className="w-px bg-slate-200"></div>
+                      <div>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Global Score</p>
+                          <p className="text-xl font-black text-slate-800">{recoveryUser.progress?.averageScore ? Math.round(recoveryUser.progress.averageScore) : 0}%</p>
+                      </div>
+                  </div>
+
+                  <div className="space-y-3 relative z-10">
+                      <button
+                          onClick={handleRecoverData}
+                          className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg transition-all active:scale-95 flex justify-center items-center gap-2"
+                      >
+                          <RefreshCw size={20} /> Recover My Past Data
+                      </button>
+
+                      <button
+                          onClick={() => {
+                              setConfirmConfig({
+                                  isOpen: true,
+                                  title: "Delete Everything?",
+                                  message: "Are you sure you want to start fresh? ALL your past test scores, revision history, and progress will be permanently deleted. This cannot be undone.",
+                                  onConfirm: () => {
+                                      handleFreshStart();
+                                      setConfirmConfig(prev => ({...prev, isOpen: false}));
+                                  }
+                              });
+                          }}
+                          className="w-full py-3 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-xl border border-red-200 transition-all flex justify-center items-center gap-2"
+                      >
+                          <Trash2 size={18} /> Start Fresh (Delete Everything)
+                      </button>
+                  </div>
+              </div>
+          </div>
       )}
 
       <main className={`flex-1 w-full max-w-6xl mx-auto ${isFullScreen ? 'p-0' : 'p-4 mb-8'}`}>
