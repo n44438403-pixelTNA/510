@@ -1533,7 +1533,7 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
 
                             <button
                                 onClick={() => {
-                                    handleUserUpdate(user); // Force sync before logout
+                                    handleUserUpdate(user);
                                     localStorage.removeItem('nst_current_user');
                                     window.location.reload();
                                 }}

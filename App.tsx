@@ -34,7 +34,7 @@ import { MarksheetCard } from './components/MarksheetCard';
 import { UpdatePopup } from './components/UpdatePopup'; // NEW
 import { ErrorBoundary } from './components/ErrorBoundary'; // NEW
 import { generateDailyChallengeQuestions } from './utils/challengeGenerator';
-import { BrainCircuit, Globe, LogOut, LayoutDashboard, BookOpen, Headphones, HelpCircle, Newspaper, KeyRound, Lock, X, ShieldCheck, FileText, UserPlus, EyeOff, WifiOff } from 'lucide-react';
+import { BrainCircuit, Globe, LogOut, LayoutDashboard, BookOpen, Headphones, HelpCircle, Newspaper, KeyRound, Lock, X, ShieldCheck, FileText, UserPlus, EyeOff, WifiOff, Cloud } from 'lucide-react';
 import { SUPPORT_EMAIL, APP_VERSION } from './constants';
 import { StudentTab, PendingReward, MCQResult, SubscriptionHistoryEntry } from './types';
 import { storage } from './utils/storage';
@@ -260,10 +260,6 @@ const App: React.FC = () => {
 
   // GLOBAL STUDY TIMER
   const [dailyStudySeconds, setDailyStudySeconds] = useState(0);
-
-  // DATA RECOVERY MODAL STATE
-  const [recoveryUser, setRecoveryUser] = useState<User | null>(null);
-  const [showRecoveryModal, setShowRecoveryModal] = useState(false);
   
   // FULL SCREEN MODE (Hides Header/Footer/Dock)
   const [isFullScreen, setIsFullScreen] = useState(false);
@@ -583,17 +579,25 @@ const App: React.FC = () => {
   // --- SYNC USER PROFILE ON LOAD (ENSURE PREMIUM UPDATE VISIBLE) ---
   useEffect(() => {
       if (state.user && !state.originalAdmin) {
-          getUserData(state.user.id).then(cloudUser => {
-             if (cloudUser) {
-                 // Ignore if identical
-                 const currentStr = JSON.stringify(state.user);
-                 const cloudStr = JSON.stringify(cloudUser);
-                 if (currentStr !== cloudStr) {
-                     // MERGE user_data to make sure mcqHistory and other bulky data are completely loaded.
-                     const mergedUser = { ...state.user, ...cloudUser };
-                     // console.log("Syncing User Profile from Cloud...");
-                     localStorage.setItem('nst_current_user', JSON.stringify(mergedUser));
-                     setState(prev => ({...prev, user: mergedUser}));
+          getUserData(state.user.id).then(fetchedCloudUser => {
+             if (fetchedCloudUser) {
+                 // Check if cloud has more mcqHistory than local
+                 const localHistoryLen = state.user?.mcqHistory?.length || 0;
+                 const cloudHistoryLen = fetchedCloudUser.mcqHistory?.length || 0;
+
+                 // If cloud has more data, store it for potential recovery but don't auto-merge
+                 if (cloudHistoryLen > localHistoryLen) {
+                     setCloudUser(fetchedCloudUser);
+                     setShowCloudRecoveryModal(true);
+                 } else {
+                     // If safe to merge (just profile updates, no history loss)
+                     const currentStr = JSON.stringify(state.user);
+                     const cloudStr = JSON.stringify(fetchedCloudUser);
+                     if (currentStr !== cloudStr) {
+                         const mergedUser = { ...state.user, ...fetchedCloudUser };
+                         localStorage.setItem('nst_current_user', JSON.stringify(mergedUser));
+                         setState(prev => ({...prev, user: mergedUser}));
+                     }
                  }
              }
           });
@@ -938,83 +942,72 @@ const App: React.FC = () => {
     }
   }, [state.user?.id, state.view, state.settings]);
 
-  const proceedWithLogin = (user: User) => {
-      if (!state.originalAdmin) {
-          localStorage.setItem('nst_current_user', JSON.stringify(user));
-      }
-      // ONLY save to live here if it's a completely fresh user.
-      // If we recovered data, it's already in the cloud, no need to overwrite immediately.
-      // If they chose to delete, we overwrite below.
+    const handleLogin = (user: User) => {
+    if (!state.originalAdmin) {
+        localStorage.setItem('nst_current_user', JSON.stringify(user));
+    }
+    saveUserToLive(user);
+    localStorage.setItem('nst_has_seen_welcome', 'true');
 
-      localStorage.setItem('nst_has_seen_welcome', 'true');
+    // Check if onboarding is needed
+    if (user.role === 'STUDENT' && !user.profileCompleted) {
+        setState(prev => ({
+          ...prev,
+          user,
+          view: 'ONBOARDING',
+          showWelcome: false
+        }));
+        return;
+    }
 
-      // Check if onboarding is needed
-      if (user.role === 'STUDENT' && !user.profileCompleted) {
-          setState(prev => ({
-            ...prev,
-            user,
-            view: 'ONBOARDING',
-            showWelcome: false
-          }));
-          return;
-      }
-
-      setState(prev => ({
-        ...prev,
-        user,
-        view: ((user.role === 'ADMIN' || user.role === 'SUB_ADMIN') ? 'ADMIN_DASHBOARD' : 'STUDENT_DASHBOARD') as any,
-        selectedBoard: user.board || null,
-        selectedClass: user.classLevel || null,
-        selectedStream: user.stream || null,
-        language: user.board === 'BSEB' ? 'Hindi' : 'English',
-        showWelcome: false
-      }));
+    setState(prev => ({
+      ...prev,
+      user,
+      view: ((user.role === 'ADMIN' || user.role === 'SUB_ADMIN') ? 'ADMIN_DASHBOARD' : 'STUDENT_DASHBOARD') as any,
+      selectedBoard: user.board || null,
+      selectedClass: user.classLevel || null,
+      selectedStream: user.stream || null,
+      language: user.board === 'BSEB' ? 'Hindi' : 'English',
+      showWelcome: false
+    }));
   };
 
-  const handleLogin = (user: User) => {
-      // Check if this user has past data in their profile but the local state is fresh
-      const hasPastData = (user.mcqHistory && user.mcqHistory.length > 0) || (user.testResults && user.testResults.length > 0);
+  const [logoutPending, setLogoutPending] = useState(false);
+  const [logoutTimeLeft, setLogoutTimeLeft] = useState(10);
+  const [cloudUser, setCloudUser] = useState<User | null>(null);
+  const [showCloudRecoveryModal, setShowCloudRecoveryModal] = useState(false);
 
-      // If this is a true student login and they have history, intercept and show the modal
-      if (user.role === 'STUDENT' && hasPastData && !state.originalAdmin) {
-          setRecoveryUser(user);
-          setShowRecoveryModal(true);
-      } else {
-          // Normal flow (Admins, or students with no history)
-          proceedWithLogin(user);
-      }
-  };
-
-  const handleRecoverData = () => {
-      if (!recoveryUser) return;
-      setShowRecoveryModal(false);
-      // Data is already inside recoveryUser because getUserData fetched it.
-      // Just proceed to log them in with that data.
-      proceedWithLogin(recoveryUser);
-  };
-
-  const handleFreshStart = () => {
-      if (!recoveryUser) return;
-
-      // Wipe the history arrays but keep the profile
-      const wipedUser: User = {
-          ...recoveryUser,
-          mcqHistory: [],
-          testResults: [],
-          progress: {}
-      };
-
-      setShowRecoveryModal(false);
-      // Save this zeroed-out state to the cloud so it truly deletes their past
-      saveUserToLive(wipedUser);
-      proceedWithLogin(wipedUser);
-  };
-
-  const handleLogout = () => {
+  const performLogout = () => {
     logActivity("LOGOUT", "User Logged Out");
     localStorage.removeItem('nst_current_user');
     setState(prev => ({ ...prev, user: null, originalAdmin: null, view: 'BOARDS', selectedBoard: null, selectedClass: null, selectedStream: null, selectedSubject: null, lessonContent: null, language: 'English' }));
     setDailyStudySeconds(0);
+  };
+
+  useEffect(() => {
+     let timer: NodeJS.Timeout;
+     if (logoutPending && logoutTimeLeft > 0) {
+        timer = setTimeout(() => {
+            setLogoutTimeLeft(prev => prev - 1);
+        }, 1000);
+     } else if (logoutPending && logoutTimeLeft <= 0) {
+        // Sync and logout
+        if (state.user) {
+            saveUserToLive(state.user).catch(err => console.error("Error syncing on logout", err));
+        }
+        performLogout();
+        setLogoutPending(false);
+     }
+     return () => clearTimeout(timer);
+  }, [logoutPending, logoutTimeLeft]);
+
+  const handleLogout = () => {
+    if (!state.user) {
+       performLogout();
+       return;
+    }
+    setLogoutPending(true);
+    setLogoutTimeLeft(10);
   };
 
   const handleMCQComplete = (score: number, answers: Record<number, number>, displayData: MCQItem[], timeTaken: number) => {
@@ -2132,6 +2125,86 @@ const App: React.FC = () => {
   return (
     <ErrorBoundary>
     <div className="min-h-screen flex flex-col bg-white font-sans relative pt-[env(safe-area-inset-top,24px)] pb-[env(safe-area-inset-bottom,32px)]">
+      {/* LOGOUT OVERLAY */}
+      {logoutPending && (
+          <div className="fixed inset-0 z-[9999] bg-slate-900/90 backdrop-blur-sm flex flex-col items-center justify-center text-white">
+              <div className="bg-slate-800 p-8 rounded-3xl border border-slate-700 flex flex-col items-center max-w-sm w-full mx-4 shadow-2xl animate-in zoom-in duration-200">
+                 <div className="w-16 h-16 bg-blue-500/20 text-blue-400 rounded-full flex items-center justify-center mb-6">
+                     <Cloud size={32} className="animate-pulse" />
+                 </div>
+                 <h2 className="text-xl font-black mb-2 text-center">Saving Your Progress</h2>
+                 <p className="text-slate-400 text-sm text-center mb-6">Please don't close the app. We are securely syncing your data to the cloud.</p>
+
+                 <div className="text-5xl font-black font-mono mb-8 text-blue-400">
+                     {logoutTimeLeft}s
+                 </div>
+
+                 <button
+                     onClick={() => {
+                         setLogoutPending(false);
+                         setLogoutTimeLeft(0);
+                     }}
+                     className="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl transition-colors text-sm"
+                 >
+                     Cancel Logout
+                 </button>
+              </div>
+          </div>
+      )}
+
+      {/* CLOUD RECOVERY MODAL */}
+      {showCloudRecoveryModal && cloudUser && (
+          <div className="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+               <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in duration-200">
+                   <div className="bg-blue-600 p-6 text-white text-center relative">
+                       <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 relative">
+                           <Cloud size={32} className="text-white relative z-10" />
+                           <div className="absolute inset-0 bg-white/20 rounded-full animate-ping"></div>
+                       </div>
+                       <h2 className="text-2xl font-black mb-1">Cloud Backup Found!</h2>
+                       <p className="text-blue-100 text-sm">We found previously saved progress for your account.</p>
+                   </div>
+                   <div className="p-6 space-y-4">
+                       <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 text-sm text-slate-600">
+                           <strong>Cloud Account:</strong> {cloudUser.name} <br/>
+                           <strong>Saved Tests:</strong> {cloudUser.mcqHistory?.length || 0}
+                       </div>
+                       <p className="text-sm font-medium text-slate-700 text-center">Would you like to recover your past data, or start fresh?</p>
+                       <div className="flex flex-col gap-3 mt-6">
+                           <button
+                               onClick={() => {
+                                   if (!state.user) return;
+                                   const mergedUser = { ...state.user, ...cloudUser };
+                                   localStorage.setItem('nst_current_user', JSON.stringify(mergedUser));
+                                   setState(prev => ({...prev, user: mergedUser as User}));
+                                   setCloudUser(null);
+                                   setShowCloudRecoveryModal(false);
+                                   setToastMessage('Data successfully recovered!');
+                               }}
+                               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2"
+                           >
+                               <Cloud size={20} /> Recover My Past Data
+                           </button>
+                           <button
+                               onClick={() => {
+                                   // They want to start fresh, zero out cloud history to match local
+                                   if (state.user) {
+                                      const wipedUser = { ...state.user, mcqHistory: [], testResults: [] };
+                                      saveUserToLive(wipedUser); // overwrite cloud with empty local
+                                   }
+                                   setCloudUser(null);
+                                   setShowCloudRecoveryModal(false);
+                               }}
+                               className="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3.5 rounded-xl transition-all"
+                           >
+                               Start Fresh (Delete Past Data)
+                           </button>
+                       </div>
+                   </div>
+               </div>
+          </div>
+      )}
+
       {/* STATUS BAR BACKGROUND */}
       <div className="fixed top-0 left-0 right-0 h-[env(safe-area-inset-top,24px)] bg-slate-900 z-[100]"></div>
       {/* BOTTOM SAFE AREA BACKGROUND */}
@@ -2237,60 +2310,6 @@ const App: React.FC = () => {
       </header>
       )}
 
-      {/* DATA RECOVERY MODAL */}
-      {showRecoveryModal && recoveryUser && (
-          <div className="fixed inset-0 z-[9999] bg-slate-900/90 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
-              <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-2xl w-full max-w-md border border-slate-200 text-center animate-in zoom-in-95 duration-300 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-full -z-10"></div>
-                  <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-white shadow-lg relative z-10">
-                      <Cloud size={40} />
-                  </div>
-                  <h2 className="text-2xl font-black text-slate-800 mb-2 relative z-10">Cloud Backup Found!</h2>
-                  <p className="text-slate-500 text-sm mb-6 leading-relaxed relative z-10">
-                      Welcome back, <b>{recoveryUser.name}</b>. We found your previous study history, test marks, and revision data in the cloud.
-                  </p>
-
-                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6 flex justify-around text-left relative z-10">
-                      <div>
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tests Given</p>
-                          <p className="text-xl font-black text-slate-800">{recoveryUser.mcqHistory?.length || 0}</p>
-                      </div>
-                      <div className="w-px bg-slate-200"></div>
-                      <div>
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Global Score</p>
-                          <p className="text-xl font-black text-slate-800">{recoveryUser.progress?.averageScore ? Math.round(recoveryUser.progress.averageScore) : 0}%</p>
-                      </div>
-                  </div>
-
-                  <div className="space-y-3 relative z-10">
-                      <button
-                          onClick={handleRecoverData}
-                          className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg transition-all active:scale-95 flex justify-center items-center gap-2"
-                      >
-                          <RefreshCw size={20} /> Recover My Past Data
-                      </button>
-
-                      <button
-                          onClick={() => {
-                              setConfirmConfig({
-                                  isOpen: true,
-                                  title: "Delete Everything?",
-                                  message: "Are you sure you want to start fresh? ALL your past test scores, revision history, and progress will be permanently deleted. This cannot be undone.",
-                                  onConfirm: () => {
-                                      handleFreshStart();
-                                      setConfirmConfig(prev => ({...prev, isOpen: false}));
-                                  }
-                              });
-                          }}
-                          className="w-full py-3 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-xl border border-red-200 transition-all flex justify-center items-center gap-2"
-                      >
-                          <Trash2 size={18} /> Start Fresh (Delete Everything)
-                      </button>
-                  </div>
-              </div>
-          </div>
-      )}
-
       <main className={`flex-1 w-full max-w-6xl mx-auto ${isFullScreen ? 'p-0' : 'p-4 mb-8'}`}>
         {!state.user ? (
             <Auth onLogin={handleLogin} logActivity={logActivity} />
@@ -2333,6 +2352,14 @@ const App: React.FC = () => {
                             onNavigateToChapter={handleNavigateToChapterFromHistory}
                             isDarkMode={darkMode}
                             onToggleDarkMode={setDarkMode}
+                            onLogout={handleLogout}
+                            onRecoverData={() => {
+                                if (cloudUser) {
+                                    setShowCloudRecoveryModal(true);
+                                } else {
+                                    setToastMessage("Your data is already synced and up to date!");
+                                }
+                            }}
                         />
                     )
                 )}
