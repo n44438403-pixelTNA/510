@@ -536,7 +536,7 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
                 {view === 'ADMIN' && (showAdminVerify ? 'Admin Verification' : 'Admin Login')}
               </span>
 
-              {view === 'LOGIN' && <SpeakButton text="Welcome! Enter your ID and password to login." className="text-blue-600 hover:bg-blue-50" />}
+              {view === 'LOGIN' && <SpeakButton text="Welcome! Enter your Mobile Number, Email or UID, and password to login." className="text-blue-600 hover:bg-blue-50" />}
               {view === 'SIGNUP' && <SpeakButton text="Create your new account. Fill in your name, mobile, and choose a password." className="text-blue-600 hover:bg-blue-50" />}
               {view === 'RECOVERY' && <SpeakButton text="Forgot password? Enter your ID or Mobile to request admin approval." className="text-orange-500 hover:bg-orange-50" />}
             </h2>
@@ -582,7 +582,7 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
 
               {view === 'LOGIN' && (
                   <>
-                     <div className="space-y-1.5"><label className="text-xs font-bold text-slate-500 uppercase">Mobile / Email / UID</label><input name="id" type="text" placeholder="Enter Mobile, Email or UID" value={formData.id} onChange={handleChange} className="w-full px-4 py-3 border border-slate-200 rounded-xl font-bold" /></div>
+                     <div className="space-y-1.5"><label className="text-xs font-bold text-slate-500 uppercase">Mobile Number / Email / UID</label><input name="id" type="text" placeholder="Enter Mobile No., Email or UID" value={formData.id} onChange={handleChange} className="w-full px-4 py-3 border border-slate-200 rounded-xl font-bold" /></div>
                      <div className="space-y-1.5">
                          <label className="text-xs font-bold text-slate-500 uppercase">Password</label>
                          <div className="relative">
