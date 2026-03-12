@@ -73,21 +73,7 @@ export const Onboarding: React.FC<Props> = ({ user, onComplete, onLogout }) => {
 
           await saveUserToLive(updatedUser);
 
-          // Also update local storage so it persists
-          const storedUsersStr = localStorage.getItem('nst_users');
-          if (storedUsersStr) {
-              const users: User[] = JSON.parse(storedUsersStr);
-              const idx = users.findIndex(u => u.id === user.id);
-              if (idx !== -1) {
-                  users[idx] = updatedUser;
-                  localStorage.setItem('nst_users', JSON.stringify(users));
-              } else {
-                  users.push(updatedUser);
-                  localStorage.setItem('nst_users', JSON.stringify(users));
-              }
-          } else {
-             localStorage.setItem('nst_users', JSON.stringify([updatedUser]));
-          }
+          // Removing reliance on nst_users
           localStorage.setItem('nst_current_user', JSON.stringify(updatedUser));
 
           onComplete(updatedUser);

@@ -257,18 +257,14 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
           // Fallback: Try by Email
           if (!appUser && firebaseUser.email) {
               appUser = await getUserByEmail(firebaseUser.email);
-
-              // CRITICAL: UID LINKING
-              // If found by email but UID is different, link the new Google UID
-              if (appUser && appUser.id !== firebaseUser.uid) {
-                  // We need to update the user's ID in Firestore to match the Google Auth UID
-                  const { updateUserUID } = await import('../firebase');
-                  await updateUserUID(appUser.id, firebaseUser.uid, appUser);
-                  appUser.id = firebaseUser.uid;
-              }
           }
 
-          if (!appUser) {
+          if (appUser) {
+              // The user requested that Google is ONLY for account creation.
+              // If an account already exists, we must block them and ask them to log in via standard means.
+              setError("You already have an account associated with this email. Please go back and Log in using your Mobile Number / Email / User ID and Password.");
+              return;
+          } else {
               console.log("No existing user found for this Google account. Creating new profile...");
               const newId = generateUserId();
               appUser = {
@@ -276,7 +272,7 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
                   displayId: newId,
                   name: firebaseUser.displayName || 'Student',
                   email: firebaseUser.email || '',
-                  password: '', // Passwordless for Google Auth
+                  password: '', // Passwordless for Google Auth, will be set in Onboarding
                   mobile: '',
                   role: 'STUDENT',
                   createdAt: new Date().toISOString(),
@@ -295,14 +291,8 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
 
               await saveUserToLive(appUser);
               logActivity("SIGNUP_GOOGLE", "New Student Registered via Google", appUser);
-          } else {
-              console.log("Existing user found via Google:", appUser.id);
+              onLogin(appUser);
           }
-
-          if (appUser.isArchived) { setError('Account Deleted.'); return; }
-
-          logActivity("LOGIN_GOOGLE", "Student Logged In (Google)", appUser);
-          onLogin(appUser);
 
       } catch (err: any) {
           console.error("Google Auth Error:", err);
@@ -327,12 +317,6 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
 
             // STEP 2: VERIFY CREDENTIALS LOCALLY IF USER EXISTS
             if (appUser) {
-                // User exists in our DB. Check if they are a Google-only user attempting a manual login.
-                if (appUser.provider === 'google' && !appUser.password) {
-                    setError("This account was created with Google. Please click 'Continue with Google' to log in.");
-                    return;
-                }
-
                 // Verify Password against our DB
                 if (appUser.password !== pass && pass !== settings?.adminCode) {
                     setError("Invalid Password.");
@@ -566,13 +550,8 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
 
         {view === 'HOME' && (
             <div className="space-y-6 relative z-10 animate-in fade-in mt-10">
-                 <button type="button" onClick={handleGoogleAuth} className="w-full bg-[#e2e8f0] hover:bg-[#cbd5e1] text-[#1e293b] font-bold py-4 rounded-[2rem] flex items-center justify-center gap-3 transition-all active:scale-95">
-                     <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
-                     Continue with Google
-                 </button>
-
                  <button type="button" onClick={() => setView('SIGNUP')} className="w-full bg-[#e2e8f0] hover:bg-[#cbd5e1] text-[#1e293b] font-bold py-4 rounded-[2rem] flex items-center justify-center gap-3 transition-all active:scale-95">
-                     Sign up
+                     Create Account
                  </button>
 
                  <button type="button" onClick={() => setView('LOGIN')} className="w-full bg-[#e2e8f0] hover:bg-[#cbd5e1] text-[#1e293b] font-bold py-4 rounded-[2rem] flex items-center justify-center gap-3 transition-all active:scale-95">
@@ -584,20 +563,21 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
         {view !== 'HOME' && (
             <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
               {view === 'SIGNUP' && (
-                  <>
-                    <div className="space-y-1.5"><label className="text-xs font-bold text-slate-500 uppercase">Full Name</label><input name="name" type="text" placeholder="Real Name" value={formData.name} onChange={handleChange} className="w-full px-4 py-3 border border-slate-200 rounded-xl" /></div>
-                    <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-slate-500 uppercase">Password (8-20 Chars)</label>
-                        <div className="relative">
-                            <input name="password" type={showPassword ? "text" : "password"} placeholder="Create Password" value={formData.password} onChange={handleChange} className="w-full px-4 py-3 border border-slate-200 rounded-xl pr-10" maxLength={20} />
-                            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
-                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                            </button>
-                        </div>
-                    </div>
-                    <div className="space-y-1.5"><label className="text-xs font-bold text-slate-500 uppercase">Mobile (10 Digits)</label><input name="mobile" type="tel" placeholder="Mobile Number" value={formData.mobile} onChange={handleChange} className="w-full px-4 py-3 border border-slate-200 rounded-xl" maxLength={10} /></div>
-                    <button type="submit" className="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl mt-4">Create Account</button>
-                  </>
+                  <div className="flex flex-col items-center justify-center space-y-6 py-6">
+                      <div className="text-center space-y-2 mb-4">
+                          <h3 className="text-lg font-bold text-slate-800">Quick Registration</h3>
+                          <p className="text-sm text-slate-500">Use your Google account to create a new student profile instantly.</p>
+                      </div>
+
+                      <button type="button" onClick={handleGoogleAuth} className="w-full bg-white border-2 border-slate-200 hover:border-blue-600 hover:bg-blue-50 text-[#1e293b] font-bold py-4 rounded-[2rem] flex items-center justify-center gap-3 transition-all active:scale-95 shadow-sm">
+                          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-6 h-6" />
+                          Continue with Google
+                      </button>
+
+                      <div className="text-xs text-slate-400 text-center mt-6 max-w-[250px]">
+                          By creating an account, you agree to our Terms of Service and Privacy Policy.
+                      </div>
+                  </div>
               )}
 
               {view === 'LOGIN' && (
