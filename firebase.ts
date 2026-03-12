@@ -147,11 +147,11 @@ export const saveUserToLive = async (user: any) => {
     // SAFETY CHECK: Only overwrite bulky data if the user object explicitly contains them.
     // This prevents accidental wiping of history if saveUserToLive is called with an incomplete user object (e.g. during a fast login/logout cycle).
     const bulkyData: any = {};
-    if (sanitizedUser.hasOwnProperty('mcqHistory')) bulkyData.mcqHistory = mcqHistory;
-    if (sanitizedUser.hasOwnProperty('usageHistory')) bulkyData.usageHistory = usageHistory;
-    if (sanitizedUser.hasOwnProperty('progress')) bulkyData.progress = progress;
-    if (sanitizedUser.hasOwnProperty('testResults')) bulkyData.testResults = testResults;
-    if (sanitizedUser.hasOwnProperty('inbox')) bulkyData.inbox = inbox;
+    if (user.hasOwnProperty('mcqHistory')) bulkyData.mcqHistory = mcqHistory;
+    if (user.hasOwnProperty('usageHistory')) bulkyData.usageHistory = usageHistory;
+    if (user.hasOwnProperty('progress')) bulkyData.progress = progress;
+    if (user.hasOwnProperty('testResults')) bulkyData.testResults = testResults;
+    if (user.hasOwnProperty('inbox')) bulkyData.inbox = inbox;
 
     // Use { merge: true } so we don't delete fields we didn't explicitly pass this time.
     if (Object.keys(bulkyData).length > 0) {
