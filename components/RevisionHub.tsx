@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import type { User, StudentTab, SystemSettings, TopicItem, TopicStatus } from '../types';
 import { BrainCircuit, Clock, CheckCircle, TrendingUp, AlertTriangle, ArrowRight, BookOpen, AlertCircle, X, FileText, CheckSquare, Calendar, Zap, AlertCircle as AlertIcon, ChevronDown, ChevronUp, Loader2, Lock, Unlock, MessageSquare, Bot, PlayCircle, Star, Volume2, Mic, AlertOctagon, Crown, Layout, Trophy } from 'lucide-react';
 import jsPDF from 'jspdf';
@@ -73,15 +73,15 @@ const RevisionHubComponent: React.FC<Props> = ({ user, onTabChange, settings, on
 
     // SCROLL TO HIDE HEADER STATE
     const [showHeader, setShowHeader] = useState(true);
-    const [lastScrollY, setLastScrollY] = useState(0);
+    const lastScrollY = useRef(0);
     const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
         const currentScrollY = e.currentTarget.scrollTop;
-        if (currentScrollY > lastScrollY && currentScrollY > 50) {
+        if (currentScrollY > lastScrollY.current && currentScrollY > 50) {
             setShowHeader(false);
-        } else if (currentScrollY < lastScrollY) {
+        } else if (currentScrollY < lastScrollY.current) {
             setShowHeader(true);
         }
-        setLastScrollY(currentScrollY);
+        lastScrollY.current = currentScrollY;
     };
 
     // Track recently completed MCQs for Marksheet view
