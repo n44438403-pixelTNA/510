@@ -205,7 +205,15 @@ export const getUserByEmail = async (email: string) => {
         const q = query(collection(db, "users"), where("email", "==", email));
         const querySnapshot = await getDocs(q);
         if (!querySnapshot.empty) {
-            return querySnapshot.docs[0].data();
+            const coreData = querySnapshot.docs[0].data();
+            // Fetch segregated bulky data to ensure history is not lost on re-login
+            if (coreData && coreData.id) {
+                const bulkySnap = await getDoc(doc(db, "user_data", coreData.id)).catch(() => null);
+                if (bulkySnap && bulkySnap.exists()) {
+                    return { ...coreData, ...bulkySnap.data() };
+                }
+            }
+            return coreData;
         }
         return null; 
     } catch (e) { console.error(e); return null; }
@@ -224,9 +232,19 @@ export const getUserByMobileOrId = async (input: string) => {
             getDocs(qEmail)
         ]);
 
-        if (!snapMobile.empty) return snapMobile.docs[0].data();
-        if (!snapId.empty) return snapId.docs[0].data();
-        if (!snapEmail.empty) return snapEmail.docs[0].data();
+        let coreData = null;
+        if (!snapMobile.empty) coreData = snapMobile.docs[0].data();
+        else if (!snapId.empty) coreData = snapId.docs[0].data();
+        else if (!snapEmail.empty) coreData = snapEmail.docs[0].data();
+
+        if (coreData && coreData.id) {
+            // Fetch segregated bulky data to ensure history is not lost on re-login
+            const bulkySnap = await getDoc(doc(db, "user_data", coreData.id)).catch(() => null);
+            if (bulkySnap && bulkySnap.exists()) {
+                return { ...coreData, ...bulkySnap.data() };
+            }
+            return coreData;
+        }
 
         return null;
     } catch (e) { console.error(e); return null; }

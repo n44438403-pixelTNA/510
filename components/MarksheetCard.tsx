@@ -47,18 +47,18 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
 
   // SCROLL TO HIDE HEADER STATE
   const [showHeader, setShowHeader] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const lastScrollY = useRef(0);
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const currentScrollY = e.currentTarget.scrollTop;
-    if (currentScrollY > lastScrollY && currentScrollY > 50) {
+    if (currentScrollY > lastScrollY.current && currentScrollY > 50) {
       // Scrolling down
       setShowHeader(false);
-    } else if (currentScrollY < lastScrollY) {
+    } else if (currentScrollY < lastScrollY.current) {
       // Scrolling up
       setShowHeader(true);
     }
-    setLastScrollY(currentScrollY);
+    lastScrollY.current = currentScrollY;
   };
 
   // DOWNLOAD MODAL STATE
