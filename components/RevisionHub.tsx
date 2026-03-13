@@ -71,26 +71,36 @@ const RevisionHubComponent: React.FC<Props> = ({ user, onTabChange, settings, on
     // Custom Alert State
     const [alertConfig, setAlertConfig] = useState<{isOpen: boolean, type: 'SUCCESS'|'ERROR'|'INFO', title?: string, message: string}>({isOpen: false, type: 'INFO', message: ''});
 
+
     // SCROLL TO HIDE HEADER STATE
     const [showHeader, setShowHeader] = useState(true);
     const lastScrollY = useRef(0);
-    const scrollTimeout = useRef<any>(null);
+    const scrollTicking = useRef(false);
+    const headerStateRef = useRef(true); // Track state to avoid redundant renders
 
     const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
         const currentScrollY = e.currentTarget.scrollTop;
 
-        // Debounce to prevent rapid toggling/blinking
-        if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
+        if (!scrollTicking.current) {
+            window.requestAnimationFrame(() => {
+                let shouldShow = headerStateRef.current;
 
-        scrollTimeout.current = setTimeout(() => {
-            if (currentScrollY > lastScrollY.current && currentScrollY > 150) {
-                setShowHeader(false);
-            } else if (currentScrollY < lastScrollY.current - 50 || currentScrollY < 100) {
-                // Require a significant upward scroll (50px) or being near the top to show again
-                setShowHeader(true);
-            }
-            lastScrollY.current = currentScrollY;
-        }, 100); // Increased delay and thresholds to prevent blinking
+                if (currentScrollY > lastScrollY.current && currentScrollY > 150) {
+                    shouldShow = false;
+                } else if (currentScrollY < lastScrollY.current - 10 || currentScrollY < 100) {
+                    shouldShow = true;
+                }
+
+                if (shouldShow !== headerStateRef.current) {
+                    headerStateRef.current = shouldShow;
+                    setShowHeader(shouldShow);
+                }
+
+                lastScrollY.current = currentScrollY;
+                scrollTicking.current = false;
+            });
+            scrollTicking.current = true;
+        }
     };
 
     // Track recently completed MCQs for Marksheet view
@@ -767,10 +777,10 @@ const RevisionHubComponent: React.FC<Props> = ({ user, onTabChange, settings, on
     }
 
     return (
-        <div onScroll={handleScroll} className="space-y-6 pb-24 p-4 animate-in fade-in relative h-[calc(100vh-80px)] overflow-y-auto">
+        <div className="space-y-6 pb-24 p-4 animate-in fade-in relative h-[calc(100vh-80px)] overflow-y-auto">
 
             {/* --- HERO HEADER --- */}
-            <div className={`transition-all duration-300 origin-top overflow-hidden ${showHeader ? 'opacity-100 max-h-[500px] mb-6' : 'opacity-0 max-h-0 mb-0'}`}>
+            <div className="mb-6">
                 <div className="bg-gradient-to-br from-indigo-900 via-indigo-800 to-blue-900 rounded-[2.5rem] p-8 sm:p-12 text-white shadow-2xl relative">
                     {/* Abstract Background Shapes */}
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
@@ -798,7 +808,7 @@ const RevisionHubComponent: React.FC<Props> = ({ user, onTabChange, settings, on
             </div>
 
             {/* --- STATS GRID --- */}
-            <div className={`grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 px-2 sm:px-0 transition-all duration-300 origin-top overflow-hidden ${showHeader ? 'opacity-100 max-h-40 mt-8 mb-6' : 'opacity-0 max-h-0 mt-0 mb-0 m-0 p-0 border-none'}`}>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 px-2 sm:px-0 mt-8 mb-6">
                 {/* Summary Cards */}
                 <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-1 items-center justify-center text-center">
                     <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl mb-1">

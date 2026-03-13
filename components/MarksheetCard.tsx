@@ -46,21 +46,38 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
   const [viewingNote, setViewingNote] = useState<any>(null); // New state for HTML Note Modal
   const [comparisonMessage, setComparisonMessage] = useState<string | null>(null);
 
+
   // SCROLL TO HIDE HEADER STATE
   const [showHeader, setShowHeader] = useState(true);
   const lastScrollY = useRef(0);
+  const scrollTicking = useRef(false);
+  const headerStateRef = useRef(true); // Track state to avoid redundant renders
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const currentScrollY = e.currentTarget.scrollTop;
-    if (currentScrollY > lastScrollY.current && currentScrollY > 50) {
-      // Scrolling down
-      setShowHeader(false);
-    } else if (currentScrollY < lastScrollY.current) {
-      // Scrolling up
-      setShowHeader(true);
+
+    if (!scrollTicking.current) {
+      window.requestAnimationFrame(() => {
+        let shouldShow = headerStateRef.current;
+
+        if (currentScrollY > lastScrollY.current && currentScrollY > 50) {
+          shouldShow = false; // Scrolling down
+        } else if (currentScrollY < lastScrollY.current - 10 || currentScrollY < 50) {
+          shouldShow = true;  // Scrolling up
+        }
+
+        if (shouldShow !== headerStateRef.current) {
+          headerStateRef.current = shouldShow;
+          setShowHeader(shouldShow);
+        }
+
+        lastScrollY.current = currentScrollY;
+        scrollTicking.current = false;
+      });
+      scrollTicking.current = true;
     }
-    lastScrollY.current = currentScrollY;
   };
+
 
   // DOWNLOAD MODAL STATE
 
@@ -1258,8 +1275,8 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
         </div>
 
         <div className="w-full max-w-2xl h-full sm:h-auto sm:max-h-[90vh] bg-white sm:rounded-3xl shadow-2xl flex flex-col relative overflow-hidden transition-all duration-300">
-            {/* Header - Collapsible */}
-            <div className={`bg-white text-slate-800 border-b border-slate-100 flex justify-between items-center z-10 sticky top-0 shrink-0 transition-all duration-300 origin-top overflow-hidden ${showHeader ? 'px-4 py-3 max-h-20 opacity-100' : 'max-h-0 opacity-0 border-none'}`}>
+            {/* Header */}
+            <div className="bg-white text-slate-800 border-b border-slate-100 flex justify-between items-center z-10 sticky top-0 shrink-0 px-4 py-3">
                 <div className="flex items-center gap-3">
                     {settings?.appLogo && <img src={settings.appLogo} alt="Logo" className="w-8 h-8 rounded-lg object-contain bg-slate-50 border" />}
                     <div>
@@ -1270,13 +1287,8 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                 <button onClick={onClose} className="p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors"><X size={20} /></button>
             </div>
 
-            {/* Floating Close Button (when header is hidden) */}
-            <div className={`absolute top-2 right-2 z-50 transition-all duration-300 ${!showHeader ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10 pointer-events-none'}`}>
-                <button onClick={onClose} className="p-2 bg-white rounded-full shadow-md text-slate-600 hover:bg-slate-50"><X size={20} /></button>
-            </div>
-
             {/* Comparison Alert */}
-            {comparisonMessage && showHeader && (
+            {comparisonMessage && (
                 <div className="px-4 pt-2 shrink-0 transition-all duration-300">
                     <div className="bg-blue-50 border border-blue-200 p-3 rounded-xl flex gap-3 animate-in slide-in-from-top-2">
                         <div className="bg-white p-2 rounded-full h-fit shadow-sm text-blue-600"><TrendingUp size={16} /></div>
@@ -1339,7 +1351,7 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
             </div>
 
             {/* Scrollable Content */}
-            <div id="marksheet-content" onScroll={handleScroll} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 bg-slate-50 relative">
+            <div id="marksheet-content" className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 bg-slate-50 relative">
                 {activeTab === 'OFFICIAL_MARKSHEET' && (
                     <>
                         {renderMarksheetStyle1()}
