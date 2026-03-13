@@ -4,9 +4,10 @@ import { getOfflineItems, removeOfflineItem, OfflineItem } from '../utils/offlin
 
 interface Props {
   onBack: () => void;
+  hideHeader?: boolean;
 }
 
-export const OfflineDownloads: React.FC<Props> = ({ onBack }) => {
+export const OfflineDownloads: React.FC<Props> = ({ onBack, hideHeader = false }) => {
   const [items, setItems] = useState<OfflineItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState<OfflineItem | null>(null);
@@ -196,12 +197,14 @@ export const OfflineDownloads: React.FC<Props> = ({ onBack }) => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-32">
-      <div className="bg-white p-4 border-b border-slate-200 flex items-center gap-3 sticky top-0 z-40">
-        <h1 className="text-xl font-black text-slate-800 px-2">Offline Downloads</h1>
-      </div>
+    <div className={`bg-slate-50 ${hideHeader ? 'pb-8' : 'min-h-screen pb-32'}`}>
+      {!hideHeader && (
+        <div className="bg-white p-4 border-b border-slate-200 flex items-center gap-3 sticky top-0 z-40">
+          <h1 className="text-xl font-black text-slate-800 px-2">Offline Downloads</h1>
+        </div>
+      )}
 
-      <div className="p-4 max-w-4xl mx-auto">
+      <div className={`${hideHeader ? 'p-0' : 'p-4'} max-w-4xl mx-auto`}>
         {loading ? (
           <div className="flex justify-center py-10"><span className="animate-spin text-2xl">⏳</span></div>
         ) : items.length === 0 ? (

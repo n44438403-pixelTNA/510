@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { LessonContent, User, SystemSettings, UsageHistoryEntry, MCQResult } from '../types';
-import { BookOpen, Calendar, ChevronDown, ChevronUp, Trash2, Search, FileText, CheckCircle2, Lock, AlertCircle, Folder } from 'lucide-react';
+import { BookOpen, Calendar, ChevronDown, ChevronUp, Trash2, Search, FileText, CheckCircle2, Lock, AlertCircle, Folder, Download } from 'lucide-react';
 import { LessonView } from './LessonView';
 import { saveUserToLive, getChapterData } from '../firebase';
 import { CustomAlert, CustomConfirm } from './CustomDialogs';
 import { MarksheetCard } from './MarksheetCard';
+import { OfflineDownloads } from './OfflineDownloads';
+import { saveOfflineItem } from '../utils/offlineStorage';
 
 interface Props {
     user: User;
@@ -13,7 +15,7 @@ interface Props {
 }
 
 export const HistoryPage: React.FC<Props> = ({ user, onUpdateUser, settings }) => {
-  const [activeTab, setActiveTab] = useState<'ACTIVITY' | 'SAVED'>('SAVED');
+  const [activeTab, setActiveTab] = useState<'ACTIVITY' | 'SAVED' | 'OFFLINE'>('SAVED');
   
   // SAVED NOTES STATE
   const [history, setHistory] = useState<LessonContent[]>([]);
@@ -107,6 +109,60 @@ export const HistoryPage: React.FC<Props> = ({ user, onUpdateUser, settings }) =
     const updatedUser: User = { ...user, usageHistory: updatedHistory } as User;
     onUpdateUser(updatedUser);
     saveUserToLive(updatedUser);
+  };
+
+  const handleSaveOfflineLog = async (log: any, e: React.MouseEvent) => {
+      e.stopPropagation();
+      try {
+          if (log.type === 'MCQ') {
+              const fullResult = user.mcqHistory?.find(r => r.id === log.itemId || r.chapterId === log.itemId);
+              if (fullResult) {
+                  // Try to find questions
+                  let questions = [];
+                  const chapterData = await getChapterData('nst_chapter_content', fullResult.chapterId);
+                  if (chapterData && chapterData.mcqData) questions = chapterData.mcqData;
+
+                  await saveOfflineItem({
+                      id: `analysis_${fullResult.testId || log.itemId}_${Date.now()}`,
+                      type: 'ANALYSIS',
+                      title: fullResult.chapterTitle || log.itemTitle || 'Analysis Report',
+                      subtitle: `${fullResult.score} / ${fullResult.totalQuestions}`,
+                      data: { result: fullResult, questions }
+                  });
+                  window.alert("MCQ Analysis Saved Offline!");
+              } else {
+                  window.alert("Detailed MCQ result not found in history.");
+              }
+          } else if (log.type === 'PDF' || log.type === 'NOTES') {
+              // Attempt to fetch full notes from DB
+              const chapterData = await getChapterData('nst_chapter_content', log.itemId);
+              if (chapterData && chapterData.notesHtml) {
+                  await saveOfflineItem({
+                      id: `note_${log.itemId}_${Date.now()}`,
+                      type: 'NOTE',
+                      title: log.itemTitle || 'Saved Note',
+                      subtitle: log.subject || 'Notes',
+                      data: { html: chapterData.notesHtml }
+                  });
+                  window.alert("Note Saved Offline!");
+              } else if (log.content) {
+                  // Direct content log
+                  await saveOfflineItem({
+                      id: `note_${log.itemId}_${Date.now()}`,
+                      type: 'NOTE',
+                      title: log.itemTitle || 'Saved Note',
+                      subtitle: log.subject || 'Notes',
+                      data: { html: log.content }
+                  });
+                  window.alert("Note Saved Offline!");
+              } else {
+                  window.alert("Full note content not found. Open the note first to sync it.");
+              }
+          }
+      } catch (err) {
+          console.error("Offline Save Error:", err);
+          window.alert("Error saving offline.");
+      }
   };
 
   const executeOpenItem = (item: LessonContent, cost: number) => {
@@ -269,7 +325,19 @@ export const HistoryPage: React.FC<Props> = ({ user, onUpdateUser, settings }) =
             >
                 Activity Log
             </button>
+            <button
+                onClick={() => setActiveTab('OFFLINE')}
+                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${activeTab === 'OFFLINE' ? 'bg-white shadow text-slate-800' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+                Offline Saved
+            </button>
         </div>
+
+        {activeTab === 'OFFLINE' && (
+            <div className="animate-in fade-in duration-300">
+                <OfflineDownloads onBack={() => setActiveTab('SAVED')} hideHeader={true} />
+            </div>
+        )}
 
         {activeTab === 'ACTIVITY' && (
             <div className="space-y-4">
@@ -362,6 +430,9 @@ export const HistoryPage: React.FC<Props> = ({ user, onUpdateUser, settings }) =
                                                                 {!user.isPremium && user.role !== 'ADMIN' && (
                                                                     <span className="text-[9px] font-black text-slate-400 italic">Cost: {settings?.mcqHistoryCost ?? 1} CR</span>
                                                                 )}
+                                                                <button onClick={(e) => handleSaveOfflineLog(log, e)} className="mt-1 flex items-center gap-1 text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded-md hover:bg-slate-200 transition-colors">
+                                                                    <Download size={10} /> Save
+                                                                </button>
                                                             </div>
                                                         ) : log.type === 'GAME' ? (
                                                             <span className="text-xs font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded-full border border-orange-100">Played</span>
@@ -375,6 +446,11 @@ export const HistoryPage: React.FC<Props> = ({ user, onUpdateUser, settings }) =
                                                                     <span className="text-[9px] font-black text-slate-400 italic">
                                                                         Re-open: {log.type === 'VIDEO' ? (settings?.videoHistoryCost ?? 2) : (settings?.pdfHistoryCost ?? 1)} CR
                                                                     </span>
+                                                                )}
+                                                                {(log.type === 'PDF' || log.type === 'NOTES') && (
+                                                                    <button onClick={(e) => handleSaveOfflineLog(log, e)} className="mt-1 flex items-center gap-1 text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded-md hover:bg-slate-200 transition-colors">
+                                                                        <Download size={10} /> Save
+                                                                    </button>
                                                                 )}
                                                             </div>
                                                         )}
