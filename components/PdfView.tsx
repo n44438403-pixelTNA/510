@@ -533,7 +533,7 @@ export const PdfView: React.FC<Props> = ({
           // Access Check Handled Below
       } else if (type === 'AUDIO_SLIDE') {
           link = syllabusMode === 'SCHOOL' ? (contentData?.schoolPdfPremiumLink || contentData?.premiumLink) : contentData?.competitionPdfPremiumLink;
-          const rawTts = syllabusMode === 'SCHOOL' ? (contentData?.deepDiveNotesHtml || '') : (contentData?.competitionDeepDiveNotesHtml || '');
+          const rawTts = syllabusMode === 'SCHOOL' ? (contentData?.schoolPremiumNotesHtml || contentData?.premiumNotesHtml || '') : (contentData?.competitionPremiumNotesHtml || '');
           ttsContent = rawTts.replace(/<[^>]*>?/gm, ' ');
       }
 
