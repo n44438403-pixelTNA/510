@@ -113,27 +113,14 @@ export const HistoryPage: React.FC<Props> = ({ user, onUpdateUser, settings }) =
 
   const handleSaveOfflineLog = async (log: any, e: React.MouseEvent) => {
       e.stopPropagation();
-
-      const board = user.board || 'CBSE';
-      const cls = user.classLevel || '10';
-      const streamKey = (['11','12'].includes(cls) && user.stream) ? `-${user.stream}` : '';
-      const sub = log.subject || 'General';
-      const chId = log.itemId;
-      const key = `nst_content_${board}_${cls}${streamKey}_${sub}_${chId}`;
-
       try {
           if (log.type === 'MCQ') {
               const fullResult = user.mcqHistory?.find(r => r.id === log.itemId || r.chapterId === log.itemId);
               if (fullResult) {
+                  // Try to find questions
                   let questions = [];
-                  const resultSub = fullResult.subjectName || log.subject || 'General';
-                  const resultChId = fullResult.chapterId || log.itemId;
-                  const resultKey = `nst_content_${board}_${fullResult.classLevel || cls}${streamKey}_${resultSub}_${resultChId}`;
-                  const chapterData = await getChapterData(resultKey);
-
-                  if (chapterData) {
-                      questions = chapterData.manualMcqData || chapterData.weeklyTestMcqData || chapterData.mcqData || [];
-                  }
+                  const chapterData = await getChapterData('nst_chapter_content', fullResult.chapterId);
+                  if (chapterData && chapterData.mcqData) questions = chapterData.mcqData;
 
                   await saveOfflineItem({
                       id: `analysis_${fullResult.testId || log.itemId}_${Date.now()}`,
@@ -147,7 +134,8 @@ export const HistoryPage: React.FC<Props> = ({ user, onUpdateUser, settings }) =
                   window.alert("Detailed MCQ result not found in history.");
               }
           } else if (log.type === 'PDF' || log.type === 'NOTES') {
-              const chapterData = await getChapterData(key);
+              // Attempt to fetch full notes from DB
+              const chapterData = await getChapterData('nst_chapter_content', log.itemId);
               if (chapterData && chapterData.notesHtml) {
                   await saveOfflineItem({
                       id: `note_${log.itemId}_${Date.now()}`,
@@ -158,6 +146,7 @@ export const HistoryPage: React.FC<Props> = ({ user, onUpdateUser, settings }) =
                   });
                   window.alert("Note Saved Offline!");
               } else if (log.content) {
+                  // Direct content log
                   await saveOfflineItem({
                       id: `note_${log.itemId}_${Date.now()}`,
                       type: 'NOTE',
@@ -346,7 +335,7 @@ export const HistoryPage: React.FC<Props> = ({ user, onUpdateUser, settings }) =
 
         {activeTab === 'OFFLINE' && (
             <div className="animate-in fade-in duration-300">
-                <OfflineDownloads onBack={() => setActiveTab('SAVED')} hideHeader={true} />
+                <OfflineDownloads onBack={() => setActiveTab('SAVED')} hideHeader={true} user={user} settings={settings} />
             </div>
         )}
 

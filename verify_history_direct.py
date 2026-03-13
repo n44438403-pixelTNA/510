@@ -30,34 +30,20 @@ async def main():
             "profileCompleted": True,
             "onboardingComplete": True,
             "testResults": [],
-            "mcqHistory": [
-                {
-                    "id": "test1",
-                    "chapterId": "ch1",
-                    "subjectName": "Physics",
-                    "chapterTitle": "Kinematics",
-                    "score": 10,
-                    "totalQuestions": 10,
-                    "classLevel": "12"
-                }
-            ],
+            "mcqHistory": [],
             "preferences": {},
             "usageHistory": [
                 {
-                    "id": "mock_id_1",
                     "type": "MCQ",
-                    "itemTitle": "Kinematics Test",
-                    "itemId": "ch1",
-                    "subject": "Physics",
-                    "timestamp": "2024-03-10T12:00:00Z"
+                    "title": "Thermodynamics Quiz",
+                    "timestamp": "2024-03-10T12:00:00Z",
+                    "metadata": {"subject": "Physics"}
                 },
                 {
-                    "id": "mock_id_2",
                     "type": "NOTES",
-                    "itemTitle": "Kinematics Notes",
-                    "itemId": "ch1",
-                    "subject": "Physics",
-                    "timestamp": "2024-03-11T12:00:00Z"
+                    "title": "Kinematics Deep Dive",
+                    "timestamp": "2024-03-11T12:00:00Z",
+                    "metadata": {"subject": "Physics"}
                 }
             ]
         }
@@ -98,30 +84,29 @@ async def main():
         except Exception as e:
             print("Could not click history tab:", e)
 
-        # Let's try to click a save button
-        print("Clicking a Save button to test...")
-        try:
-             # Add alert listener to capture if an alert happens
-             page.on("dialog", lambda dialog: print(f"Alert shown: {dialog.message}") or dialog.accept())
-
-             await page.evaluate("""
-                 const saveBtns = Array.from(document.querySelectorAll('button')).filter(el => el.textContent.includes('Save'));
-                 if(saveBtns.length > 0) saveBtns[0].click();
-             """)
-             await page.wait_for_timeout(1000)
-
-             await page.evaluate("""
-                 const saveBtns = Array.from(document.querySelectorAll('button')).filter(el => el.textContent.includes('Save'));
-                 if(saveBtns.length > 1) saveBtns[1].click();
-             """)
-             await page.wait_for_timeout(1000)
-        except Exception as e:
-             print("Could not test save button click:", e)
-
         print("Taking screenshots...")
         # Screenshot Activity Log
-        await page.screenshot(path="screenshot_history_activity_fixed.png", full_page=True)
-        print("Saved screenshot_history_activity_fixed.png")
+        await page.screenshot(path="screenshot_history_activity.png", full_page=True)
+        print("Saved screenshot_history_activity.png")
+
+        # Try to click OFFLINE tab
+        try:
+            await page.evaluate("""
+                const offBtn = Array.from(document.querySelectorAll('button')).find(el => el.textContent.includes('Offline Saved') || el.textContent === 'Offline Saved' || el.textContent.includes('Offline') || el.textContent === 'Offline Saved');
+                if(!offBtn) {
+                   const btns = document.querySelectorAll('button');
+                   for(let btn of btns) {
+                      if(btn.textContent.includes('Offline Saved')) btn.click();
+                   }
+                } else {
+                   offBtn.click();
+                }
+            """)
+            await page.wait_for_timeout(2000)
+            await page.screenshot(path="screenshot_history_offline.png", full_page=True)
+            print("Saved screenshot_history_offline.png")
+        except Exception as e:
+            print("Could not click OFFLINE tab:", e)
 
         await browser.close()
 

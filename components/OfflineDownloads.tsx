@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Trash2, FileText, BarChart2, CheckCircle2, FileQuestion, Download } from 'lucide-react';
 import { getOfflineItems, removeOfflineItem, OfflineItem } from '../utils/offlineStorage';
+import { MarksheetCard } from './MarksheetCard';
+import { User, SystemSettings } from '../types';
 
 interface Props {
   onBack: () => void;
   hideHeader?: boolean;
+  user?: User;
+  settings?: SystemSettings;
 }
 
-export const OfflineDownloads: React.FC<Props> = ({ onBack, hideHeader = false }) => {
+export const OfflineDownloads: React.FC<Props> = ({ onBack, hideHeader = false, user, settings }) => {
   const [items, setItems] = useState<OfflineItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState<OfflineItem | null>(null);
@@ -39,6 +43,18 @@ export const OfflineDownloads: React.FC<Props> = ({ onBack, hideHeader = false }
   const analysis = items.filter(i => i.type === 'ANALYSIS');
 
   const renderItemViewer = (item: OfflineItem) => {
+    if (item.type === 'ANALYSIS' && item.data?.result && user) {
+        return (
+            <MarksheetCard
+                result={item.data.result}
+                questions={item.data.questions}
+                user={user}
+                settings={settings}
+                onClose={() => setSelectedItem(null)}
+            />
+        );
+    }
+
     return (
       <div className="fixed inset-0 z-[9999] bg-white flex flex-col h-screen w-screen overflow-hidden">
         <div className="flex items-center justify-between p-4 border-b bg-slate-50 sticky top-0 z-10">
@@ -58,7 +74,7 @@ export const OfflineDownloads: React.FC<Props> = ({ onBack, hideHeader = false }
 
         <div className="flex-1 overflow-y-auto p-4 bg-white">
           {item.type === 'NOTE' && item.data?.html && (
-            <div className="prose prose-slate max-w-none" dangerouslySetInnerHTML={{ __html: typeof item.data.html === 'string' ? item.data.html : String(item.data.html) }} />
+            <div className="prose prose-slate max-w-none" dangerouslySetInnerHTML={{ __html: item.data.html }} />
           )}
 
           {item.type === 'MCQ' && (
@@ -127,7 +143,7 @@ export const OfflineDownloads: React.FC<Props> = ({ onBack, hideHeader = false }
               <h4 className="font-bold text-slate-800 text-lg border-b pb-2">Questions Review</h4>
               <div className="space-y-4">
                 {item.data.questions?.map((q: any, idx: number) => {
-                  const userAnswer = item.data.result.answers ? item.data.result.answers[idx] : undefined;
+                  const userAnswer = item.data.result.answers[idx];
                   const isCorrect = userAnswer === q.correctAnswer;
                   const isSkipped = userAnswer === undefined || userAnswer === null || userAnswer === -1;
 
