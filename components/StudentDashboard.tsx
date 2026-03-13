@@ -350,7 +350,7 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
   const [showFeatureMatrix, setShowFeatureMatrix] = useState(false);
 
   useEffect(() => {
-    if (activeTab === 'HOME' || activeTab === 'EXPLORE' || activeTab === 'PROFILE' || (activeTab as any) === 'AI_STUDIO' || activeTab === 'REVISION' || activeTab === 'HISTORY' || (activeTab as any) === 'ANALYTICS') {
+    if (activeTab === 'HOME' || activeTab === 'EXPLORE' || activeTab === 'PROFILE' || (activeTab as any) === 'AI_STUDIO' || activeTab === 'REVISION') {
         setFullScreen(true);
     } else {
         if (activeTab !== 'VIDEO' && activeTab !== 'PDF' && activeTab !== 'MCQ' && (activeTab as any) !== 'AUDIO') {
@@ -625,7 +625,15 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
                      }
                 }
                 const updated: User = { ...currentUser, ...cloudData, ...protectedSub };
-                if ((!cloudData.mcqHistory || cloudData.mcqHistory.length === 0) && (currentUser.mcqHistory && currentUser.mcqHistory.length > 0)) { updated.mcqHistory = currentUser.mcqHistory; }
+
+                // CRITICAL FIX: The Firestore 'users/{uid}' document DOES NOT contain bulky data.
+                // We must preserve the bulky data from the current state so it doesn't get wiped by the core sync.
+                if (!cloudData.hasOwnProperty('mcqHistory')) updated.mcqHistory = currentUser.mcqHistory;
+                if (!cloudData.hasOwnProperty('testResults')) updated.testResults = currentUser.testResults;
+                if (!cloudData.hasOwnProperty('progress')) updated.progress = currentUser.progress;
+                if (!cloudData.hasOwnProperty('usageHistory')) updated.usageHistory = currentUser.usageHistory;
+                if (!cloudData.hasOwnProperty('inbox')) updated.inbox = currentUser.inbox;
+
                 onRedeemSuccess(updated); 
             }
         }
@@ -1228,7 +1236,7 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
       if ((activeTab as string) === 'ANALYTICS') return <AnalyticsPage user={user} onBack={() => onTabChange('HOME')} settings={settings} onNavigateToChapter={onNavigateToChapter} />;
       if ((activeTab as string) === 'SUB_HISTORY') return <SubscriptionHistory user={user} onBack={() => onTabChange('HOME')} />;
       if (activeTab === 'HISTORY') return <HistoryPage user={user} onUpdateUser={handleUserUpdate} settings={settings} />;
-      if ((activeTab as string) === 'DOWNLOADS') return <OfflineDownloads onBack={() => onTabChange('HOME')} />;
+      // DOWNLOADS is handled in the main render flow so bottom nav shows
       if (activeTab === 'LEADERBOARD') return <Leaderboard user={user} settings={settings} />;
       if (activeTab === 'GAME') return isGameEnabled ? (user.isGameBanned ? <div className="text-center py-20 bg-red-50 rounded-2xl border border-red-100"><Ban size={48} className="mx-auto text-red-500 mb-4" /><h3 className="text-lg font-bold text-red-700">Access Denied</h3><p className="text-sm text-red-600">Admin has disabled the game for your account.</p></div> : <SpinWheel user={user} onUpdateUser={handleUserUpdate} settings={settings} />) : null;
       if (activeTab === 'REDEEM') return <div className="animate-in fade-in slide-in-from-bottom-2 duration-300"><RedeemSection user={user} onSuccess={onRedeemSuccess} /></div>;
@@ -1567,6 +1575,10 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
       // Handle Drill-Down Views (Video, PDF, MCQ, AUDIO)
       if (activeTab === 'VIDEO' || activeTab === 'PDF' || activeTab === 'MCQ' || (activeTab as any) === 'AUDIO') {
           return renderContentSection(activeTab as any);
+      }
+
+      if ((activeTab as string) === 'DOWNLOADS') {
+          return <div className="animate-in fade-in duration-300"><OfflineDownloads onBack={() => onTabChange('HOME')} /></div>;
       }
 
       return null;
@@ -1959,17 +1971,12 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
                 isFlashSaleActive={settings?.specialDiscountEvent?.enabled}
                 onOpenProfile={() => onTabChange('PROFILE')}
                 onOpenStore={() => onTabChange('STORE')}
-
                 onNavigate={(tab) => onTabChange(tab as any)}
-
-                onNavigate={(path) => onTabChange(path as any)}
-
             />
         )}
 
         {/* FIXED BOTTOM NAVIGATION */}
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg z-[49] pb-safe hidden md:block">
-            {/* The standard bottom nav is hidden on mobile now in favor of FloatingActionMenu, as per user full-screen request */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg z-50 pb-safe">
             <div className="flex justify-around items-center h-16">
                 {(() => {
                     const access = getFeatureAccess('NAV_HOME');
