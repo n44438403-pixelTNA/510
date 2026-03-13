@@ -688,14 +688,23 @@ export const LessonView: React.FC<Props> = ({
 
     const handleSaveOffline = () => {
         if (!user) return;
+
+        // Save both MCQ data and any associated notes
+        const payload: any = {
+            questions: localMcqData
+        };
+
+        if (content?.content) payload.theory = content.content; // Markdown fallback
+        if (content?.topicNotes) payload.topicNotes = content.topicNotes;
+
         saveOfflineItem({
             id: `lesson_mcq_${chapter.id}_${Date.now()}`,
             type: 'MCQ',
             title: chapter.title,
             subtitle: subject.name,
-            data: localMcqData
+            data: payload
         });
-        setAlertConfig({isOpen: true, message: "MCQ Saved Offline!"});
+        setAlertConfig({isOpen: true, message: "MCQ & Notes Saved Offline!"});
     };
 
     const handleConfirmDownload = async (type: 'PDF' | 'MHTML') => {
