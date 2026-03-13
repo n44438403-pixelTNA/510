@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { LessonContent, User, SystemSettings, UsageHistoryEntry, MCQResult } from '../types';
-import { BookOpen, Calendar, ChevronDown, ChevronUp, Trash2, Search, FileText, CheckCircle2, Lock, AlertCircle, Folder } from 'lucide-react';
+import { BookOpen, Calendar, ChevronDown, ChevronUp, Trash2, Search, FileText, CheckCircle2, Lock, AlertCircle, Folder, Download, Loader2 } from 'lucide-react';
 import { LessonView } from './LessonView';
 import { saveUserToLive, getChapterData } from '../firebase';
 import { CustomAlert, CustomConfirm } from './CustomDialogs';
 import { MarksheetCard } from './MarksheetCard';
+import { saveOfflineItem, getOfflineItems, OfflineItem } from '../utils/offlineStorage';
 
 interface Props {
     user: User;
@@ -53,6 +54,8 @@ export const HistoryPage: React.FC<Props> = ({ user, onUpdateUser, settings }) =
   
   // USAGE HISTORY STATE (ACTIVITY LOG)
   const [usageLog, setUsageLog] = useState<UsageHistoryEntry[]>([]);
+  const [offlineItems, setOfflineItems] = useState<OfflineItem[]>([]);
+  const [savingId, setSavingId] = useState<string | null>(null);
 
   const [alertConfig, setAlertConfig] = useState<{isOpen: boolean, message: string}>({isOpen: false, message: ''});
   const [confirmConfig, setConfirmConfig] = useState<{isOpen: boolean, message: string, onConfirm: () => void}>({
@@ -74,6 +77,9 @@ export const HistoryPage: React.FC<Props> = ({ user, onUpdateUser, settings }) =
     if (user.usageHistory) {
         setUsageLog([...user.usageHistory].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
     }
+
+    // Load Offline Items to show correct button state
+    getOfflineItems().then(items => setOfflineItems(items));
   }, [user.usageHistory]);
 
   const checkAvailability = (log: any) => {
@@ -107,6 +113,86 @@ export const HistoryPage: React.FC<Props> = ({ user, onUpdateUser, settings }) =
     const updatedUser: User = { ...user, usageHistory: updatedHistory } as User;
     onUpdateUser(updatedUser);
     saveUserToLive(updatedUser);
+  };
+
+  const handleSaveActivityLog = async (e: React.MouseEvent, log: any) => {
+      e.stopPropagation();
+      setSavingId(log.id);
+
+      try {
+          const board = user.board || 'CBSE';
+          const cls = user.classLevel || '10';
+          const streamKey = (['11','12'].includes(cls) && user.stream) ? `-${user.stream}` : '';
+          const key = `nst_content_${board}_${cls}${streamKey}_${log.subject}_${log.itemId}`;
+
+          let chapterData: any = null;
+          try {
+              chapterData = await getChapterData(key);
+          } catch(e) { console.warn("Could not fetch full chapter data", e); }
+
+          if (log.type === 'PDF' || log.type === 'NOTES') {
+              // Save Note Offline
+              let htmlContent = '';
+              if (chapterData?.theory) htmlContent += chapterData.theory;
+              if (chapterData?.topicNotes) {
+                  chapterData.topicNotes.forEach((n: any) => {
+                      htmlContent += `<h2>${n.title || n.topic}</h2>${n.content}`;
+                  });
+              }
+
+              if (htmlContent) {
+                  await saveOfflineItem({
+                      id: log.itemId,
+                      type: 'NOTE',
+                      title: log.itemTitle,
+                      subtitle: log.subject,
+                      data: { html: htmlContent }
+                  });
+                  setAlertConfig({isOpen: true, message: "Note Saved Offline!"});
+              } else {
+                  setAlertConfig({isOpen: true, message: "Content not available for offline save."});
+              }
+          }
+          else if (log.type === 'MCQ' || log.type === 'MCQ_ANALYSIS') {
+              // Save MCQ Offline
+              if (chapterData && (chapterData.manualMcqData || chapterData.weeklyTestMcqData)) {
+                  const mcqData = chapterData.manualMcqData || chapterData.weeklyTestMcqData;
+                  await saveOfflineItem({
+                      id: `mcq_${log.itemId}`,
+                      type: 'MCQ',
+                      title: log.itemTitle,
+                      subtitle: log.subject,
+                      data: { questions: mcqData, theory: chapterData.theory, topicNotes: chapterData.topicNotes }
+                  });
+              }
+
+              // Additionally, save Analysis if we have a result
+              const fullResult = user.mcqHistory?.find(r => r.id === log.id || r.chapterId === log.itemId || r.testId === log.itemId);
+              if (fullResult) {
+                   await saveOfflineItem({
+                      id: `analysis_${fullResult.testId || log.itemId}`,
+                      type: 'ANALYSIS',
+                      title: fullResult.chapterTitle || log.itemTitle,
+                      subtitle: `${fullResult.score} / ${fullResult.totalQuestions}`,
+                      data: { result: fullResult, questions: chapterData?.manualMcqData || chapterData?.weeklyTestMcqData }
+                  });
+                  setAlertConfig({isOpen: true, message: "Analysis Saved Offline!"});
+              } else if (chapterData) {
+                  setAlertConfig({isOpen: true, message: "MCQ Saved Offline for Practice!"});
+              } else {
+                  setAlertConfig({isOpen: true, message: "MCQ Content not available."});
+              }
+          }
+
+          // Refresh offline items list
+          const updatedItems = await getOfflineItems();
+          setOfflineItems(updatedItems);
+      } catch (error) {
+          console.error("Save offline failed:", error);
+          setAlertConfig({isOpen: true, message: "Failed to save offline."});
+      } finally {
+          setSavingId(null);
+      }
   };
 
   const executeOpenItem = (item: LessonContent, cost: number) => {
@@ -356,27 +442,44 @@ export const HistoryPage: React.FC<Props> = ({ user, onUpdateUser, settings }) =
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div className="text-right">
-                                                        {log.type === 'MCQ' ? (
-                                                            <div className="flex flex-col items-end gap-1">
-                                                                {!user.isPremium && user.role !== 'ADMIN' && (
-                                                                    <span className="text-[9px] font-black text-slate-400 italic">Cost: {settings?.mcqHistoryCost ?? 1} CR</span>
-                                                                )}
-                                                            </div>
-                                                        ) : log.type === 'GAME' ? (
-                                                            <span className="text-xs font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded-full border border-orange-100">Played</span>
-                                                        ) : log.type === 'PURCHASE' ? (
-                                                            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full border border-emerald-100">Success</span>
-                                                        ) : (
-                                                            <div className="flex flex-col items-end">
-                                                                <p className="font-black text-slate-700 text-sm">{formatDuration(log.durationSeconds || 0)}</p>
-                                                                <p className="text-[10px] text-slate-400 font-bold uppercase mb-1">Time Spent</p>
-                                                                {!user.isPremium && user.role !== 'ADMIN' && (
-                                                                    <span className="text-[9px] font-black text-slate-400 italic">
-                                                                        Re-open: {log.type === 'VIDEO' ? (settings?.videoHistoryCost ?? 2) : (settings?.pdfHistoryCost ?? 1)} CR
-                                                                    </span>
-                                                                )}
-                                                            </div>
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="text-right flex flex-col justify-center items-end mr-2">
+                                                            {log.type === 'MCQ' ? (
+                                                                <div className="flex flex-col items-end gap-1">
+                                                                    {!user.isPremium && user.role !== 'ADMIN' && (
+                                                                        <span className="text-[9px] font-black text-slate-400 italic">Cost: {settings?.mcqHistoryCost ?? 1} CR</span>
+                                                                    )}
+                                                                </div>
+                                                            ) : log.type === 'GAME' ? (
+                                                                <span className="text-xs font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded-full border border-orange-100">Played</span>
+                                                            ) : log.type === 'PURCHASE' ? (
+                                                                <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full border border-emerald-100">Success</span>
+                                                            ) : (
+                                                                <div className="flex flex-col items-end">
+                                                                    <p className="font-black text-slate-700 text-sm">{formatDuration(log.durationSeconds || 0)}</p>
+                                                                    <p className="text-[10px] text-slate-400 font-bold uppercase mb-1">Time Spent</p>
+                                                                    {!user.isPremium && user.role !== 'ADMIN' && (
+                                                                        <span className="text-[9px] font-black text-slate-400 italic">
+                                                                            Re-open: {log.type === 'VIDEO' ? (settings?.videoHistoryCost ?? 2) : (settings?.pdfHistoryCost ?? 1)} CR
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                        </div>
+
+                                                        {(log.type === 'PDF' || log.type === 'MCQ' || log.type === 'NOTES' || log.type === 'MCQ_ANALYSIS') && (
+                                                            <button
+                                                                onClick={(e) => handleSaveActivityLog(e, log)}
+                                                                disabled={savingId === log.id}
+                                                                className={`p-2 rounded-lg flex items-center justify-center transition-all ${
+                                                                    offlineItems.some(i => i.id === log.itemId || i.id === `mcq_${log.itemId}` || i.id === `analysis_${log.itemId}` || i.id === `analysis_${log.testId}`)
+                                                                        ? 'bg-green-100 text-green-700 border border-green-200 shadow-sm'
+                                                                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'
+                                                                }`}
+                                                                title="Save Offline"
+                                                            >
+                                                                {savingId === log.id ? <Loader2 size={16} className="animate-spin text-blue-600" /> : <Download size={16} />}
+                                                            </button>
                                                         )}
                                                     </div>
                                                 </div>
