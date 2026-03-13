@@ -60,6 +60,51 @@ const TermsPopup: React.FC<{ onClose: () => void, text?: string }> = ({ onClose,
 
 const App: React.FC = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  // TESTING OVERRIDE: Render component directly bypassing auth
+  useEffect(() => {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('mock') === 'marksheet') {
+          // Dummy data to trigger the MarksheetCard
+          setLastTestResult({
+              id: "mock-result-123",
+              userId: "mock-user",
+              chapterId: "mock-chapter",
+              chapterTitle: "Thermodynamics Theory & Numerical Application",
+              subjectId: "Physics",
+              score: 8,
+              total: 10,
+              totalQuestions: 10,
+              correctCount: 8,
+              wrongCount: 2,
+              totalTimeSeconds: 150,
+              timeTaken: 150,
+              averageTimePerQuestion: 15,
+              performanceTag: "EXCELLENT",
+              date: new Date().toISOString(),
+              userAnswers: { 0: 1, 1: 0, 2: 2, 3: 1 },
+              wrongQuestions: [
+                  { qIndex: 1, question: "What is the first law of thermodynamics?" },
+                  { qIndex: 3, question: "Calculate the entropy change for the reversible process." }
+              ],
+              topicAnalysis: {
+                  "First Law": { total: 4, correct: 3, percentage: 75 },
+                  "Entropy": { total: 6, correct: 5, percentage: 83 }
+              }
+          });
+
+          setState(prev => ({
+              ...prev,
+              user: {
+                 id: "mock-user",
+                 role: "STUDENT",
+                 name: "Jules (Testing)",
+                 isPremium: true,
+                 profileCompleted: true
+              } as any
+          }));
+      }
+  }, []);
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('nst_dark_mode') === 'true');
 
   // ABANDONMENT DISCOUNT STATE

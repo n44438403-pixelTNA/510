@@ -12,7 +12,7 @@ import { checkFeatureAccess } from '../utils/permissionUtils';
 import { CustomConfirm } from './CustomDialogs'; // Import CustomConfirm
 import { SpeakButton } from './SpeakButton';
 import { renderMathInHtml } from '../utils/mathUtils';
-import { downloadAsMHTML } from '../utils/downloadUtils';
+import { downloadAsPDF } from '../utils/downloadUtils';
 import { saveOfflineItem } from '../utils/offlineStorage';
 
 interface Props {
@@ -1263,9 +1263,43 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                         <p className="text-[10px] font-bold text-slate-400">Official Marksheet</p>
                     </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
+                    <button onClick={handleShare} className="p-2 bg-slate-100 rounded-full text-slate-600 hover:bg-green-100 hover:text-green-600 transition-colors" title="Share Result">
+                        <Share2 size={18} />
+                    </button>
+
+                    {activeTab === 'OFFICIAL_MARKSHEET' ? (
+                        <button
+                            onClick={() => downloadAsPDF('marksheet-style-1', `Marksheet_${user.name}`)}
+                            className="p-2 bg-slate-100 rounded-full text-slate-600 hover:bg-blue-100 hover:text-blue-600 transition-colors"
+                            title="Download Marksheet"
+                        >
+                            <Download size={18} />
+                        </button>
+                    ) : (
+                        <button
+                            onClick={() => downloadAsPDF('full-report-print-container', `Full_Analysis_${user.name}`)}
+                            className="p-2 bg-slate-100 rounded-full text-slate-600 hover:bg-blue-100 hover:text-blue-600 transition-colors"
+                            title="Download Full Analysis"
+                        >
+                            {isDownloadingAll ? <span className="animate-spin text-xs">⏳</span> : <Download size={18} />}
+                        </button>
+                    )}
+
+                    {activeTab !== 'OFFICIAL_MARKSHEET' && (
+                        <button
+                            onClick={handleSaveOffline}
+                            className="p-2 bg-slate-100 rounded-full text-slate-600 hover:bg-slate-800 hover:text-white transition-colors"
+                            title="Save Offline"
+                        >
+                            <Download size={18} className="animate-bounce" />
+                        </button>
+                    )}
+
+                    <div className="w-px h-6 bg-slate-200 mx-1"></div>
+
                     <button onClick={toggleFullScreen} className="p-2 bg-slate-100 rounded-full text-slate-600 hover:bg-slate-200 transition-colors" title="Full Screen"><Maximize size={18} /></button>
-                    <button onClick={onClose} className="p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors"><X size={20} /></button>
+                    <button onClick={onClose} className="p-2 bg-slate-100 rounded-full text-slate-600 hover:bg-slate-200 transition-colors"><X size={20} /></button>
                 </div>
             </div>
 
@@ -1468,41 +1502,7 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
 
             </div>
 
-            {/* Footer Actions */}
-            <div className="bg-white p-4 pb-20 sm:pb-4 border-t border-slate-100 flex flex-wrap items-center justify-center gap-4 z-10 shrink-0">
-                <button onClick={handleShare} className="p-3 bg-green-50 text-green-600 rounded-full hover:bg-green-600 hover:text-white transition-all shadow-sm active:scale-95" title="Share Result">
-                    <Share2 size={20} />
-                </button>
-                {activeTab === 'OFFICIAL_MARKSHEET' && (
-                <button
-                    onClick={() => downloadAsMHTML('marksheet-style-1', `Marksheet_${user.name}`)}
-                    className="flex items-center justify-center p-3 bg-slate-100 text-slate-700 rounded-full font-bold hover:bg-slate-200 transition-colors shadow-sm active:scale-95"
-                    title="Download Marksheet"
-                >
-                    <Download size={20} />
-                </button>
-            )}
-                {activeTab !== 'OFFICIAL_MARKSHEET' && (
-                <>
-                <button
-                    onClick={() => downloadAsMHTML('full-report-print-container', `Full_Analysis_${user.name}`)}
-                    className="flex items-center justify-center p-3 bg-blue-600 text-white rounded-full font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200 active:scale-95"
-                    title="Download Full Analysis"
-                >
-                    {isDownloadingAll ? <span className="animate-spin">⏳</span> : <Download size={20} />}
-                </button>
-                <button
-                    onClick={handleSaveOffline}
-                    className="flex items-center justify-center gap-2 px-5 py-3 bg-slate-800 text-white rounded-full font-bold hover:bg-slate-900 transition-all shadow-xl active:scale-95 border-2 border-slate-700"
-                    title="Save Offline"
-                >
-                    <Download size={20} className="animate-bounce" /> <span>Save Offline</span>
-                </button>
-                </>
-            )}
-            </div>
-             
-             <div className="text-center py-2 bg-slate-50 border-t border-slate-100">
+             <div className="text-center py-2 bg-slate-50 border-t border-slate-100 pb-20 sm:pb-2">
                   <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Developed by Nadim Anwar</p>
              </div>
         </div>
