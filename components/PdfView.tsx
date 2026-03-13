@@ -121,19 +121,9 @@ export const PdfView: React.FC<Props> = ({
   const [quickRevisionPoints, setQuickRevisionPoints] = useState<{title: string, points: string[]}[]>([]);
   const [currentPremiumEntryIdx, setCurrentPremiumEntryIdx] = useState(0);
 
-  // SCROLL TO HIDE HEADER STATE
-  const [showHeader, setShowHeader] = useState(true);
-  const lastScrollY = useRef(0);
-
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const currentScrollY = e.currentTarget.scrollTop;
-    if (currentScrollY > lastScrollY.current && currentScrollY > 50) {
-      setShowHeader(false);
-    } else if (currentScrollY < lastScrollY.current) {
-      setShowHeader(true);
-    }
-    lastScrollY.current = currentScrollY;
-  };
+  // SCROLL TO HIDE HEADER STATE REMOVED
+  const showHeader = true; // Always show header
+  const handleScroll = () => {}; // No-op
 
   // PREMIUM TTS STATE
   const [premiumChunks, setPremiumChunks] = useState<string[]>([]);
@@ -299,7 +289,7 @@ export const PdfView: React.FC<Props> = ({
   const pdfContainerRef = useRef<HTMLDivElement>(null);
   const toggleFullScreen = () => {
       if (!document.fullscreenElement) {
-          pdfContainerRef.current?.requestFullscreen().catch(err => console.error(err));
+          document.documentElement.requestFullscreen().catch(err => console.error(err));
       } else {
           document.exitFullscreen();
       }
@@ -819,15 +809,8 @@ export const PdfView: React.FC<Props> = ({
            onClose={() => setAlertConfig({...alertConfig, isOpen: false})}
        />
 
-       {/* Floating Back Button (when header is hidden) */}
-       <div className={`fixed top-4 left-4 z-50 transition-all duration-300 ${!showHeader ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10 pointer-events-none'}`}>
-           <button onClick={onBack} className="p-3 bg-white shadow-xl rounded-full text-slate-800 border border-slate-200 hover:bg-slate-50">
-               <ArrowLeft size={20} />
-           </button>
-       </div>
-
        {/* HEADER */}
-       <div className={`sticky top-0 z-30 bg-white border-b border-slate-100 shadow-sm flex flex-col transition-all duration-300 origin-top overflow-hidden ${showHeader ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0 border-none'}`}>
+       <div className="sticky top-0 z-30 bg-white border-b border-slate-100 shadow-sm flex flex-col">
            <div className="p-4 flex items-center gap-3">
                <button onClick={onBack} className="p-2 hover:bg-slate-100 rounded-full text-slate-600">
                    <ArrowLeft size={20} />
@@ -839,6 +822,9 @@ export const PdfView: React.FC<Props> = ({
                      <button onClick={() => setSyllabusMode('COMPETITION')} className={`text-[10px] px-2 py-0.5 rounded-full font-bold transition-all ${syllabusMode === 'COMPETITION' ? 'bg-purple-600 text-white shadow-sm' : 'bg-slate-100 text-slate-500'}`}>Competition</button>
                    </div>
                </div>
+               <button onClick={toggleFullScreen} className="p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-colors" title="Full Screen">
+                   <Maximize size={18} />
+               </button>
            </div>
 
            {/* TABS */}

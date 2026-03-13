@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import type { User, StudentTab, SystemSettings, TopicItem, TopicStatus } from '../types';
-import { BrainCircuit, Clock, CheckCircle, TrendingUp, AlertTriangle, ArrowRight, BookOpen, AlertCircle, X, FileText, CheckSquare, Calendar, Zap, AlertCircle as AlertIcon, ChevronDown, ChevronUp, Loader2, Lock, Unlock, MessageSquare, Bot, PlayCircle, Star, Volume2, Mic, AlertOctagon, Crown, Layout, Trophy } from 'lucide-react';
+import { BrainCircuit, Clock, CheckCircle, TrendingUp, AlertTriangle, ArrowRight, BookOpen, AlertCircle, X, FileText, CheckSquare, Calendar, Zap, AlertCircle as AlertIcon, ChevronDown, ChevronUp, Loader2, Lock, Unlock, MessageSquare, Bot, PlayCircle, Star, Volume2, Mic, AlertOctagon, Crown, Layout, Trophy, Maximize } from 'lucide-react';
 import jsPDF from 'jspdf';
 import { generateCustomNotes } from '../services/groq';
 import { saveAiInteraction, getChapterData, saveUserToLive, saveDemand } from '../firebase';
@@ -71,26 +71,16 @@ const RevisionHubComponent: React.FC<Props> = ({ user, onTabChange, settings, on
     // Custom Alert State
     const [alertConfig, setAlertConfig] = useState<{isOpen: boolean, type: 'SUCCESS'|'ERROR'|'INFO', title?: string, message: string}>({isOpen: false, type: 'INFO', message: ''});
 
-    // SCROLL TO HIDE HEADER STATE
-    const [showHeader, setShowHeader] = useState(true);
-    const lastScrollY = useRef(0);
-    const scrollTimeout = useRef<any>(null);
+    // SCROLL TO HIDE HEADER STATE REMOVED
+    const showHeader = true; // Always show header
+    const handleScroll = () => {}; // No-op
 
-    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-        const currentScrollY = e.currentTarget.scrollTop;
-
-        // Debounce to prevent rapid toggling/blinking
-        if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
-
-        scrollTimeout.current = setTimeout(() => {
-            if (currentScrollY > lastScrollY.current && currentScrollY > 150) {
-                setShowHeader(false);
-            } else if (currentScrollY < lastScrollY.current - 50 || currentScrollY < 100) {
-                // Require a significant upward scroll (50px) or being near the top to show again
-                setShowHeader(true);
-            }
-            lastScrollY.current = currentScrollY;
-        }, 100); // Increased delay and thresholds to prevent blinking
+    const toggleFullScreen = () => {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => console.error(err));
+        } else {
+            document.exitFullscreen();
+        }
     };
 
     // Track recently completed MCQs for Marksheet view
@@ -781,9 +771,14 @@ const RevisionHubComponent: React.FC<Props> = ({ user, onTabChange, settings, on
                             <div className="p-4 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-inner">
                                 <BrainCircuit size={40} className="text-blue-300 drop-shadow-md" />
                             </div>
-                            <div>
-                                <h2 className="text-3xl sm:text-4xl font-black tracking-tight mb-2">Revision Hub</h2>
-                                <p className="text-indigo-200 font-medium max-w-sm leading-relaxed text-sm">
+                            <div className="flex-1">
+                                <div className="flex justify-between items-start">
+                                    <h2 className="text-3xl sm:text-4xl font-black tracking-tight mb-2">Revision Hub</h2>
+                                    <button onClick={toggleFullScreen} className="p-2 bg-indigo-500/30 text-white rounded-lg hover:bg-indigo-500/50 transition-colors" title="Full Screen">
+                                        <Maximize size={18} />
+                                    </button>
+                                </div>
+                                <p className="text-indigo-200 font-medium max-w-sm leading-relaxed text-sm mt-1">
                                     AI-powered Spaced Repetition. Master concepts permanently.
                                 </p>
                                 <div className="mt-3">
@@ -798,7 +793,7 @@ const RevisionHubComponent: React.FC<Props> = ({ user, onTabChange, settings, on
             </div>
 
             {/* --- STATS GRID --- */}
-            <div className={`grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 px-2 sm:px-0 transition-all duration-300 origin-top overflow-hidden ${showHeader ? 'opacity-100 max-h-40 mt-8 mb-6' : 'opacity-0 max-h-0 mt-0 mb-0 m-0 p-0 border-none'}`}>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 px-2 sm:px-0 mt-8 mb-6">
                 {/* Summary Cards */}
                 <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-1 items-center justify-center text-center">
                     <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl mb-1">
