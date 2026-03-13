@@ -1959,7 +1959,7 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
         <MiniPlayer track={currentAudioTrack} onClose={() => setCurrentAudioTrack(null)} />
 
         {/* FLOATING ACTION MENU */}
-        {(activeTab === 'HOME' || activeTab === 'REVISION' || activeTab === 'AI_HUB' || activeTab === 'PROFILE' || activeTab === 'HISTORY' || (activeTab as string) === 'ANALYTICS') && (
+        {(activeTab === 'HOME' || activeTab === 'REVISION' || activeTab === 'AI_HUB' || activeTab === 'PROFILE' || activeTab === 'HISTORY' || (activeTab as string) === 'ANALYTICS' || (activeTab as string) === 'DOWNLOADS') && (
             <FloatingActionMenu
                 activeTab={activeTab}
                 user={user}
@@ -1967,6 +1967,7 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
                 isFlashSaleActive={settings?.specialDiscountEvent?.enabled}
                 onOpenProfile={() => onTabChange('PROFILE')}
                 onOpenStore={() => onTabChange('STORE')}
+                onNavigate={(tab) => onTabChange(tab as any)}
             />
         )}
 

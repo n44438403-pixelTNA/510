@@ -164,7 +164,7 @@ export const OfflineDownloads: React.FC<Props> = ({ onBack }) => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen bg-slate-50 pb-32">
       <div className="bg-white p-4 border-b border-slate-200 flex items-center gap-3 sticky top-0 z-40">
         <button onClick={onBack} className="p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors">
           <ArrowLeft size={20} className="text-slate-700" />
