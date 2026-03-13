@@ -2452,7 +2452,7 @@ const App: React.FC = () => {
       )}
       
       {/* FLOATING DOCK */}
-      {state.user && !activeWeeklyTest && (
+      {state.user && !activeWeeklyTest && !isFullScreen && (
           <FloatingDock 
             onTabSelect={setStudentTab} 
             onGoHome={goHome} 

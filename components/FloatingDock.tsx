@@ -52,13 +52,9 @@ export const FloatingDock: React.FC<Props> = ({ onTabSelect, onGoHome, onGoBack,
             <div className="fixed bottom-24 right-4 z-[9999] flex flex-col gap-2 animate-in fade-in slide-in-from-right">
                 <button 
                     onClick={() => setIsMaximized(true)} 
-                    className="w-14 h-14 bg-slate-900 rounded-full shadow-2xl flex items-center justify-center text-white hover:bg-slate-800 active:scale-90 transition-all border-2 border-white/20"
+                    className="w-12 h-12 bg-blue-600 rounded-full shadow-xl shadow-blue-600/30 flex items-center justify-center text-white hover:bg-blue-700 active:scale-90 transition-all"
                 >
-                    {settings?.appLogo ? (
-                        <img src={settings.appLogo} alt="Menu" className="w-10 h-10 rounded-full object-cover" />
-                    ) : (
-                        <Menu size={24} className="text-white" />
-                    )}
+                    <Menu size={24} />
                 </button>
             </div>
         );
