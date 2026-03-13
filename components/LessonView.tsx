@@ -1726,7 +1726,7 @@ export const LessonView: React.FC<Props> = ({
                    onDownloadMhtml={() => handleConfirmDownload('MHTML')}
                />
 
-               <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-slate-200 flex gap-3 z-[9999] shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+               <div className="fixed bottom-0 left-0 right-0 p-4 pb-safe sm:pb-4 bg-white border-t border-slate-200 flex gap-3 z-[9999] shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
                    {batchIndex > 0 && (
                        <button onClick={handlePrevPage} className="flex-1 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl flex items-center justify-center gap-2">
                            <ChevronLeft size={20} /> Back
