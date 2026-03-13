@@ -831,75 +831,70 @@ const RevisionHubComponent: React.FC<Props> = ({ user, onTabChange, settings, on
                 </div>
             </div>
 
-            {/* MODE SWITCHER */}
-            <div className={`flex justify-center mb-4 sticky z-30 transition-all duration-300 ${!showHeader ? 'top-2' : ''}`}>
-                <div className="bg-slate-100 p-1 rounded-full flex gap-1 shadow-md border border-slate-200">
-                    {(() => {
-                        const freeAccess = checkFeatureAccess('REVISION_HUB_FREE', user, settings || {});
-                        return (
-                            <button
-                                onClick={() => {
-                                    if (freeAccess.hasAccess) setHubMode('FREE');
-                                    else setAlertConfig({isOpen: true, type: 'INFO', title: "Locked", message: "Official Notice: Free Hub content is currently disabled by Admin."});
-                                }}
-                                className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 ${
-                                    hubMode === 'FREE' ? 'bg-white shadow text-slate-800' : 'text-slate-400 hover:text-slate-600'
-                                } ${!freeAccess.hasAccess ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
-                            >
-                                <Layout size={14} /> Free Hub
-                                {!freeAccess.hasAccess && <Lock size={10} />}
-                            </button>
-                        );
-                    })()}
+            {/* STICKY HEADER & MODE SWITCHER */}
+            <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-md p-3 rounded-2xl shadow-sm border border-slate-100 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center justify-between sm:justify-start w-full sm:w-auto gap-3">
+                    <div className="flex items-center gap-2">
+                        <BrainCircuit className={hubMode === 'PREMIUM' ? "text-indigo-600" : "text-slate-600"} size={24} />
+                        <h2 className="text-xl font-black text-slate-800 hidden sm:block">
+                            {hubMode === 'PREMIUM' ? 'Premium Hub' : 'Revision Hub'}
+                        </h2>
+                    </div>
 
-                    {(() => {
-                        const premiumAccess = checkFeatureAccess('REVISION_HUB_PREMIUM', user, settings || {});
-                        return (
-                            <button
-                                onClick={() => {
-                                    if (premiumAccess.hasAccess) setHubMode('PREMIUM');
-                                    else setAlertConfig({
-                                        isOpen: true,
-                                        type: 'INFO',
-                                        title: 'Premium Upgrade Required',
-                                        message: "Official Notice: This content is locked for Premium Upgrade. Please upgrade to access Premium Revision Notes."
-                                    });
-                                }}
-                                className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 ${
-                                    hubMode === 'PREMIUM' ? 'bg-gradient-to-r from-indigo-600 to-purple-600 shadow text-white' : 'text-slate-400 hover:text-slate-600'
-                                } ${!premiumAccess.hasAccess ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
-                            >
-                                <Crown size={14} /> Premium Hub
-                                {!premiumAccess.hasAccess && <Lock size={10} />}
-                            </button>
-                        );
-                    })()}
+                    {/* MODE SWITCHER (Integrated) */}
+                    <div className="bg-slate-100 p-1 rounded-full flex gap-1 shadow-inner border border-slate-200">
+                        {(() => {
+                            const freeAccess = checkFeatureAccess('REVISION_HUB_FREE', user, settings || {});
+                            return (
+                                <button
+                                    onClick={() => {
+                                        if (freeAccess.hasAccess) setHubMode('FREE');
+                                        else setAlertConfig({isOpen: true, type: 'INFO', title: "Locked", message: "Official Notice: Free Hub content is currently disabled by Admin."});
+                                    }}
+                                    className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${
+                                        hubMode === 'FREE' ? 'bg-white shadow text-slate-800' : 'text-slate-400 hover:text-slate-600'
+                                    } ${!freeAccess.hasAccess ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
+                                >
+                                    <Layout size={14} /> <span className="hidden sm:inline">Free</span>
+                                    {!freeAccess.hasAccess && <Lock size={10} />}
+                                </button>
+                            );
+                        })()}
+
+                        {(() => {
+                            const premiumAccess = checkFeatureAccess('REVISION_HUB_PREMIUM', user, settings || {});
+                            return (
+                                <button
+                                    onClick={() => {
+                                        if (premiumAccess.hasAccess) setHubMode('PREMIUM');
+                                        else setAlertConfig({
+                                            isOpen: true,
+                                            type: 'INFO',
+                                            title: 'Premium Upgrade Required',
+                                            message: "Official Notice: This content is locked for Premium Upgrade. Please upgrade to access Premium Revision Notes."
+                                        });
+                                    }}
+                                    className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${
+                                        hubMode === 'PREMIUM' ? 'bg-gradient-to-r from-indigo-600 to-purple-600 shadow text-white' : 'text-slate-400 hover:text-slate-600'
+                                    } ${!premiumAccess.hasAccess ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
+                                >
+                                    <Crown size={14} /> <span className="hidden sm:inline">Premium</span>
+                                    {!premiumAccess.hasAccess && <Lock size={10} />}
+                                </button>
+                            );
+                        })()}
+                    </div>
                 </div>
-            </div>
 
-            {/* STICKY HEADER */}
-            <div className="flex items-center justify-between mb-4 sticky top-0 z-30 bg-white/95 backdrop-blur-sm p-2 rounded-xl shadow-sm border border-slate-100">
-                <div className="flex items-center gap-2">
-                    <h2 className="text-xl font-black text-slate-800 flex items-center gap-2">
-                        <BrainCircuit className={hubMode === 'PREMIUM' ? "text-indigo-600" : "text-slate-600"} />
-                        {hubMode === 'PREMIUM' ? 'Premium Hub' : 'Revision Hub'}
-                    </h2>
+                <div className="flex items-center gap-2 self-end sm:self-auto">
                     {/* VIEW TOGGLE */}
                     <button
                         onClick={() => setScoreViewMode(prev => prev === 'LATEST' ? 'ALL_TIME' : 'LATEST')}
-                        className={`text-[9px] font-bold px-2 py-1 rounded border transition-colors ${scoreViewMode === 'LATEST' ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-orange-50 text-orange-600 border-orange-100'}`}
+                        className={`text-[10px] font-black px-3 py-1.5 rounded-lg border transition-colors flex items-center gap-1 shadow-sm ${scoreViewMode === 'LATEST' ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100' : 'bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100'}`}
                         title={scoreViewMode === 'LATEST' ? 'Showing Latest Result' : 'Showing All-Time Average'}
                     >
-                        {scoreViewMode === 'LATEST' ? 'LATEST RESULT' : 'TOTAL SCORE'}
+                        {scoreViewMode === 'LATEST' ? 'LATEST SCORE' : 'AVERAGE SCORE'}
                     </button>
-                </div>
-                <div className="flex gap-2">
-                     {activeFilter === 'TODAY' && hubMode === 'PREMIUM' && (
-                        <>
-
-                        </>
-                     )}
-
                 </div>
             </div>
 
