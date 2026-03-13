@@ -261,7 +261,7 @@ export const HistoryPage: React.FC<Props> = ({ user, onUpdateUser, settings }) =
                 onClick={() => setActiveTab('SAVED')}
                 className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${activeTab === 'SAVED' ? 'bg-white shadow text-slate-800' : 'text-slate-500 hover:text-slate-700'}`}
             >
-                Cloud History
+                Saved Notes
             </button>
             <button
                 onClick={() => setActiveTab('ACTIVITY')}
