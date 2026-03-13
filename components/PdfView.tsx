@@ -540,9 +540,9 @@ export const PdfView: React.FC<Props> = ({
 
           let rawTts = '';
           if (entries && entries.length > 0) {
-              rawTts = entries.filter((e: any) => e.type === 'HTML' && e.content).map((e: any) => e.content).join(' ');
+              rawTts = entries.filter((e: any) => e.content).map((e: any) => e.content).join(' ');
               if (!link) {
-                 const firstPdf = entries.find((e: any) => e.type === 'PDF' && e.url);
+                 const firstPdf = entries.find((e: any) => e.url);
                  if (firstPdf) link = firstPdf.url;
               }
           } else {
@@ -1126,8 +1126,8 @@ export const PdfView: React.FC<Props> = ({
                                        entries.forEach((e: any, i: number) => {
                                            virtualList.push({
                                                title: e.title || `Premium Note ${i + 1}`,
-                                               pdf: e.type === 'PDF' ? e.url : '',
-                                               html: e.type === 'HTML' ? e.content : ''
+                                               pdf: e.url || '',
+                                               html: e.content || ''
                                            });
                                        });
 
