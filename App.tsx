@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   ClassLevel, Subject, Chapter, AppState, Board, Stream, User, ContentType, SystemSettings, ActivityLogEntry, WeeklyTest, LessonContent, ActiveSubscription, InboxMessage
 } from './types';
-import { getChapterData, saveChapterData, checkFirebaseConnection, saveTestResult, saveUserToLive, updateUserStatus, getUserData, subscribeToSettings, auth, savePublicActivity, saveUserHistory } from './firebase';
+import { getChapterData, saveChapterData, checkFirebaseConnection, saveTestResult, saveUserToLive, updateUserStatus, getUserData, subscribeToSettings, auth, savePublicActivity, saveUserHistory, getUserSavedNotes } from './firebase';
 import { recalculateSubscriptionStatus, addSubscription } from './utils/subscriptionUtils';
 import { signInAnonymously } from 'firebase/auth';
 import { fetchChapters, fetchLessonContent } from './services/groq';
@@ -579,6 +579,15 @@ const App: React.FC = () => {
   // --- SYNC USER PROFILE ON LOAD (ENSURE PREMIUM UPDATE VISIBLE) ---
   useEffect(() => {
       if (state.user && !state.originalAdmin) {
+          // Sync Saved Notes History First
+          getUserSavedNotes(state.user.id).then(savedNotes => {
+              if (savedNotes && savedNotes.length > 0) {
+                  // Sort them chronologically and ensure they are populated
+                  savedNotes.sort((a: any, b: any) => new Date(a.dateCreated || a.date || 0).getTime() - new Date(b.dateCreated || b.date || 0).getTime());
+                  localStorage.setItem('nst_user_history', JSON.stringify(savedNotes));
+              }
+          });
+
           getUserData(state.user.id).then(fetchedCloudUser => {
              if (fetchedCloudUser) {
                  // Check if cloud has more mcqHistory than local
@@ -980,6 +989,7 @@ const App: React.FC = () => {
   const performLogout = () => {
     logActivity("LOGOUT", "User Logged Out");
     localStorage.removeItem('nst_current_user');
+    localStorage.removeItem('nst_user_history'); // Clear Saved Notes on logout to prevent bleeding across accounts
     setState(prev => ({ ...prev, user: null, originalAdmin: null, view: 'BOARDS', selectedBoard: null, selectedClass: null, selectedStream: null, selectedSubject: null, lessonContent: null, language: 'English' }));
     setDailyStudySeconds(0);
   };

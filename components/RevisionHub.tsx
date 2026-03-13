@@ -118,7 +118,27 @@ const RevisionHubComponent: React.FC<Props> = ({ user, onTabChange, settings, on
     const processedTopics = useMemo(() => {
         try {
             // Use all history to calculate spaced repetition accurately over time
-            const history = user.mcqHistory || [];
+            // Merge user.mcqHistory with nst_user_history (Saved Notes)
+            const mergedMap = new Map<string, any>();
+            (user.mcqHistory || []).forEach(h => {
+                if (h.id) mergedMap.set(h.id, h);
+            });
+
+            try {
+                const savedNotesStr = localStorage.getItem('nst_user_history');
+                if (savedNotesStr) {
+                    const savedNotes = JSON.parse(savedNotesStr);
+                    savedNotes.forEach((note: any) => {
+                        if (note.analytics && note.analytics.id) {
+                            mergedMap.set(note.analytics.id, note.analytics);
+                        } else if (note.type === 'REVISION_NOTES' && note.id) {
+                            mergedMap.set(note.id, note);
+                        }
+                    });
+                }
+            } catch(e) {}
+
+            const history = Array.from(mergedMap.values());
 
             const topicMap = new Map<string, TopicItem>();
 
@@ -475,7 +495,22 @@ const RevisionHubComponent: React.FC<Props> = ({ user, onTabChange, settings, on
     };
 
     const completedToday = useMemo(() => {
-        const rawList = (user.mcqHistory || [])
+        const mergedMap = new Map<string, any>();
+        (user.mcqHistory || []).forEach(h => { if (h.id) mergedMap.set(h.id, h); });
+        try {
+            const savedNotesStr = localStorage.getItem('nst_user_history');
+            if (savedNotesStr) {
+                const savedNotes = JSON.parse(savedNotesStr);
+                savedNotes.forEach((note: any) => {
+                    if (note.type === 'REVISION_NOTES' && note.id) {
+                        mergedMap.set(note.id, note);
+                    }
+                });
+            }
+        } catch(e) {}
+        const history = Array.from(mergedMap.values());
+
+        const rawList = history
             .filter(h => new Date(h.date).toDateString() === todayStr && (h as any).type === 'REVISION_NOTES')
             .map(h => {
                 let name = h.chapterTitle || 'Topic';
@@ -508,7 +543,22 @@ const RevisionHubComponent: React.FC<Props> = ({ user, onTabChange, settings, on
     }, [user.mcqHistory, todayStr]);
 
     const completedYesterday = useMemo(() => {
-        const rawList = (user.mcqHistory || [])
+        const mergedMap = new Map<string, any>();
+        (user.mcqHistory || []).forEach(h => { if (h.id) mergedMap.set(h.id, h); });
+        try {
+            const savedNotesStr = localStorage.getItem('nst_user_history');
+            if (savedNotesStr) {
+                const savedNotes = JSON.parse(savedNotesStr);
+                savedNotes.forEach((note: any) => {
+                    if (note.type === 'REVISION_NOTES' && note.id) {
+                        mergedMap.set(note.id, note);
+                    }
+                });
+            }
+        } catch(e) {}
+        const history = Array.from(mergedMap.values());
+
+        const rawList = history
             .filter(h => new Date(h.date).toDateString() === yesterdayStr && (h as any).type === 'REVISION_NOTES')
             .map(h => {
                 let name = h.chapterTitle || 'Topic';
@@ -1405,8 +1455,23 @@ const RevisionHubComponent: React.FC<Props> = ({ user, onTabChange, settings, on
             {activeFilter === 'MISTAKES' && (
                 <div className="space-y-4 relative z-10">
                     {(() => {
+                        const mergedMap = new Map<string, any>();
+                        (user.mcqHistory || []).forEach(h => { if (h.id) mergedMap.set(h.id, h); });
+                        try {
+                            const savedNotesStr = localStorage.getItem('nst_user_history');
+                            if (savedNotesStr) {
+                                const savedNotes = JSON.parse(savedNotesStr);
+                                savedNotes.forEach((note: any) => {
+                                    if (note.analytics && note.analytics.id) {
+                                        mergedMap.set(note.analytics.id, note.analytics);
+                                    }
+                                });
+                            }
+                        } catch(e) {}
+                        const history = Array.from(mergedMap.values());
+
                         // Filter for mistakes
-                        const mistakesHistory = (user.mcqHistory || [])
+                        const mistakesHistory = history
                             .filter(h => h.wrongQuestions && h.wrongQuestions.length > 0)
                             .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 

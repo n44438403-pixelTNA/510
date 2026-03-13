@@ -17,7 +17,32 @@ export const AnalyticsPage: React.FC<Props> = ({ user, onBack, settings, onNavig
   const [initialView, setInitialView] = useState<'ANALYSIS' | 'RECOMMEND' | undefined>(undefined);
   const [showMoreTests, setShowMoreTests] = useState(false);
 
-  const historyRaw = user.mcqHistory || [];
+  // Merge user.mcqHistory with Saved Notes history
+  const getMergedHistory = () => {
+      const mergedMap = new Map<string, MCQResult>();
+
+      // 1. Load from user.mcqHistory
+      (user.mcqHistory || []).forEach(h => {
+          if (h.id) mergedMap.set(h.id, h);
+      });
+
+      // 2. Load from Saved Notes (nst_user_history)
+      try {
+          const savedNotesStr = localStorage.getItem('nst_user_history');
+          if (savedNotesStr) {
+              const savedNotes = JSON.parse(savedNotesStr);
+              savedNotes.forEach((note: any) => {
+                  if (note.analytics && note.analytics.id) {
+                      mergedMap.set(note.analytics.id, note.analytics);
+                  }
+              });
+          }
+      } catch(e) {}
+
+      return Array.from(mergedMap.values()).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  };
+
+  const historyRaw = getMergedHistory();
   
   // Annual Report Requirement: Show year data
   const history = historyRaw.filter(h => {
