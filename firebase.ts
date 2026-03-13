@@ -444,6 +444,20 @@ export const saveUserHistory = async (userId: string, historyItem: any) => {
     } catch(e) { console.error("Error saving history:", e); }
 };
 
+export const getUserSavedNotes = async (userId: string) => {
+    try {
+        const q = query(collection(db, "users", userId, "history"));
+        const snapshot = await getDocs(q);
+        if (!snapshot.empty) {
+            return snapshot.docs.map(doc => doc.data());
+        }
+        return [];
+    } catch(e) {
+        console.error("Error fetching user saved notes history:", e);
+        return [];
+    }
+};
+
 export const updateUserStatus = async (userId: string, time: number) => {
      try {
         const today = new Date().toISOString().split('T')[0];
