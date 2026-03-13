@@ -318,14 +318,6 @@ export const LessonView: React.FC<Props> = ({
   }
 
   // 2. URL LINK / PDF NOTES (Strict HTTP check)
-  const toggleFullScreen = () => {
-      if (!document.fullscreenElement) {
-          document.documentElement.requestFullscreen().catch(err => console.error(err));
-      } else {
-          document.exitFullscreen();
-      }
-  };
-
   const isUrl = contentValue && (contentValue.startsWith('http://') || contentValue.startsWith('https://'));
   if (['PDF_FREE', 'PDF_PREMIUM', 'PDF_ULTRA', 'PDF_VIEWER'].includes(content.type) || isUrl) {
       const isGoogleDriveAudio = contentValue.includes('drive.google.com') && (content.title.toLowerCase().includes('audio') || content.title.toLowerCase().includes('podcast') || content.type.includes('AUDIO'));
