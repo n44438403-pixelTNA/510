@@ -122,15 +122,32 @@ export const PdfView: React.FC<Props> = ({
   // SCROLL TO HIDE HEADER STATE
   const [showHeader, setShowHeader] = useState(true);
   const lastScrollY = useRef(0);
+  const scrollTicking = useRef(false);
+  const headerStateRef = useRef(true); // Track state to avoid redundant renders
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const currentScrollY = e.currentTarget.scrollTop;
-    if (currentScrollY > lastScrollY.current && currentScrollY > 50) {
-      setShowHeader(false);
-    } else if (currentScrollY < lastScrollY.current) {
-      setShowHeader(true);
+
+    if (!scrollTicking.current) {
+      window.requestAnimationFrame(() => {
+        let shouldShow = headerStateRef.current;
+
+        if (currentScrollY > lastScrollY.current && currentScrollY > 50) {
+          shouldShow = false;
+        } else if (currentScrollY < lastScrollY.current - 10 || currentScrollY < 50) {
+          shouldShow = true;
+        }
+
+        if (shouldShow !== headerStateRef.current) {
+          headerStateRef.current = shouldShow;
+          setShowHeader(shouldShow);
+        }
+
+        lastScrollY.current = currentScrollY;
+        scrollTicking.current = false;
+      });
+      scrollTicking.current = true;
     }
-    lastScrollY.current = currentScrollY;
   };
 
   // PREMIUM TTS STATE
