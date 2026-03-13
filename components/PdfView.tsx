@@ -14,6 +14,8 @@ import { ErrorBoundary } from './ErrorBoundary';
 import { DEFAULT_CONTENT_INFO_CONFIG } from '../constants';
 import { checkFeatureAccess } from '../utils/permissionUtils';
 import { speakText, stopSpeech } from '../utils/textToSpeech';
+import { saveOfflineItem } from '../utils/offlineStorage';
+import { Download } from 'lucide-react';
 
 interface Props {
   chapter: Chapter;
@@ -118,6 +120,38 @@ export const PdfView: React.FC<Props> = ({
   const [sessionUnlockedTabs, setSessionUnlockedTabs] = useState<string[]>([]);
   const [quickRevisionPoints, setQuickRevisionPoints] = useState<{title: string, points: string[]}[]>([]);
   const [currentPremiumEntryIdx, setCurrentPremiumEntryIdx] = useState(0);
+
+
+  // SCROLL TO HIDE HEADER STATE
+  const [showHeader, setShowHeader] = useState(true);
+  const lastScrollY = useRef(0);
+  const scrollTicking = useRef(false);
+  const headerStateRef = useRef(true); // Track state to avoid redundant renders
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const currentScrollY = e.currentTarget.scrollTop;
+
+    if (!scrollTicking.current) {
+      window.requestAnimationFrame(() => {
+        let shouldShow = headerStateRef.current;
+
+        if (currentScrollY > lastScrollY.current && currentScrollY > 50) {
+          shouldShow = false;
+        } else if (currentScrollY < lastScrollY.current - 10 || currentScrollY < 50) {
+          shouldShow = true;
+        }
+
+        if (shouldShow !== headerStateRef.current) {
+          headerStateRef.current = shouldShow;
+          setShowHeader(shouldShow);
+        }
+
+        lastScrollY.current = currentScrollY;
+        scrollTicking.current = false;
+      });
+      scrollTicking.current = true;
+    }
+  };
 
   // PREMIUM TTS STATE
   const [premiumChunks, setPremiumChunks] = useState<string[]>([]);
@@ -743,6 +777,25 @@ export const PdfView: React.FC<Props> = ({
                       className={`bg-black/50 backdrop-blur-md text-white p-3 rounded-full hover:bg-black/70 border border-white/20 shadow-lg ${isAutoPlaying ? 'text-red-400 border-red-400 animate-pulse' : ''}`}
                   >
                       {isAutoPlaying ? <Pause size={24} /> : <Headphones size={24} />}
+                  </button>
+
+                  <button
+                      onClick={() => {
+                          saveOfflineItem({
+                              id: `note_${chapter.id}_${Date.now()}`,
+                              type: 'NOTE',
+                              title: activeNoteContent.title || 'Saved Note',
+                              subtitle: `${subject.name} - ${chapter.title}`,
+                              data: {
+                                  html: activeNoteContent.content
+                              }
+                          });
+                          alert("Note Saved Offline!");
+                      }}
+                      className="bg-black/50 backdrop-blur-md text-white p-3 rounded-full hover:bg-black/70 border border-white/20 shadow-lg"
+                      title="Save Offline"
+                  >
+                      <Download size={24} />
                   </button>
               </div>
 

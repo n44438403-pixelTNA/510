@@ -71,6 +71,38 @@ const RevisionHubComponent: React.FC<Props> = ({ user, onTabChange, settings, on
     // Custom Alert State
     const [alertConfig, setAlertConfig] = useState<{isOpen: boolean, type: 'SUCCESS'|'ERROR'|'INFO', title?: string, message: string}>({isOpen: false, type: 'INFO', message: ''});
 
+
+    // SCROLL TO HIDE HEADER STATE
+    const [showHeader, setShowHeader] = useState(true);
+    const lastScrollY = useRef(0);
+    const scrollTicking = useRef(false);
+    const headerStateRef = useRef(true); // Track state to avoid redundant renders
+
+    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        const currentScrollY = e.currentTarget.scrollTop;
+
+        if (!scrollTicking.current) {
+            window.requestAnimationFrame(() => {
+                let shouldShow = headerStateRef.current;
+
+                if (currentScrollY > lastScrollY.current && currentScrollY > 150) {
+                    shouldShow = false;
+                } else if (currentScrollY < lastScrollY.current - 10 || currentScrollY < 100) {
+                    shouldShow = true;
+                }
+
+                if (shouldShow !== headerStateRef.current) {
+                    headerStateRef.current = shouldShow;
+                    setShowHeader(shouldShow);
+                }
+
+                lastScrollY.current = currentScrollY;
+                scrollTicking.current = false;
+            });
+            scrollTicking.current = true;
+        }
+    };
+
     // Track recently completed MCQs for Marksheet view
     const [completedMcqResults, setCompletedMcqResults] = useState<any[]>([]);
     const [showCompletedMarksheets, setShowCompletedMarksheets] = useState(false);

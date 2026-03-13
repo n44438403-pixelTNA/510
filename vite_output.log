@@ -3,22 +3,8 @@
 > vite
 
 
-  VITE v6.4.1  ready in 267 ms
+  VITE v6.4.1  ready in 509 ms
 
   ➜  Local:   http://localhost:5000/
   ➜  Network: http://192.168.0.2:5000/
 [BABEL] Note: The code generator has deoptimised the styling of /app/components/AdminDashboard.tsx as it exceeds the max of 500KB.
-11:29:16 AM [vite] (client) hmr update /components/LessonView.tsx, /components/MarksheetCard.tsx
-11:29:58 AM [vite] (client) hmr update /components/MarksheetCard.tsx
-1:29:10 PM [vite] vite.config.ts changed, restarting server...
-1:29:11 PM [vite] (client) Re-optimizing dependencies because lockfile has changed
-1:29:11 PM [vite] server restarted.
-1:29:16 PM [vite] (client) page reload index.html
-1:30:20 PM [vite] vite.config.ts changed, restarting server...
-1:30:20 PM [vite] server restarted.
-[BABEL] Note: The code generator has deoptimised the styling of /app/components/AdminDashboard.tsx as it exceeds the max of 500KB.
-2:24:30 PM [vite] (client) page reload index.tsx
-2:24:36 PM [vite] vite.config.ts changed, restarting server...
-2:24:37 PM [vite] server restarted.
-2:25:24 PM [vite] (client) page reload index.html
-Killed

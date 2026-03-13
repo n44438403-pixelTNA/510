@@ -18,6 +18,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { DownloadOptionsModal } from './DownloadOptionsModal';
 import { downloadAsMHTML } from '../utils/downloadUtils';
+import { saveOfflineItem } from '../utils/offlineStorage';
 
 interface Props {
   content: LessonContent | null;
@@ -685,6 +686,18 @@ export const LessonView: React.FC<Props> = ({
         setDownloadModalOpen(true);
     };
 
+    const handleSaveOffline = () => {
+        if (!user) return;
+        saveOfflineItem({
+            id: `lesson_mcq_${chapter.id}_${Date.now()}`,
+            type: 'MCQ',
+            title: chapter.title,
+            subtitle: subject.name,
+            data: localMcqData
+        });
+        setAlertConfig({isOpen: true, message: "MCQ Saved Offline!"});
+    };
+
     const handleConfirmDownload = async (type: 'PDF' | 'MHTML') => {
         if (!user || !onUpdateUser) return;
 
@@ -774,12 +787,18 @@ export const LessonView: React.FC<Props> = ({
                     <button onClick={() => setActiveAnalysisTab('MISTAKES')} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${activeAnalysisTab === 'MISTAKES' ? 'bg-white shadow text-slate-800' : 'text-slate-500'}`}>Mistakes</button>
                 </div>
 
-                <div className="flex justify-end mb-4">
+                <div className="flex justify-end mb-4 gap-2">
                     <button
                         onClick={handleDownloadRequest}
                         className="bg-green-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg hover:bg-green-700 flex items-center gap-2"
                     >
                         <Download size={16} /> Download Report (10 CR)
+                    </button>
+                    <button
+                        onClick={handleSaveOffline}
+                        className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg hover:bg-indigo-700 flex items-center gap-2"
+                    >
+                        <Download size={16} /> Save Offline
                     </button>
                 </div>
 
