@@ -1469,7 +1469,7 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
             </div>
 
             {/* Footer Actions */}
-            <div className="bg-white p-4 border-t border-slate-100 flex flex-wrap items-center justify-center gap-4 z-10 shrink-0">
+            <div className="bg-white p-4 pb-20 sm:pb-4 border-t border-slate-100 flex flex-wrap items-center justify-center gap-4 z-10 shrink-0">
                 <button onClick={handleShare} className="p-3 bg-green-50 text-green-600 rounded-full hover:bg-green-600 hover:text-white transition-all shadow-sm active:scale-95" title="Share Result">
                     <Share2 size={20} />
                 </button>

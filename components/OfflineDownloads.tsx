@@ -60,26 +60,58 @@ export const OfflineDownloads: React.FC<Props> = ({ onBack }) => {
             <div className="prose prose-slate max-w-none" dangerouslySetInnerHTML={{ __html: item.data.html }} />
           )}
 
-          {item.type === 'MCQ' && Array.isArray(item.data) && (
+          {item.type === 'MCQ' && (
             <div className="space-y-6">
-              {item.data.map((q: any, idx: number) => (
-                <div key={idx} className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                  <p className="font-bold text-slate-800 mb-3">{idx + 1}. <span dangerouslySetInnerHTML={{ __html: q.question }} /></p>
-                  <div className="space-y-2">
-                    {q.options?.map((opt: string, oIdx: number) => (
-                      <div key={oIdx} className={`p-3 rounded-lg border flex items-center ${oIdx === q.correctAnswer ? 'bg-green-50 border-green-200 text-green-800 font-bold' : 'bg-white border-slate-200 text-slate-600'}`}>
-                        {oIdx === q.correctAnswer && <CheckCircle2 size={16} className="mr-2 text-green-600 flex-shrink-0" />}
-                        <span dangerouslySetInnerHTML={{ __html: opt }} />
-                      </div>
-                    ))}
-                  </div>
-                  {q.explanation && (
-                    <div className="mt-4 p-3 bg-blue-50 text-blue-800 rounded-lg text-sm border border-blue-100">
-                      <strong>Explanation:</strong> <span dangerouslySetInnerHTML={{ __html: q.explanation }} />
-                    </div>
-                  )}
-                </div>
-              ))}
+              {/* Legacy fallback for old array format or direct questions array */}
+              {(() => {
+                  const questions = Array.isArray(item.data) ? item.data : (item.data.questions || []);
+                  const theory = item.data.theory;
+                  const topicNotes = item.data.topicNotes;
+
+                  return (
+                      <>
+                        {/* Display Theory/Notes if they exist */}
+                        {theory && (
+                            <div className="mb-8 p-6 bg-slate-50 rounded-2xl border border-slate-200">
+                                <h3 className="text-lg font-black text-slate-800 mb-4 border-b border-slate-200 pb-2">Chapter Theory</h3>
+                                <div className="prose prose-slate max-w-none text-sm" dangerouslySetInnerHTML={{ __html: theory.replace(/\n/g, '<br/>') }} />
+                            </div>
+                        )}
+                        {topicNotes && topicNotes.length > 0 && (
+                            <div className="mb-8 space-y-4">
+                                <h3 className="text-lg font-black text-slate-800 mb-4 border-b border-slate-200 pb-2">Topic Notes</h3>
+                                {topicNotes.map((note: any, idx: number) => (
+                                    <div key={idx} className="p-6 bg-slate-50 rounded-2xl border border-slate-200">
+                                        <h4 className="font-bold text-slate-700 mb-2">{note.title || note.topic}</h4>
+                                        <div className="prose prose-slate max-w-none text-sm" dangerouslySetInnerHTML={{ __html: note.content }} />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Display Questions */}
+                        {questions.length > 0 && <h3 className="text-lg font-black text-slate-800 mb-4 border-b border-slate-200 pb-2 mt-8">Practice Questions</h3>}
+                        {questions.map((q: any, idx: number) => (
+                          <div key={idx} className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <p className="font-bold text-slate-800 mb-3">{idx + 1}. <span dangerouslySetInnerHTML={{ __html: q.question }} /></p>
+                            <div className="space-y-2">
+                              {q.options?.map((opt: string, oIdx: number) => (
+                                <div key={oIdx} className={`p-3 rounded-lg border flex items-center ${oIdx === q.correctAnswer ? 'bg-green-50 border-green-200 text-green-800 font-bold' : 'bg-white border-slate-200 text-slate-600'}`}>
+                                  {oIdx === q.correctAnswer && <CheckCircle2 size={16} className="mr-2 text-green-600 flex-shrink-0" />}
+                                  <span dangerouslySetInnerHTML={{ __html: opt }} />
+                                </div>
+                              ))}
+                            </div>
+                            {q.explanation && (
+                              <div className="mt-4 p-3 bg-blue-50 text-blue-800 rounded-lg text-sm border border-blue-100">
+                                <strong>Explanation:</strong> <span dangerouslySetInnerHTML={{ __html: q.explanation }} />
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </>
+                  );
+              })()}
             </div>
           )}
 
