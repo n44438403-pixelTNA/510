@@ -5225,12 +5225,48 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                                       />
                                   </div>
 
-                                  <label className="block text-[10px] font-bold text-green-700 uppercase mb-1 mt-3">OR Paste Primary Note Text</label>
+                                  <label className="block text-[10px] font-bold text-green-700 uppercase mb-1 mt-3">OR Paste Primary Note Text (HTML)</label>
                                   <textarea
                                       value={editConfig[getModeField('freeNotesHtml') as keyof ContentConfig] || ''}
                                       onChange={e => setEditConfig({...editConfig, [getModeField('freeNotesHtml')]: e.target.value})}
                                       className="w-full p-3 border border-green-200 rounded-xl text-sm h-32 focus:ring-2 focus:ring-green-500 outline-none"
-                                      placeholder={`Paste detailed notes here...`}
+                                      placeholder={`Paste detailed free notes here...`}
+                                  />
+                              </div>
+
+                              {/* PRIMARY PREMIUM NOTE (MAIN) */}
+                              <div className="bg-yellow-50 p-4 rounded-xl border border-yellow-100">
+                                  <label className="block text-xs font-black text-yellow-800 uppercase mb-1 flex items-center gap-2">
+                                      <FileText size={14} /> Primary Premium Note Link ({syllabusMode})
+                                  </label>
+                                  <div className="flex items-center bg-white border border-yellow-200 rounded-xl overflow-hidden mb-2">
+                                      <div className="bg-yellow-50 p-3"><Link size={16} className="text-yellow-600" /></div>
+                                      <input
+                                          type="text"
+                                          value={editConfig[getModeField('pdfPremiumLink') as keyof ContentConfig] || ''}
+                                          onChange={e => setEditConfig({...editConfig, [getModeField('pdfPremiumLink')]: e.target.value})}
+                                          className="flex-1 p-3 outline-none text-sm"
+                                          placeholder={`https://drive.google.com/... (${syllabusMode} Only)`}
+                                      />
+                                  </div>
+
+                                  <div className="flex items-center bg-white border border-yellow-200 rounded-xl overflow-hidden mb-2">
+                                      <div className="bg-yellow-50 p-3 text-xs font-bold text-yellow-800">Price</div>
+                                      <input
+                                          type="number"
+                                          value={editConfig[getModeField('pdfPrice') as keyof ContentConfig] || 0}
+                                          onChange={e => setEditConfig({...editConfig, [getModeField('pdfPrice')]: Number(e.target.value)})}
+                                          className="flex-1 p-3 outline-none text-sm"
+                                          placeholder={`5`}
+                                      />
+                                  </div>
+
+                                  <label className="block text-[10px] font-bold text-yellow-700 uppercase mb-1 mt-3">OR Paste Primary Premium Note Text (HTML - Used for TTS)</label>
+                                  <textarea
+                                      value={editConfig[getModeField('premiumNotesHtml') as keyof ContentConfig] || ''}
+                                      onChange={e => setEditConfig({...editConfig, [getModeField('premiumNotesHtml')]: e.target.value})}
+                                      className="w-full p-3 border border-yellow-200 rounded-xl text-sm h-32 focus:ring-2 focus:ring-yellow-500 outline-none"
+                                      placeholder={`Paste detailed premium notes here...`}
                                   />
                               </div>
 
@@ -5309,10 +5345,85 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                                   </button>
                               </div>
 
-                              {/* UNLIMITED DEEP DIVE & PREMIUM MANAGER (TOPICS BREAKDOWN) */}
+                              {/* UNLIMITED PREMIUM NOTES MANAGER */}
+                              <div className="bg-yellow-50 p-4 rounded-xl border border-yellow-100 mt-4">
+                                  <h4 className="font-bold text-yellow-900 mb-4 flex items-center gap-2">
+                                      <FileText size={20} /> Additional Premium Notes ({syllabusMode})
+                                  </h4>
+
+                                  <div className="space-y-3 mb-4">
+                                      {premiumNotesList.map((note, idx) => (
+                                          <div key={idx} className="bg-white p-3 rounded-lg border border-yellow-100 shadow-sm flex flex-col gap-2">
+                                              <div className="flex gap-2 items-center">
+                                                  <span className="w-6 text-center text-xs font-bold text-yellow-600">{idx + 1}</span>
+                                                  <input
+                                                      type="text"
+                                                      value={note.title}
+                                                      onChange={e => {
+                                                          const updated = [...premiumNotesList];
+                                                          updated[idx].title = e.target.value;
+                                                          setPremiumNotesList(updated);
+                                                      }}
+                                                      placeholder="Note Title (e.g. Part 1)"
+                                                      className="flex-1 p-2 border rounded text-xs font-bold"
+                                                  />
+                                                  <select
+                                                      value={note.type}
+                                                      onChange={e => {
+                                                          const updated = [...premiumNotesList];
+                                                          updated[idx].type = e.target.value as 'PDF' | 'HTML';
+                                                          setPremiumNotesList(updated);
+                                                      }}
+                                                      className="p-2 border rounded text-xs bg-slate-50"
+                                                  >
+                                                      <option value="PDF">PDF</option>
+                                                      <option value="HTML">HTML</option>
+                                                  </select>
+                                                  <button onClick={() => setPremiumNotesList(prev => prev.filter((_, i) => i !== idx))} className="text-red-400 hover:text-red-600 p-2">
+                                                      <Trash2 size={16} />
+                                                  </button>
+                                              </div>
+
+                                              {note.type === 'HTML' ? (
+                                                  <textarea
+                                                      value={note.content || ''}
+                                                      onChange={e => {
+                                                          const updated = [...premiumNotesList];
+                                                          updated[idx].content = e.target.value;
+                                                          setPremiumNotesList(updated);
+                                                      }}
+                                                      className="w-full p-2 border rounded text-xs h-20 font-mono"
+                                                      placeholder="HTML Content..."
+                                                  />
+                                              ) : (
+                                                  <input
+                                                      type="text"
+                                                      value={note.url}
+                                                      onChange={e => {
+                                                          const updated = [...premiumNotesList];
+                                                          updated[idx].url = e.target.value;
+                                                          setPremiumNotesList(updated);
+                                                      }}
+                                                      placeholder="PDF URL..."
+                                                      className="w-full p-2 border rounded text-xs text-blue-600"
+                                                  />
+                                              )}
+                                          </div>
+                                      ))}
+                                  </div>
+
+                                  <button
+                                      onClick={() => setPremiumNotesList([...premiumNotesList, {title: '', url: '', type: 'PDF'}])}
+                                      className="w-full py-2 bg-white border border-yellow-300 text-yellow-600 font-bold rounded-lg hover:bg-yellow-50 border-dashed"
+                                  >
+                                      + Add Premium Note
+                                  </button>
+                              </div>
+
+                              {/* UNLIMITED DEEP DIVE MANAGER (TOPICS BREAKDOWN) */}
                               <div className="bg-purple-50 p-4 rounded-xl border border-purple-100">
                                   <h4 className="font-bold text-purple-900 mb-4 flex items-center gap-2">
-                                      <Layers size={20} /> Topics Breakdown (Deep Dive & Premium)
+                                      <Layers size={20} /> Topics Breakdown (Deep Dive)
                                   </h4>
                                   <p className="text-[10px] text-purple-600 mb-4">
                                       Add multiple entries for <b>Topics Breakdown</b>. Each entry represents a specific topic or part.
