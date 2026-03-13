@@ -121,6 +121,7 @@ export const PdfView: React.FC<Props> = ({
   const [quickRevisionPoints, setQuickRevisionPoints] = useState<{title: string, points: string[]}[]>([]);
   const [currentPremiumEntryIdx, setCurrentPremiumEntryIdx] = useState(0);
 
+
   // SCROLL TO HIDE HEADER STATE
   const [showHeader, setShowHeader] = useState(true);
   const lastScrollY = useRef(0);
@@ -829,22 +830,15 @@ export const PdfView: React.FC<Props> = ({
 
   // --- NEW TABBED VIEW ---
   return (
-    <div onScroll={handleScroll} className="bg-slate-50 h-screen overflow-y-auto pb-20 animate-in fade-in slide-in-from-right-8">
+    <div className="bg-slate-50 h-screen overflow-y-auto pb-20 animate-in fade-in slide-in-from-right-8">
        <CustomAlert
            isOpen={alertConfig.isOpen}
            message={alertConfig.message}
            onClose={() => setAlertConfig({...alertConfig, isOpen: false})}
        />
 
-       {/* Floating Back Button (when header is hidden) */}
-       <div className={`fixed top-4 left-4 z-50 transition-all duration-300 ${!showHeader ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10 pointer-events-none'}`}>
-           <button onClick={onBack} className="p-3 bg-white shadow-xl rounded-full text-slate-800 border border-slate-200 hover:bg-slate-50">
-               <ArrowLeft size={20} />
-           </button>
-       </div>
-
        {/* HEADER */}
-       <div className={`sticky top-0 z-30 bg-white border-b border-slate-100 shadow-sm flex flex-col transition-all duration-300 origin-top overflow-hidden ${showHeader ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0 border-none'}`}>
+       <div className="sticky top-0 z-30 bg-white border-b border-slate-100 shadow-sm flex flex-col">
            <div className="p-4 flex items-center gap-3">
                <button onClick={onBack} className="p-2 hover:bg-slate-100 rounded-full text-slate-600">
                    <ArrowLeft size={20} />
