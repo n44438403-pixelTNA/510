@@ -13,7 +13,7 @@ interface Props {
 }
 
 export const HistoryPage: React.FC<Props> = ({ user, onUpdateUser, settings }) => {
-  const [activeTab, setActiveTab] = useState<'ACTIVITY' | 'SAVED'>('ACTIVITY');
+  const [activeTab, setActiveTab] = useState<'ACTIVITY' | 'SAVED'>('SAVED');
   
   // SAVED NOTES STATE
   const [history, setHistory] = useState<LessonContent[]>([]);
@@ -251,23 +251,23 @@ export const HistoryPage: React.FC<Props> = ({ user, onUpdateUser, settings }) =
         
         <div className="flex justify-between items-center mb-6">
             <h3 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-                 <FileText className="text-blue-600" /> Study History
+                 <FileText className="text-blue-600" /> Downloads & History
             </h3>
         </div>
 
         {/* TABS */}
         <div className="flex p-1 bg-slate-100 rounded-xl mb-6">
             <button
-                onClick={() => setActiveTab('ACTIVITY')}
-                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${activeTab === 'ACTIVITY' ? 'bg-white shadow text-slate-800' : 'text-slate-500 hover:text-slate-700'}`}
-            >
-                Activity Log
-            </button>
-            <button
                 onClick={() => setActiveTab('SAVED')}
                 className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${activeTab === 'SAVED' ? 'bg-white shadow text-slate-800' : 'text-slate-500 hover:text-slate-700'}`}
             >
                 Saved Notes
+            </button>
+            <button
+                onClick={() => setActiveTab('ACTIVITY')}
+                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${activeTab === 'ACTIVITY' ? 'bg-white shadow text-slate-800' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+                Activity Log
             </button>
         </div>
 

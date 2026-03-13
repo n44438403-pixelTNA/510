@@ -764,10 +764,10 @@ export const PdfView: React.FC<Props> = ({
                           });
                           alert("Note Saved Offline!");
                       }}
-                      className="bg-black/50 backdrop-blur-md text-white p-3 rounded-full hover:bg-black/70 border border-white/20 shadow-lg"
+                      className="flex items-center gap-2 bg-slate-800 backdrop-blur-md text-white px-4 py-2 rounded-full hover:bg-slate-900 border border-slate-700 shadow-xl font-bold text-sm"
                       title="Save Offline"
                   >
-                      <Download size={24} />
+                      <Download size={18} className="animate-bounce" /> <span>Save</span>
                   </button>
               </div>
 
