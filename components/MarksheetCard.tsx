@@ -1493,10 +1493,10 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                 </button>
                 <button
                     onClick={handleSaveOffline}
-                    className="flex items-center justify-center p-3 bg-indigo-600 text-white rounded-full font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200 active:scale-95"
+                    className="flex items-center justify-center gap-2 px-5 py-3 bg-slate-800 text-white rounded-full font-bold hover:bg-slate-900 transition-all shadow-xl active:scale-95 border-2 border-slate-700"
                     title="Save Offline"
                 >
-                    <Download size={20} />
+                    <Download size={20} className="animate-bounce" /> <span>Save Offline</span>
                 </button>
                 </>
             )}

@@ -796,9 +796,9 @@ export const LessonView: React.FC<Props> = ({
                     </button>
                     <button
                         onClick={handleSaveOffline}
-                        className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg hover:bg-indigo-700 flex items-center gap-2"
+                        className="bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg hover:bg-slate-900 flex items-center gap-2 border border-slate-700 transition-all"
                     >
-                        <Download size={16} /> Save Offline
+                        <Download size={16} className="animate-bounce" /> Save Offline
                     </button>
                 </div>
 
