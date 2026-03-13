@@ -2314,7 +2314,6 @@ const App: React.FC = () => {
                    <div className="text-right hidden md:block">
                        <div className="text-xs font-bold text-slate-800">{state.user.name}</div>
                    </div>
-                   <button onClick={handleLogout} className="p-2 text-red-400 hover:bg-red-50 rounded-full"><LogOut size={20} /></button>
                </div>
            )}
         </div>

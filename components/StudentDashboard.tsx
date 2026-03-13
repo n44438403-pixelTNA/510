@@ -1554,15 +1554,8 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
                             </button>
 
                             <button
-                                onClick={onLogout}
-                                className="col-span-1 bg-red-50 p-3 rounded-xl border border-red-100 flex items-center justify-center gap-2 hover:bg-red-100 transition-colors text-red-600 font-bold text-sm"
-                            >
-                                <LogOut size={16} /> Logout
-                            </button>
-
-                            <button
                                 onClick={onRecoverData}
-                                className="col-span-1 bg-blue-50 p-3 rounded-xl border border-blue-100 flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors text-blue-600 font-bold text-sm"
+                                className="col-span-2 bg-blue-50 p-3 rounded-xl border border-blue-100 flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors text-blue-600 font-bold text-sm"
                             >
                                 <Cloud size={16} /> Recover
                             </button>

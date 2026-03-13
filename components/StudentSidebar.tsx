@@ -118,15 +118,6 @@ export const StudentSidebar: React.FC<Props> = ({ isOpen, onClose, onNavigate, u
 
                 {/* Footer Actions */}
                 <div className="p-4 border-t border-slate-100 bg-slate-50">
-                    <button
-                        onClick={() => {
-                            onLogout();
-                            onClose();
-                        }}
-                        className="w-full flex items-center justify-center gap-2 p-3 text-red-600 font-bold hover:bg-red-50 rounded-xl transition-colors text-sm"
-                    >
-                        <LogOut size={18} /> Logout
-                    </button>
                 </div>
             </div>
         </div>
