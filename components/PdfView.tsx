@@ -532,14 +532,31 @@ export const PdfView: React.FC<Props> = ({
 
           // Access Check Handled Below
       } else if (type === 'AUDIO_SLIDE') {
+          // Fallback links
           link = syllabusMode === 'SCHOOL' ? (contentData?.schoolPdfPremiumLink || contentData?.premiumLink) : contentData?.competitionPdfPremiumLink;
-          const rawTts = syllabusMode === 'SCHOOL' ? (contentData?.schoolPremiumNotesHtml || contentData?.premiumNotesHtml || '') : (contentData?.competitionPremiumNotesHtml || '');
+
+          // Use new unlimited array for TTS extraction (combine all HTML entries)
+          const entries = syllabusMode === 'SCHOOL' ? (contentData?.schoolPremiumNotesList || []) : (contentData?.competitionPremiumNotesList || []);
+
+          let rawTts = '';
+          if (entries && entries.length > 0) {
+              rawTts = entries.filter((e: any) => e.type === 'HTML' && e.content).map((e: any) => e.content).join(' ');
+              if (!link) {
+                 const firstPdf = entries.find((e: any) => e.type === 'PDF' && e.url);
+                 if (firstPdf) link = firstPdf.url;
+              }
+          } else {
+              // Legacy Fallback
+              rawTts = syllabusMode === 'SCHOOL' ? (contentData?.schoolPremiumNotesHtml || contentData?.premiumNotesHtml || '') : (contentData?.competitionPremiumNotesHtml || '');
+          }
+
           ttsContent = rawTts.replace(/<[^>]*>?/gm, ' ');
+          if (rawTts && !link) htmlContent = rawTts; // Mark target content as available
       }
 
       // Prioritize Link, but allow HTML if link is missing
       // For Deep Dive, we handle specially
-      const targetContent = type === 'DEEP_DIVE' ? 'DEEP_DIVE_MODE' : (link || htmlContent);
+      const targetContent = type === 'DEEP_DIVE' ? 'DEEP_DIVE_MODE' : (link || htmlContent || ttsContent);
 
       if (!targetContent && type !== 'DEEP_DIVE') {
           // Coming Soon removed
@@ -1072,9 +1089,7 @@ export const PdfView: React.FC<Props> = ({
                            <>
                                {/* ENTRY SELECTOR IF MULTIPLE */}
                                {(() => {
-                                   let entries: DeepDiveEntry[] = [];
-                                   if (syllabusMode === 'SCHOOL') entries = contentData?.schoolDeepDiveEntries || contentData?.deepDiveEntries || [];
-                                   else entries = contentData?.competitionDeepDiveEntries || [];
+                                   let entries = syllabusMode === 'SCHOOL' ? (contentData?.schoolPremiumNotesList || []) : (contentData?.competitionPremiumNotesList || []);
 
                                    if (entries.length <= 1) return null;
 
@@ -1103,31 +1118,16 @@ export const PdfView: React.FC<Props> = ({
                                        let ttsHtml = '';
                                        let entryTitle = '';
 
-                                       let entries: DeepDiveEntry[] = [];
-                                       if (syllabusMode === 'SCHOOL') entries = contentData?.schoolDeepDiveEntries || contentData?.deepDiveEntries || [];
-                                       else entries = contentData?.competitionDeepDiveEntries || [];
+                                       let entries = syllabusMode === 'SCHOOL' ? (contentData?.schoolPremiumNotesList || []) : (contentData?.competitionPremiumNotesList || []);
 
-                                       // Check if showing "Chapter Premium" (Legacy) or "Topic Premium" (Entry)
-                                       const legacyLink = syllabusMode === 'SCHOOL' ? contentData?.premiumLink : contentData?.competitionPdfPremiumLink;
-                                       const legacyHtml = syllabusMode === 'SCHOOL' ? contentData?.deepDiveNotesHtml : contentData?.competitionDeepDiveNotesHtml;
-                                       const hasLegacy = legacyLink || (legacyHtml && legacyHtml.length > 10);
-
-                                       // Construct a virtual list for selection logic: [Legacy (if exists), ...Entries]
+                                       // Construct a virtual list for selection logic from Premium Notes List
                                        let virtualList: {title: string, pdf: string, html: string}[] = [];
 
-                                       if (hasLegacy) {
+                                       entries.forEach((e: any, i: number) => {
                                            virtualList.push({
-                                               title: 'Chapter Premium Note',
-                                               pdf: legacyLink,
-                                               html: legacyHtml
-                                           });
-                                       }
-
-                                       entries.forEach((e, i) => {
-                                           virtualList.push({
-                                               title: e.title || `Topic Note ${i + 1}`,
-                                               pdf: e.pdfLink,
-                                               html: e.htmlContent
+                                               title: e.title || `Premium Note ${i + 1}`,
+                                               pdf: e.type === 'PDF' ? e.url : '',
+                                               html: e.type === 'HTML' ? e.content : ''
                                            });
                                        });
 
@@ -1160,7 +1160,7 @@ export const PdfView: React.FC<Props> = ({
                                                                }}
                                                                className={`px-3 py-1.5 rounded-lg text-[10px] font-bold whitespace-nowrap transition-all flex flex-col items-center border ${currentPremiumEntryIdx === i ? 'bg-purple-600 text-white border-purple-600 shadow-md' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'}`}
                                                            >
-                                                               <span>{i === 0 && hasLegacy ? 'MAIN' : `TOPIC ${hasLegacy ? i : i + 1}`}</span>
+                                                               <span>{`NOTE ${i + 1}`}</span>
                                                                <span className="opacity-80 text-[9px] truncate max-w-[80px]">{item.title}</span>
                                                            </button>
                                                        ))}
