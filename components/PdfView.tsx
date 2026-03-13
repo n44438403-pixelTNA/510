@@ -14,6 +14,8 @@ import { ErrorBoundary } from './ErrorBoundary';
 import { DEFAULT_CONTENT_INFO_CONFIG } from '../constants';
 import { checkFeatureAccess } from '../utils/permissionUtils';
 import { speakText, stopSpeech } from '../utils/textToSpeech';
+import { saveOfflineItem } from '../utils/offlineStorage';
+import { Download } from 'lucide-react';
 
 interface Props {
   chapter: Chapter;
@@ -757,6 +759,25 @@ export const PdfView: React.FC<Props> = ({
                       className={`bg-black/50 backdrop-blur-md text-white p-3 rounded-full hover:bg-black/70 border border-white/20 shadow-lg ${isAutoPlaying ? 'text-red-400 border-red-400 animate-pulse' : ''}`}
                   >
                       {isAutoPlaying ? <Pause size={24} /> : <Headphones size={24} />}
+                  </button>
+
+                  <button
+                      onClick={() => {
+                          saveOfflineItem({
+                              id: `note_${chapter.id}_${Date.now()}`,
+                              type: 'NOTE',
+                              title: activeNoteContent.title || 'Saved Note',
+                              subtitle: `${subject.name} - ${chapter.title}`,
+                              data: {
+                                  html: activeNoteContent.content
+                              }
+                          });
+                          alert("Note Saved Offline!");
+                      }}
+                      className="bg-black/50 backdrop-blur-md text-white p-3 rounded-full hover:bg-black/70 border border-white/20 shadow-lg"
+                      title="Save Offline"
+                  >
+                      <Download size={24} />
                   </button>
               </div>
 

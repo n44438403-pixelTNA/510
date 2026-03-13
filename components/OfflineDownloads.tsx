@@ -1,0 +1,196 @@
+import React, { useState, useEffect } from 'react';
+import { ArrowLeft, Trash2, FileText, BarChart2, CheckCircle2, FileQuestion, Download } from 'lucide-react';
+import { getOfflineItems, removeOfflineItem, OfflineItem } from '../utils/offlineStorage';
+
+interface Props {
+  onBack: () => void;
+}
+
+export const OfflineDownloads: React.FC<Props> = ({ onBack }) => {
+  const [items, setItems] = useState<OfflineItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedItem, setSelectedItem] = useState<OfflineItem | null>(null);
+
+  const fetchItems = async () => {
+    setLoading(true);
+    const data = await getOfflineItems();
+    setItems(data);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchItems();
+  }, []);
+
+  const handleDelete = async (id: string) => {
+    if (confirm("Are you sure you want to delete this downloaded item?")) {
+      await removeOfflineItem(id);
+      fetchItems();
+      if (selectedItem?.id === id) {
+        setSelectedItem(null);
+      }
+    }
+  };
+
+  // Group items by type
+  const notes = items.filter(i => i.type === 'NOTE');
+  const mcqs = items.filter(i => i.type === 'MCQ');
+  const analysis = items.filter(i => i.type === 'ANALYSIS');
+
+  const renderItemViewer = (item: OfflineItem) => {
+    return (
+      <div className="fixed inset-0 z-[9999] bg-white flex flex-col h-screen w-screen overflow-hidden">
+        <div className="flex items-center justify-between p-4 border-b bg-slate-50 sticky top-0 z-10">
+          <div className="flex items-center gap-3">
+            <button onClick={() => setSelectedItem(null)} className="p-2 bg-slate-200 rounded-full text-slate-700 hover:bg-slate-300">
+              <ArrowLeft size={20} />
+            </button>
+            <div>
+              <h2 className="font-bold text-slate-800 line-clamp-1">{item.title}</h2>
+              <p className="text-xs text-slate-500">{item.subtitle}</p>
+            </div>
+          </div>
+          <button onClick={() => handleDelete(item.id)} className="p-2 text-red-500 bg-red-50 rounded-full hover:bg-red-100">
+            <Trash2 size={20} />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4 bg-white">
+          {item.type === 'NOTE' && item.data?.html && (
+            <div className="prose prose-slate max-w-none" dangerouslySetInnerHTML={{ __html: item.data.html }} />
+          )}
+
+          {item.type === 'MCQ' && Array.isArray(item.data) && (
+            <div className="space-y-6">
+              {item.data.map((q: any, idx: number) => (
+                <div key={idx} className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                  <p className="font-bold text-slate-800 mb-3">{idx + 1}. <span dangerouslySetInnerHTML={{ __html: q.question }} /></p>
+                  <div className="space-y-2">
+                    {q.options?.map((opt: string, oIdx: number) => (
+                      <div key={oIdx} className={`p-3 rounded-lg border flex items-center ${oIdx === q.correctAnswer ? 'bg-green-50 border-green-200 text-green-800 font-bold' : 'bg-white border-slate-200 text-slate-600'}`}>
+                        {oIdx === q.correctAnswer && <CheckCircle2 size={16} className="mr-2 text-green-600 flex-shrink-0" />}
+                        <span dangerouslySetInnerHTML={{ __html: opt }} />
+                      </div>
+                    ))}
+                  </div>
+                  {q.explanation && (
+                    <div className="mt-4 p-3 bg-blue-50 text-blue-800 rounded-lg text-sm border border-blue-100">
+                      <strong>Explanation:</strong> <span dangerouslySetInnerHTML={{ __html: q.explanation }} />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {item.type === 'ANALYSIS' && item.data?.result && (
+            <div className="space-y-6 max-w-2xl mx-auto">
+              <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-6 rounded-2xl text-white text-center shadow-lg">
+                <h3 className="text-xl font-black mb-2">{item.data.result.chapterTitle}</h3>
+                <div className="text-5xl font-black mb-2">{item.data.result.score} <span className="text-2xl opacity-70">/ {item.data.result.totalQuestions}</span></div>
+                <p className="font-bold opacity-90">Total Time: {Math.floor((item.data.result.timeTaken || 0) / 60)}m {(item.data.result.timeTaken || 0) % 60}s</p>
+              </div>
+
+              <h4 className="font-bold text-slate-800 text-lg border-b pb-2">Questions Review</h4>
+              <div className="space-y-4">
+                {item.data.questions?.map((q: any, idx: number) => {
+                  const userAnswer = item.data.result.answers[idx];
+                  const isCorrect = userAnswer === q.correctAnswer;
+                  const isSkipped = userAnswer === undefined || userAnswer === null || userAnswer === -1;
+
+                  return (
+                    <div key={idx} className={`p-4 rounded-xl border ${isCorrect ? 'border-green-200 bg-green-50' : isSkipped ? 'border-slate-200 bg-slate-50' : 'border-red-200 bg-red-50'}`}>
+                      <div className="flex justify-between items-start mb-2 gap-4">
+                        <p className="font-bold text-slate-800 flex-1">{idx + 1}. <span dangerouslySetInnerHTML={{ __html: q.question }} /></p>
+                        <span className={`text-xs font-black px-2 py-1 rounded-full whitespace-nowrap ${isCorrect ? 'bg-green-100 text-green-700' : isSkipped ? 'bg-slate-200 text-slate-700' : 'bg-red-100 text-red-700'}`}>
+                          {isCorrect ? 'Correct' : isSkipped ? 'Skipped' : 'Wrong'}
+                        </span>
+                      </div>
+
+                      <div className="space-y-1 mt-3">
+                        {q.options?.map((opt: string, oIdx: number) => {
+                          const isSelected = userAnswer === oIdx;
+                          const isActuallyCorrect = q.correctAnswer === oIdx;
+
+                          let bgClass = "bg-white border-slate-200 text-slate-600";
+                          if (isActuallyCorrect) bgClass = "bg-green-100 border-green-300 text-green-800 font-bold";
+                          else if (isSelected && !isActuallyCorrect) bgClass = "bg-red-100 border-red-300 text-red-800";
+
+                          return (
+                            <div key={oIdx} className={`p-2 rounded-lg border text-sm flex items-center ${bgClass}`}>
+                               {isActuallyCorrect && <CheckCircle2 size={14} className="mr-2 flex-shrink-0" />}
+                               <span dangerouslySetInnerHTML={{ __html: opt }} />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const renderList = (title: string, list: OfflineItem[], icon: React.ReactNode) => {
+    if (list.length === 0) return null;
+    return (
+      <div className="mb-8">
+        <h3 className="text-lg font-black text-slate-800 flex items-center gap-2 mb-4 border-b border-slate-200 pb-2">
+          {icon} {title}
+        </h3>
+        <div className="space-y-3">
+          {list.map(item => (
+            <div key={item.id} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer" onClick={() => setSelectedItem(item)}>
+              <div>
+                <h4 className="font-bold text-slate-800 line-clamp-1">{item.title}</h4>
+                <p className="text-xs text-slate-500 mt-1">{item.subtitle} • {new Date(item.timestamp).toLocaleDateString()}</p>
+              </div>
+              <button onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }} className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors">
+                <Trash2 size={18} />
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  if (selectedItem) {
+    return renderItemViewer(selectedItem);
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50 pb-24">
+      <div className="bg-white p-4 border-b border-slate-200 flex items-center gap-3 sticky top-0 z-40">
+        <button onClick={onBack} className="p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors">
+          <ArrowLeft size={20} className="text-slate-700" />
+        </button>
+        <h1 className="text-xl font-black text-slate-800">Downloads</h1>
+      </div>
+
+      <div className="p-4 max-w-4xl mx-auto">
+        {loading ? (
+          <div className="flex justify-center py-10"><span className="animate-spin text-2xl">⏳</span></div>
+        ) : items.length === 0 ? (
+          <div className="text-center py-20 bg-white rounded-3xl border border-slate-200 shadow-sm">
+            <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+              <Download size={32} />
+            </div>
+            <h3 className="text-xl font-bold text-slate-700 mb-2">No Downloads Yet</h3>
+            <p className="text-slate-500 max-w-xs mx-auto">Items you save offline will appear here so you can access them without internet.</p>
+          </div>
+        ) : (
+          <>
+            {renderList("Saved Notes", notes, <FileText size={20} className="text-blue-500" />)}
+            {renderList("Saved MCQs", mcqs, <FileQuestion size={20} className="text-purple-500" />)}
+            {renderList("Analysis Reports", analysis, <BarChart2 size={20} className="text-indigo-500" />)}
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
