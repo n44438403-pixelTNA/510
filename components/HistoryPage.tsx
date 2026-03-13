@@ -24,9 +24,6 @@ export const HistoryPage: React.FC<Props> = ({ user, onUpdateUser, settings }) =
 
   useEffect(() => {
       if (selectedResult) {
-          // If loadedQuestions is already populated (e.g. from the embedded history mcqData), skip fetching
-          if (loadedQuestions.length > 0) return;
-
           const loadQs = async () => {
               const board = user.board || 'CBSE';
               const cls = selectedResult.classLevel || user.classLevel || '10';
@@ -49,7 +46,7 @@ export const HistoryPage: React.FC<Props> = ({ user, onUpdateUser, settings }) =
       } else {
           setLoadedQuestions([]);
       }
-  }, [selectedResult, user.board, user.classLevel, user.stream]); // Intentionally omitting loadedQuestions.length from deps to avoid infinite loop
+  }, [selectedResult, user.board, user.classLevel, user.stream]);
   
   // USAGE HISTORY STATE (ACTIVITY LOG)
   const [usageLog, setUsageLog] = useState<UsageHistoryEntry[]>([]);
@@ -119,15 +116,9 @@ export const HistoryPage: React.FC<Props> = ({ user, onUpdateUser, settings }) =
 
       // Check if it's an MCQ to open Marksheet
       if (item.type === 'MCQ' || item.type === 'MCQ_ANALYSIS' || item.type === 'MCQ_RESULT') {
-          // Look for analytics embedded in the legacy item or try to find the full result in mcqHistory
-          const embeddedAnalytics = (item as any).analytics;
-          const fullResult = embeddedAnalytics || user.mcqHistory?.find(r => r.id === item.id || r.chapterId === (item as any).itemId);
-
+          // Try to find the full result in mcqHistory
+          const fullResult = user.mcqHistory?.find(r => r.id === item.id || r.chapterId === (item as any).itemId);
           if (fullResult) {
-              // Extract the exact questions that were served during this attempt if they exist in the history item
-              if ((item as any).mcqData) {
-                  setLoadedQuestions((item as any).mcqData);
-              }
               setSelectedResult(fullResult);
           } else {
               // Fallback for old history or missing data
