@@ -60,6 +60,7 @@ import { ExplorePage } from './ExplorePage';
 import { StudentHistoryModal } from './StudentHistoryModal';
 import { generateDailyRoutine } from '../utils/routineGenerator';
 import { FloatingActionMenu } from './FloatingActionMenu';
+import { OfflineDownloads } from './OfflineDownloads';
 // @ts-ignore
 import jsPDF from 'jspdf';
 // @ts-ignore
@@ -1235,6 +1236,7 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
       if ((activeTab as string) === 'ANALYTICS') return <AnalyticsPage user={user} onBack={() => onTabChange('HOME')} settings={settings} onNavigateToChapter={onNavigateToChapter} />;
       if ((activeTab as string) === 'SUB_HISTORY') return <SubscriptionHistory user={user} onBack={() => onTabChange('HOME')} />;
       if (activeTab === 'HISTORY') return <HistoryPage user={user} onUpdateUser={handleUserUpdate} settings={settings} />;
+      if ((activeTab as string) === 'DOWNLOADS') return <OfflineDownloads onBack={() => onTabChange('HOME')} />;
       if (activeTab === 'LEADERBOARD') return <Leaderboard user={user} settings={settings} />;
       if (activeTab === 'GAME') return isGameEnabled ? (user.isGameBanned ? <div className="text-center py-20 bg-red-50 rounded-2xl border border-red-100"><Ban size={48} className="mx-auto text-red-500 mb-4" /><h3 className="text-lg font-bold text-red-700">Access Denied</h3><p className="text-sm text-red-600">Admin has disabled the game for your account.</p></div> : <SpinWheel user={user} onUpdateUser={handleUserUpdate} settings={settings} />) : null;
       if (activeTab === 'REDEEM') return <div className="animate-in fade-in slide-in-from-bottom-2 duration-300"><RedeemSection user={user} onSuccess={onRedeemSuccess} /></div>;

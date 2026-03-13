@@ -1060,7 +1060,7 @@ export interface StudentTestAttempt {
   answers: Record<number, number>; // question index -> selected answer index
 }
 
-export type StudentTab = 'HOME' | 'EXPLORE' | 'COURSES' | 'ROUTINE' | 'HISTORY' | 'REDEEM' | 'PREMIUM' | 'GAME' | 'WEEKLY_TEST' | 'PROFILE' | 'LEADERBOARD' | 'STORE' | 'VIDEO' | 'PDF' | 'MCQ' | 'ANALYTICS' | 'PRIZES' | 'REWARDS' | 'UPDATES' | 'IIC_GALLERY' | 'SUPPORT' | 'CUSTOM_PAGE' | 'AI_CHAT' | 'REVISION' | 'MCQ_REVIEW' | 'AI_HUB' | 'AI_STUDIO' | 'UNIVERSAL_VIDEO';
+export type StudentTab = 'HOME' | 'EXPLORE' | 'COURSES' | 'ROUTINE' | 'HISTORY' | 'REDEEM' | 'PREMIUM' | 'GAME' | 'WEEKLY_TEST' | 'PROFILE' | 'LEADERBOARD' | 'STORE' | 'VIDEO' | 'PDF' | 'MCQ' | 'ANALYTICS' | 'PRIZES' | 'REWARDS' | 'UPDATES' | 'IIC_GALLERY' | 'SUPPORT' | 'CUSTOM_PAGE' | 'AI_CHAT' | 'REVISION' | 'MCQ_REVIEW' | 'AI_HUB' | 'AI_STUDIO' | 'UNIVERSAL_VIDEO' | 'DOWNLOADS';
 
 export type Language = 'English' | 'Hindi';
 

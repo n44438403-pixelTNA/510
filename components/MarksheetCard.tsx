@@ -13,6 +13,7 @@ import { CustomConfirm } from './CustomDialogs'; // Import CustomConfirm
 import { SpeakButton } from './SpeakButton';
 import { renderMathInHtml } from '../utils/mathUtils';
 import { downloadAsMHTML } from '../utils/downloadUtils';
+import { saveOfflineItem } from '../utils/offlineStorage';
 
 interface Props {
   result: MCQResult;
@@ -352,6 +353,25 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
   }, []);
 
 
+
+  const handleSaveOffline = () => {
+      saveOfflineItem({
+          id: `analysis_${result.testId}_${Date.now()}`,
+          type: 'ANALYSIS',
+          title: result.chapterTitle || 'Analysis Report',
+          subtitle: `${result.score} / ${result.totalQuestions}`,
+          data: {
+              result,
+              questions
+          }
+      });
+      if (onUpdateUser) {
+          // Just use a native alert but ideally a toast notification. We'll stick to alert as we don't have a direct setAlertConfig here unless passed or using window.alert
+          window.alert("Analysis Saved Offline!");
+      } else {
+          window.alert("Analysis Saved Offline!");
+      }
+  };
 
   const handleShare = async () => {
       const appLink = settings?.officialAppUrl || "https://play.google.com/store/apps/details?id=com.nsta.app"; 
@@ -1469,6 +1489,7 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                 </button>
             )}
                 {activeTab !== 'OFFICIAL_MARKSHEET' && (
+                <>
                 <button
                     onClick={() => downloadAsMHTML('full-report-print-container', `Full_Analysis_${user.name}`)}
                     className="flex items-center justify-center p-3 bg-blue-600 text-white rounded-full font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200 active:scale-95"
@@ -1476,6 +1497,14 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                 >
                     {isDownloadingAll ? <span className="animate-spin">⏳</span> : <Download size={20} />}
                 </button>
+                <button
+                    onClick={handleSaveOffline}
+                    className="flex items-center justify-center p-3 bg-indigo-600 text-white rounded-full font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200 active:scale-95"
+                    title="Save Offline"
+                >
+                    <Download size={20} />
+                </button>
+                </>
             )}
             </div>
              
