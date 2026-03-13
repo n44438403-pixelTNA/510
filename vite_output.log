@@ -3,20 +3,22 @@
 > vite
 
 
-  VITE v6.4.1  ready in 246 ms
+  VITE v6.4.1  ready in 267 ms
 
   ➜  Local:   http://localhost:5000/
   ➜  Network: http://192.168.0.2:5000/
 [BABEL] Note: The code generator has deoptimised the styling of /app/components/AdminDashboard.tsx as it exceeds the max of 500KB.
-10:13:21 AM [vite] (client) page reload index.tsx
-10:18:15 AM [vite] (client) hmr update /index.tsx
-10:29:04 AM [vite] (client) hmr update /App.tsx
-10:31:23 AM [vite] (client) hmr update /components/StudentDashboard.tsx
-10:35:13 AM [vite] (client) hmr update /components/OfflineDownloads.tsx
-10:36:16 AM [vite] (client) hmr update /components/OfflineDownloads.tsx
-10:37:05 AM [vite] (client) hmr update /components/HistoryPage.tsx
-10:53:15 AM [vite] (client) hmr update /components/AdminDashboard.tsx
-10:54:02 AM [vite] (client) hmr update /components/AdminDashboard.tsx
-10:55:08 AM [vite] (client) hmr update /components/AdminDashboard.tsx
-10:56:09 AM [vite] (client) hmr update /components/AdminDashboard.tsx
-10:57:39 AM [vite] (client) hmr update /components/AdminDashboard.tsx
+11:29:16 AM [vite] (client) hmr update /components/LessonView.tsx, /components/MarksheetCard.tsx
+11:29:58 AM [vite] (client) hmr update /components/MarksheetCard.tsx
+1:29:10 PM [vite] vite.config.ts changed, restarting server...
+1:29:11 PM [vite] (client) Re-optimizing dependencies because lockfile has changed
+1:29:11 PM [vite] server restarted.
+1:29:16 PM [vite] (client) page reload index.html
+1:30:20 PM [vite] vite.config.ts changed, restarting server...
+1:30:20 PM [vite] server restarted.
+[BABEL] Note: The code generator has deoptimised the styling of /app/components/AdminDashboard.tsx as it exceeds the max of 500KB.
+2:24:30 PM [vite] (client) page reload index.tsx
+2:24:36 PM [vite] vite.config.ts changed, restarting server...
+2:24:37 PM [vite] server restarted.
+2:25:24 PM [vite] (client) page reload index.html
+Killed

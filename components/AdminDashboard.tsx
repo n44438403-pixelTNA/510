@@ -5179,42 +5179,6 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                       {activeTab === 'CONTENT_PDF' && (
                           <div className="space-y-6">
 
-                              {/* PRIMARY PREMIUM NOTE (MAIN) */}
-                              <div className="bg-yellow-50 p-4 rounded-xl border border-yellow-100">
-                                  <label className="block text-xs font-black text-yellow-800 uppercase mb-1 flex items-center gap-2">
-                                      <FileText size={14} /> Primary Premium Note Link ({syllabusMode})
-                                  </label>
-                                  <div className="flex items-center bg-white border border-yellow-200 rounded-xl overflow-hidden mb-2">
-                                      <div className="bg-yellow-50 p-3"><Link size={16} className="text-yellow-600" /></div>
-                                      <input
-                                          type="text"
-                                          value={editConfig[getModeField('pdfPremiumLink') as keyof ContentConfig] || ''}
-                                          onChange={e => setEditConfig({...editConfig, [getModeField('pdfPremiumLink')]: e.target.value})}
-                                          className="flex-1 p-3 outline-none text-sm"
-                                          placeholder={`https://drive.google.com/... (${syllabusMode} Only)`}
-                                      />
-                                  </div>
-
-                                  <div className="flex items-center bg-white border border-yellow-200 rounded-xl overflow-hidden mb-2">
-                                      <div className="bg-yellow-50 p-3 text-xs font-bold text-yellow-800">Price</div>
-                                      <input
-                                          type="number"
-                                          value={editConfig[getModeField('pdfPrice') as keyof ContentConfig] || 0}
-                                          onChange={e => setEditConfig({...editConfig, [getModeField('pdfPrice')]: Number(e.target.value)})}
-                                          className="flex-1 p-3 outline-none text-sm"
-                                          placeholder={`5`}
-                                      />
-                                  </div>
-
-                                  <label className="block text-[10px] font-bold text-yellow-700 uppercase mb-1 mt-3">OR Paste Primary Premium Note Text (HTML - Used for TTS)</label>
-                                  <textarea
-                                      value={editConfig[getModeField('premiumNotesHtml') as keyof ContentConfig] || ''}
-                                      onChange={e => setEditConfig({...editConfig, [getModeField('premiumNotesHtml')]: e.target.value})}
-                                      className="w-full p-3 border border-yellow-200 rounded-xl text-sm h-32 focus:ring-2 focus:ring-yellow-500 outline-none"
-                                      placeholder={`Paste detailed premium notes here...`}
-                                  />
-                              </div>
-
                               {/* UNLIMITED PREMIUM NOTES MANAGER */}
                               <div className="bg-yellow-50 p-4 rounded-xl border border-yellow-100 mt-4">
                                   <h4 className="font-bold text-yellow-900 mb-4 flex items-center gap-2">
