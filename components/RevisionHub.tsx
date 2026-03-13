@@ -74,23 +74,32 @@ const RevisionHubComponent: React.FC<Props> = ({ user, onTabChange, settings, on
     // SCROLL TO HIDE HEADER STATE
     const [showHeader, setShowHeader] = useState(true);
     const lastScrollY = useRef(0);
-    const scrollTimeout = useRef<any>(null);
+    const scrollTicking = useRef(false);
+    const headerStateRef = useRef(true); // Track state to avoid redundant renders
 
     const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
         const currentScrollY = e.currentTarget.scrollTop;
 
-        // Debounce to prevent rapid toggling/blinking
-        if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
+        if (!scrollTicking.current) {
+            window.requestAnimationFrame(() => {
+                let shouldShow = headerStateRef.current;
 
-        scrollTimeout.current = setTimeout(() => {
-            if (currentScrollY > lastScrollY.current && currentScrollY > 150) {
-                setShowHeader(false);
-            } else if (currentScrollY < lastScrollY.current - 50 || currentScrollY < 100) {
-                // Require a significant upward scroll (50px) or being near the top to show again
-                setShowHeader(true);
-            }
-            lastScrollY.current = currentScrollY;
-        }, 100); // Increased delay and thresholds to prevent blinking
+                if (currentScrollY > lastScrollY.current && currentScrollY > 150) {
+                    shouldShow = false;
+                } else if (currentScrollY < lastScrollY.current - 10 || currentScrollY < 100) {
+                    shouldShow = true;
+                }
+
+                if (shouldShow !== headerStateRef.current) {
+                    headerStateRef.current = shouldShow;
+                    setShowHeader(shouldShow);
+                }
+
+                lastScrollY.current = currentScrollY;
+                scrollTicking.current = false;
+            });
+            scrollTicking.current = true;
+        }
     };
 
     // Track recently completed MCQs for Marksheet view
