@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { SystemSettings, User } from '../types';
 import { ALL_FEATURES, Feature } from '../utils/featureRegistry';
 import { checkFeatureAccess } from '../utils/permissionUtils';
-import { Crown, User as UserIcon, ShoppingBag, X, Zap, Menu, ChevronUp, Book, CheckSquare, BrainCircuit, BarChart3, AlertCircle, PlayCircle, Sparkles, Wrench, Gamepad2, Trophy, Shield, Gift, Terminal, MessageSquare, FileText, Video, Headphones, Lock } from 'lucide-react';
+import { Crown, User as UserIcon, ShoppingBag, X, Zap, Menu, ChevronUp, Book, CheckSquare, BrainCircuit, BarChart3, AlertCircle, PlayCircle, Sparkles, Wrench, Gamepad2, Trophy, Shield, Gift, Terminal, MessageSquare, FileText, Video, Headphones, Lock, Download } from 'lucide-react';
 
 interface Props {
     activeTab?: string;
@@ -35,6 +35,7 @@ const getIconComponent = (iconName?: string) => {
         case 'FileText': return FileText;
         case 'Video': return Video;
         case 'Headphones': return Headphones;
+        case 'Download': return Download;
         default: return Zap;
     }
 };
@@ -275,18 +276,24 @@ export const FloatingActionMenu: React.FC<Props> = ({ settings, user, isFlashSal
                         <div className="flex flex-col max-h-[60vh] overflow-y-auto">
 
                             {/* FIXED ACTIONS ROW */}
-                            <div className="grid grid-cols-2 gap-3 mb-4 shrink-0">
+                            <div className="grid grid-cols-3 gap-3 mb-4 shrink-0">
                                 <button
                                     onClick={() => { setIsOpen(false); onOpenStore(); }}
-                                    className="flex items-center justify-center gap-2 p-3 rounded-xl bg-blue-600 text-white font-bold shadow-lg hover:bg-blue-700 transition-all"
+                                    className="flex items-center justify-center gap-1.5 p-3 rounded-xl bg-blue-600 text-white font-bold shadow-lg hover:bg-blue-700 transition-all text-xs"
                                 >
-                                    <ShoppingBag size={18} /> Visit Store
+                                    <ShoppingBag size={16} /> Store
+                                </button>
+                                <button
+                                    onClick={() => { setIsOpen(false); if (onNavigate) onNavigate('DOWNLOADS'); }}
+                                    className="flex items-center justify-center gap-1.5 p-3 rounded-xl bg-indigo-600 text-white font-bold shadow-lg hover:bg-indigo-700 transition-all text-xs"
+                                >
+                                    <Download size={16} /> Saved
                                 </button>
                                 <button
                                     onClick={() => { setIsOpen(false); onOpenProfile(); }}
-                                    className="flex items-center justify-center gap-2 p-3 rounded-xl bg-slate-800 text-white font-bold shadow-lg hover:bg-slate-900 transition-all"
+                                    className="flex items-center justify-center gap-1.5 p-3 rounded-xl bg-slate-800 text-white font-bold shadow-lg hover:bg-slate-900 transition-all text-xs"
                                 >
-                                    <UserIcon size={18} /> Profile
+                                    <UserIcon size={16} /> Profile
                                 </button>
                             </div>
 
