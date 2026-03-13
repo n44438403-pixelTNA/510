@@ -58,7 +58,7 @@ export const OfflineDownloads: React.FC<Props> = ({ onBack, hideHeader = false }
 
         <div className="flex-1 overflow-y-auto p-4 bg-white">
           {item.type === 'NOTE' && item.data?.html && (
-            <div className="prose prose-slate max-w-none" dangerouslySetInnerHTML={{ __html: item.data.html }} />
+            <div className="prose prose-slate max-w-none" dangerouslySetInnerHTML={{ __html: typeof item.data.html === 'string' ? item.data.html : String(item.data.html) }} />
           )}
 
           {item.type === 'MCQ' && (
@@ -127,7 +127,7 @@ export const OfflineDownloads: React.FC<Props> = ({ onBack, hideHeader = false }
               <h4 className="font-bold text-slate-800 text-lg border-b pb-2">Questions Review</h4>
               <div className="space-y-4">
                 {item.data.questions?.map((q: any, idx: number) => {
-                  const userAnswer = item.data.result.answers[idx];
+                  const userAnswer = item.data.result.answers ? item.data.result.answers[idx] : undefined;
                   const isCorrect = userAnswer === q.correctAnswer;
                   const isSkipped = userAnswer === undefined || userAnswer === null || userAnswer === -1;
 
