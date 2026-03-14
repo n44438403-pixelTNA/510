@@ -727,3 +727,32 @@ export const updateUserUID = async (oldUid: string, newUid: string, userData: an
         return false;
     }
 };
+
+export const checkTeacherCode = async (code: string) => {
+    try {
+        const codeRef = ref(rtdb, `teacherCodes/${code}`);
+        const snap = await get(codeRef);
+        if (snap.exists() && snap.val().active) {
+            return snap.val();
+        }
+        return null;
+    } catch (e) {
+        console.error("Error checking teacher code:", e);
+        return null;
+    }
+}
+
+export const burnTeacherCode = async (code: string, userId: string) => {
+    try {
+        const codeRef = ref(rtdb, `teacherCodes/${code}`);
+        await update(codeRef, {
+            active: false,
+            usedBy: userId,
+            usedAt: new Date().toISOString()
+        });
+        return true;
+    } catch (e) {
+        console.error("Error burning teacher code:", e);
+        return false;
+    }
+}

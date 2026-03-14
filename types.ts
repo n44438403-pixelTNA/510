@@ -5,7 +5,7 @@ export type Board = 'CBSE' | 'BSEB' | 'COMPETITION';
 
 export type Stream = 'Science' | 'Commerce' | 'Arts';
 
-export type Role = 'STUDENT' | 'ADMIN' | 'SUB_ADMIN';
+export type Role = 'STUDENT' | 'ADMIN' | 'SUB_ADMIN' | 'TEACHER';
 
 export interface TimeConfig {
     days: number;
@@ -148,6 +148,10 @@ export interface User {
   subscriptionPrice?: number; // Price admin set for this user's subscription
   grantedByAdmin?: boolean; // True if subscription was granted free by admin
   customSubscriptionName?: string; // For CUSTOM tier
+
+  // TEACHER MODE
+  teacherCode?: string; // TCH12345
+  teacherActive?: boolean;
   customSubscriptionDuration?: {
     years: number;
     months: number;
@@ -1060,7 +1064,7 @@ export interface StudentTestAttempt {
   answers: Record<number, number>; // question index -> selected answer index
 }
 
-export type StudentTab = 'HOME' | 'EXPLORE' | 'COURSES' | 'ROUTINE' | 'HISTORY' | 'REDEEM' | 'PREMIUM' | 'GAME' | 'WEEKLY_TEST' | 'PROFILE' | 'LEADERBOARD' | 'STORE' | 'VIDEO' | 'PDF' | 'MCQ' | 'ANALYTICS' | 'PRIZES' | 'REWARDS' | 'UPDATES' | 'IIC_GALLERY' | 'SUPPORT' | 'CUSTOM_PAGE' | 'AI_CHAT' | 'REVISION' | 'MCQ_REVIEW' | 'AI_HUB' | 'AI_STUDIO' | 'UNIVERSAL_VIDEO' | 'DOWNLOADS';
+export type StudentTab = 'HOME' | 'EXPLORE' | 'COURSES' | 'ROUTINE' | 'HISTORY' | 'REDEEM' | 'PREMIUM' | 'GAME' | 'WEEKLY_TEST' | 'PROFILE' | 'LEADERBOARD' | 'STORE' | 'VIDEO' | 'PDF' | 'MCQ' | 'ANALYTICS' | 'PRIZES' | 'REWARDS' | 'UPDATES' | 'IIC_GALLERY' | 'SUPPORT' | 'CUSTOM_PAGE' | 'AI_CHAT' | 'REVISION' | 'MCQ_REVIEW' | 'AI_HUB' | 'AI_STUDIO' | 'UNIVERSAL_VIDEO' | 'DOWNLOADS' | 'TEACHER_GUIDE';
 
 export type Language = 'English' | 'Hindi';
 
@@ -1115,4 +1119,19 @@ export interface FeatureRow {
 export interface FeatureCategory {
     name: string;
     features: FeatureRow[];
+}
+
+export interface TeacherCode {
+  id: string; // The code itself, e.g. TCH34992
+  price: number;
+  active: boolean;
+  createdAt: string;
+}
+
+export interface TeacherUsage {
+  id: string; // teacherId
+  dailyTime: number; // in seconds
+  weeklyTime: number;
+  monthlyTime: number;
+  lastUpdatedDate: string; // YYYY-MM-DD
 }

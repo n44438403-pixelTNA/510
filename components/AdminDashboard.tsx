@@ -126,7 +126,8 @@ type AdminTab =
   | 'DEPLOY'
   | 'EVENT_MANAGER' // NEW
   | 'NSTA_CONTROL' // NEW - Replaces APP_SOUL
-  | 'DOCUMENTATION'; // NEW
+  | 'DOCUMENTATION' // NEW
+  | 'TEACHER_CODES'; // NEW
 
 interface ContentConfig {
     freeLink?: string;
@@ -238,6 +239,35 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
 
   // CURRENT USER CONTEXT (From Props or LocalStorage if missing)
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  // TEACHER USAGE STATS CACHE FOR ADMIN TABLE
+  const [teacherUsageStats, setTeacherUsageStats] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+      // Fetch overall teacher usage on mount
+      get(ref(rtdb, 'teacherUsage')).then(snapshot => {
+          if (snapshot.exists()) {
+              const data = snapshot.val();
+              const aggregated: Record<string, number> = {};
+              Object.keys(data).forEach(uid => {
+                  let total = 0;
+                  Object.keys(data[uid]).forEach(date => total += (data[uid][date] || 0));
+                  aggregated[uid] = total;
+              });
+              setTeacherUsageStats(aggregated);
+          }
+      }).catch(console.error);
+  }, []);
+
+  const formatUsageTime = (seconds: number) => {
+      if (!seconds) return '0m';
+      const m = Math.floor(seconds / 60);
+      if (m < 60) return `${m}m`;
+      const h = Math.floor(m / 60);
+      const remM = m % 60;
+      return `${h}h ${remM}m`;
+  };
+
   useEffect(() => {
       if (user) {
           setCurrentUser(user);
@@ -1795,6 +1825,72 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
       setGiftCodes(updated);
       localStorage.setItem('nst_admin_codes', JSON.stringify(updated));
   };
+
+  // --- TEACHER CODE MANAGER ---
+  const [teacherCodes, setTeacherCodes] = useState<any[]>([]);
+  const [newTeacherCodePrice, setNewTeacherCodePrice] = useState(299);
+
+  const fetchTeacherCodes = async () => {
+      try {
+          const snapshot = await get(ref(rtdb, 'teacherCodes'));
+          if (snapshot.exists()) {
+              const data = snapshot.val();
+              setTeacherCodes(Object.values(data));
+          } else {
+              setTeacherCodes([]);
+          }
+      } catch (error) {
+          console.error("Error fetching teacher codes:", error);
+      }
+  };
+
+  useEffect(() => {
+      if (activeTab === 'TEACHER_CODES') {
+          fetchTeacherCodes();
+      }
+  }, [activeTab]);
+
+  const generateTeacherCode = async () => {
+      try {
+          // Generate TCH-XXXXX
+          const randomPart = Math.floor(10000 + Math.random() * 90000);
+          const newCodeStr = `TCH-${randomPart}`;
+          const newCode = {
+              id: newCodeStr,
+              code: newCodeStr,
+              price: Number(newTeacherCodePrice),
+              active: true,
+              createdAt: new Date().toISOString()
+          };
+
+          await set(ref(rtdb, `teacherCodes/${newCodeStr}`), newCode);
+          fetchTeacherCodes();
+          alert(`Generated Teacher Code: ${newCodeStr}`);
+      } catch (error) {
+          console.error("Error generating teacher code:", error);
+          alert("Failed to generate code.");
+      }
+  };
+
+  const toggleTeacherCode = async (codeId: string, currentStatus: boolean) => {
+      try {
+          await update(ref(rtdb, `teacherCodes/${codeId}`), { active: !currentStatus });
+          fetchTeacherCodes();
+      } catch (error) {
+          console.error("Error toggling teacher code:", error);
+      }
+  };
+
+  const deleteTeacherCode = async (codeId: string) => {
+      if (!confirm(`Are you sure you want to delete code ${codeId}?`)) return;
+      try {
+          await set(ref(rtdb, `teacherCodes/${codeId}`), null);
+          fetchTeacherCodes();
+      } catch (error) {
+          console.error("Error deleting teacher code:", error);
+      }
+  };
+
 
   // --- SUBJECT MANAGER (New) ---
   const addSubject = () => {
@@ -8743,22 +8839,123 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
       )}
 
       {/* --- USERS TAB (Enhanced) --- */}
+      {/* TEACHER CODES TAB */}
+      {activeTab === 'TEACHER_CODES' && (
+          <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 animate-in slide-in-from-right">
+              <div className="flex items-center gap-4 mb-6">
+                  <button onClick={() => setActiveTab('DASHBOARD')} className="bg-slate-100 p-2 rounded-full hover:bg-slate-200"><ArrowLeft size={20} /></button>
+                  <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-600">
+                      <Key size={20} />
+                  </div>
+                  <div>
+                      <h3 className="text-xl font-black text-slate-800">Teacher Codes</h3>
+                      <p className="text-sm text-slate-500">Manage unique access codes for Teachers</p>
+                  </div>
+              </div>
+
+              <div className="bg-purple-50 p-6 rounded-2xl border border-purple-100 mb-8 flex flex-wrap gap-4 items-end">
+                  <div>
+                      <label className="text-xs font-bold text-purple-700 uppercase block mb-1">Code Price (₹)</label>
+                      <input
+                          type="number"
+                          value={newTeacherCodePrice}
+                          onChange={(e) => setNewTeacherCodePrice(Number(e.target.value))}
+                          className="w-32 p-3 rounded-xl border border-purple-200 font-bold"
+                      />
+                  </div>
+                  <button
+                      onClick={generateTeacherCode}
+                      className="bg-purple-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-purple-700 flex items-center gap-2"
+                  >
+                      <Plus size={18} /> Generate New Code
+                  </button>
+              </div>
+
+              <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                      <thead>
+                          <tr className="bg-slate-50 border-b border-slate-200 text-left text-xs uppercase tracking-wider text-slate-500 font-bold">
+                              <th className="p-4 rounded-tl-xl">Code ID</th>
+                              <th className="p-4">Price</th>
+                              <th className="p-4">Created At</th>
+                              <th className="p-4 text-center">Status</th>
+                              <th className="p-4 rounded-tr-xl text-right">Actions</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          {teacherCodes.length === 0 ? (
+                              <tr><td colSpan={5} className="p-8 text-center text-slate-500 font-bold">No Teacher Codes found.</td></tr>
+                          ) : (
+                              teacherCodes.map(code => (
+                                  <tr key={code.id} className="border-b border-slate-100 hover:bg-slate-50">
+                                      <td className="p-4 font-bold text-purple-600 font-mono">{code.id}</td>
+                                      <td className="p-4 font-bold text-emerald-600">₹{code.price}</td>
+                                      <td className="p-4 text-sm text-slate-500">{new Date(code.createdAt).toLocaleDateString()}</td>
+                                      <td className="p-4 text-center">
+                                          <button
+                                              onClick={() => toggleTeacherCode(code.id, code.active)}
+                                              className={`px-3 py-1 rounded-full text-xs font-bold ${code.active ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}
+                                          >
+                                              {code.active ? 'Active' : 'Disabled'}
+                                          </button>
+                                      </td>
+                                      <td className="p-4 text-right">
+                                          <button onClick={() => deleteTeacherCode(code.id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg">
+                                              <Trash2 size={18} />
+                                          </button>
+                                      </td>
+                                  </tr>
+                              ))
+                          )}
+                      </tbody>
+                  </table>
+              </div>
+          </div>
+      )}
+
+      {/* --- USERS TAB (Enhanced) --- */}
       {activeTab === 'USERS' && (
           <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 animate-in slide-in-from-bottom-4">
               <div className="flex items-center gap-4 mb-6"><button onClick={() => setActiveTab('DASHBOARD')} className="bg-slate-100 p-2 rounded-full hover:bg-slate-200"><ArrowLeft size={20} /></button><h3 className="text-xl font-black text-slate-800">User Management</h3></div>
+
+              {/* Role Filters */}
+              <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
+                  <button onClick={() => setSearchTerm('')} className={`px-4 py-2 rounded-xl font-bold text-sm ${searchTerm === '' ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600'}`}>All Users</button>
+                  <button onClick={() => setSearchTerm('role:STUDENT')} className={`px-4 py-2 rounded-xl font-bold text-sm ${searchTerm === 'role:STUDENT' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'}`}>Students</button>
+                  <button onClick={() => setSearchTerm('role:TEACHER')} className={`px-4 py-2 rounded-xl font-bold text-sm ${searchTerm === 'role:TEACHER' ? 'bg-purple-600 text-white' : 'bg-slate-100 text-slate-600'}`}>Teachers</button>
+                  <button onClick={() => setSearchTerm('role:ADMIN')} className={`px-4 py-2 rounded-xl font-bold text-sm ${searchTerm === 'role:ADMIN' ? 'bg-rose-600 text-white' : 'bg-slate-100 text-slate-600'}`}>Admins</button>
+              </div>
+
               <div className="relative mb-6">
                   <Search className="absolute left-3 top-3 text-slate-400" size={18} />
-                  <input type="text" placeholder="Search by Name or ID..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" />
+                  <input type="text" placeholder="Search by Name or ID..." value={searchTerm.startsWith('role:') ? '' : searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm">
-                      <thead className="bg-slate-50 border-b border-slate-100 text-slate-500"><tr className="uppercase text-xs"><th className="p-4">User</th><th className="p-4">Credits</th><th className="p-4">Role</th><th className="p-4 text-right">Actions</th></tr></thead>
+                      <thead className="bg-slate-50 border-b border-slate-100 text-slate-500"><tr className="uppercase text-xs"><th className="p-4">User</th><th className="p-4">Credits</th><th className="p-4">Role</th><th className="p-4">Stats</th><th className="p-4 text-right">Actions</th></tr></thead>
                       <tbody className="divide-y divide-slate-50">
-                          {users.filter(u => u.name.toLowerCase().includes(searchTerm.toLowerCase()) || u.id.includes(searchTerm)).map(u => (
+                          {users.filter(u => {
+                              if (searchTerm.startsWith('role:')) {
+                                  return u.role === searchTerm.split(':')[1];
+                              }
+                              return u.name.toLowerCase().includes(searchTerm.toLowerCase()) || u.id.includes(searchTerm);
+                          }).map(u => (
                               <tr key={u.id} className="hover:bg-slate-50 transition-colors">
                                   <td className="p-4"><p className="font-bold text-slate-800">{u.name}</p><p className="text-xs text-slate-400 font-mono">{u.id}</p></td>
                                   <td className="p-4 font-bold text-blue-600">{u.credits}</td>
-                                  <td className="p-4"><span className={`px-2 py-1 rounded text-xs font-bold ${u.role === 'ADMIN' ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-600'}`}>{u.role}</span></td>
+                                  <td className="p-4">
+                                      <span className={`px-2 py-1 rounded text-xs font-bold ${u.role === 'ADMIN' ? 'bg-rose-100 text-rose-700' : u.role === 'TEACHER' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>{u.role}</span>
+                                      {u.role === 'TEACHER' && u.teacherCode && <div className="text-[10px] mt-1 text-slate-500 font-mono flex items-center gap-1"><Key size={10}/> {u.teacherCode}</div>}
+                                  </td>
+                                  <td className="p-4">
+                                      {u.role === 'TEACHER' ? (
+                                          <div className="text-[10px] text-slate-500">
+                                              <span className="block text-emerald-600 font-bold">Time: {formatUsageTime(teacherUsageStats[u.id] || 0)}</span>
+                                          </div>
+                                      ) : (
+                                          <div className="text-xs text-slate-400">-</div>
+                                      )}
+                                  </td>
                                   <td className="p-4 text-right flex justify-end gap-2">
                                       {u.role !== 'ADMIN' && (
                                           <>

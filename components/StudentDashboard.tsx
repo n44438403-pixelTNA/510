@@ -1574,6 +1574,49 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
           return <div className="animate-in fade-in duration-300"><OfflineDownloads onBack={() => onTabChange('HOME')} /></div>;
       }
 
+      if ((activeTab as string) === 'TEACHER_GUIDE') {
+          // Placeholder for Teacher Guide
+          return (
+              <div className="p-4 pt-8">
+                  <h2 className="text-xl font-bold mb-4 text-[#7c3aed]">📘 Teacher Deep Dive</h2>
+                  <div className="teacher-guide max-w-[900px] mx-auto p-5 bg-[#f5f7fb] font-['Poppins',sans-serif]">
+                      <div className="teacher-section bg-white rounded-xl p-[18px] mb-[18px] border-l-[6px] border-[#2563eb] shadow-[0_3px_10px_rgba(0,0,0,0.05)]">
+                          <h2 className="text-[18px] text-[#1e293b] mb-2 font-bold">🎓 Topic Core</h2>
+                          <p className="text-[15px] text-[#475569] leading-[1.6]">प्रकाश संश्लेषण पौधों द्वारा भोजन बनाने की प्रक्रिया है...</p>
+                      </div>
+
+                      <div className="teacher-section bg-white rounded-xl p-[18px] mb-[18px] border-l-[6px] border-[#16a34a] shadow-[0_3px_10px_rgba(0,0,0,0.05)]">
+                          <h2 className="text-[18px] text-[#1e293b] mb-2 font-bold">🪝 Classroom Hook</h2>
+                          <p className="text-[15px] text-[#475569] leading-[1.6]">Class शुरू करने के लिए teacher यह सवाल पूछ सकता है: अगर पौधे खाना बनाते हैं...</p>
+                      </div>
+
+                      <div className="teacher-section bg-white rounded-xl p-[18px] mb-[18px] border-l-[6px] border-[#f59e0b] shadow-[0_3px_10px_rgba(0,0,0,0.05)]">
+                          <h2 className="text-[18px] text-[#1e293b] mb-2 font-bold">💡 Master Analogy</h2>
+                          <p className="text-[15px] text-[#475569] leading-[1.6]">पौधों की पत्तियाँ एक सोलर फैक्ट्री की तरह काम करती हैं...</p>
+                      </div>
+
+                      <div className="teacher-section bg-white rounded-xl p-[18px] mb-[18px] border-l-[6px] border-[#9333ea] shadow-[0_3px_10px_rgba(0,0,0,0.05)]">
+                          <h2 className="text-[18px] text-[#1e293b] mb-2 font-bold">🛠 Technical Breakdown</h2>
+                          <ul className="pl-5 text-[#475569] list-disc">
+                              <li className="mb-1.5">Light Reaction</li>
+                              <li className="mb-1.5">Dark Reaction</li>
+                          </ul>
+                      </div>
+
+                      <div className="teacher-section bg-white rounded-xl p-[18px] mb-[18px] border-l-[6px] border-[#ef4444] shadow-[0_3px_10px_rgba(0,0,0,0.05)]">
+                          <h2 className="text-[18px] text-[#1e293b] mb-2 font-bold">❓ Why Factor</h2>
+                          <p className="text-[15px] text-[#475569] leading-[1.6]">अगर प्रकाश संश्लेषण न हो तो पृथ्वी पर ऑक्सीजन समाप्त हो जाएगी।</p>
+                      </div>
+
+                      <div className="teacher-section bg-white rounded-xl p-[18px] mb-[18px] border-l-[6px] border-[#0ea5e9] shadow-[0_3px_10px_rgba(0,0,0,0.05)]">
+                          <h2 className="text-[18px] text-[#1e293b] mb-2 font-bold">📝 Teacher Tip</h2>
+                          <p className="text-[15px] text-[#475569] leading-[1.6]">Student को leaf diagram जरूर समझाएँ।</p>
+                      </div>
+                  </div>
+              </div>
+          );
+      }
+
       return null;
   };
 

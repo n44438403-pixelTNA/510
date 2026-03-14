@@ -34,6 +34,10 @@ export const StudentSidebar: React.FC<Props> = ({ isOpen, onClose, onNavigate, u
         { id: 'PROFILE', icon: User, label: 'My Profile', color: 'text-slate-800', featureId: 'f13', category: 'ACCOUNT' },
     ];
 
+    if (user.role === 'TEACHER') {
+        rawItems.splice(4, 0, { id: 'TEACHER_GUIDE', icon: Award, label: 'Teacher Guide', color: 'text-purple-600', category: 'LEARNING' });
+    }
+
     const menuItems = rawItems.filter(item => {
         if (!item.featureId) return true;
         if (settings?.hiddenFeatures?.includes(item.featureId)) return false;

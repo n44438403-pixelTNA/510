@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, Board, ClassLevel, Stream, SystemSettings, RecoveryRequest } from '../types';
 import { ADMIN_EMAIL } from '../constants';
-import { saveUserToLive, auth, getUserByEmail, getUserByMobileOrId, rtdb, getUserData } from '../firebase';
+import { saveUserToLive, auth, getUserByEmail, getUserByMobileOrId, rtdb, getUserData, checkTeacherCode, burnTeacherCode } from '../firebase';
 import { ref, set } from "firebase/database";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, setPersistence, browserLocalPersistence, signInAnonymously, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { UserPlus, LogIn, Lock, User as UserIcon, Phone, Mail, ShieldCheck, ArrowRight, School, GraduationCap, Layers, KeyRound, Copy, Check, AlertTriangle, XCircle, MessageCircle, Send, RefreshCcw, ShieldAlert, HelpCircle, Eye, EyeOff } from 'lucide-react';
@@ -14,7 +14,7 @@ interface Props {
   logActivity: (action: string, details: string, user?: User) => void;
 }
 
-type AuthView = 'HOME' | 'LOGIN' | 'SIGNUP' | 'ADMIN' | 'RECOVERY' | 'SUCCESS_ID';
+type AuthView = 'HOME' | 'LOGIN' | 'SIGNUP' | 'ADMIN' | 'RECOVERY' | 'SUCCESS_ID' | 'TEACHER_CODE';
 
 const BLOCKED_DOMAINS = [
     'tempmail.com', 'throwawaymail.com', 'mailinator.com', 'yopmail.com', 
@@ -34,7 +34,9 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
     board: '',
     classLevel: '',
     stream: '',
-    recoveryCode: ''
+    recoveryCode: '',
+    teacherCode: '',
+    role: 'STUDENT'
   });
   
   // ADMIN VERIFICATION STATE
@@ -104,6 +106,19 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
 
   const handleCompleteSignup = async () => {
       try {
+          if (formData.role === 'TEACHER' && !formData.teacherCode) {
+              setView('TEACHER_CODE');
+              return;
+          }
+
+          if (formData.role === 'TEACHER' && formData.teacherCode) {
+              const codeData = await checkTeacherCode(formData.teacherCode);
+              if (!codeData) {
+                  setError("Invalid or Inactive Teacher Access Code.");
+                  return;
+              }
+          }
+
           // 1. Create in Firebase Auth
           await setPersistence(auth, browserLocalPersistence);
           const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
@@ -119,7 +134,9 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
             name: formData.name,
             mobile: formData.mobile,
             email: formData.email,
-            role: 'STUDENT',
+            role: formData.role as any,
+            teacherCode: formData.role === 'TEACHER' ? formData.teacherCode : undefined,
+            teacherActive: formData.role === 'TEACHER' ? true : undefined,
             createdAt: new Date().toISOString(),
             credits: settings?.signupBonus || 2,
             streak: 0,
@@ -140,6 +157,10 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
           const firestoreUser = { ...newUser };
           delete firestoreUser.password; 
           await saveUserToLive(firestoreUser);
+
+          if (formData.role === 'TEACHER' && formData.teacherCode) {
+              await burnTeacherCode(formData.teacherCode, newUser.id);
+          }
 
           logActivity("SIGNUP", `New Student Registered: ${newUser.classLevel} - ${newUser.board}`, newUser);
           
@@ -267,6 +288,18 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
           } else {
               console.log("No existing user found for this Google account. Creating new profile...");
               const newId = generateUserId();
+              if (formData.role === 'TEACHER' && !formData.teacherCode) {
+                  setView('TEACHER_CODE');
+                  return;
+              }
+              if (formData.role === 'TEACHER' && formData.teacherCode) {
+                  const codeData = await checkTeacherCode(formData.teacherCode);
+                  if (!codeData) {
+                      setError("Invalid or Inactive Teacher Access Code.");
+                      return;
+                  }
+              }
+
               appUser = {
                   id: firebaseUser.uid,
                   displayId: newId,
@@ -274,7 +307,9 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
                   email: firebaseUser.email || '',
                   password: '', // Passwordless for Google Auth, will be set in Onboarding
                   mobile: '',
-                  role: 'STUDENT',
+                  role: formData.role as any,
+                  teacherCode: formData.role === 'TEACHER' ? formData.teacherCode : undefined,
+                  teacherActive: formData.role === 'TEACHER' ? true : undefined,
                   createdAt: new Date().toISOString(),
                   credits: settings?.signupBonus || 2,
                   streak: 0,
@@ -290,6 +325,11 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
               } as User;
 
               await saveUserToLive(appUser);
+
+              if (formData.role === 'TEACHER' && formData.teacherCode) {
+                  await burnTeacherCode(formData.teacherCode, appUser.id);
+              }
+
               logActivity("SIGNUP_GOOGLE", "New Student Registered via Google", appUser);
               onLogin(appUser);
           }
@@ -297,6 +337,26 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
       } catch (err: any) {
           console.error("Google Auth Error:", err);
           setError(err.message || "Google Login Failed. Try again.");
+      }
+  };
+
+  const handleTeacherCodeSubmit = async () => {
+      if (!formData.teacherCode) {
+          setError("Please enter a Teacher Access Code.");
+          return;
+      }
+
+      const codeData = await checkTeacherCode(formData.teacherCode);
+      if (!codeData) {
+          setError("Invalid or Inactive Teacher Access Code.");
+          return;
+      }
+
+      // Check if we are coming from manual signup or Google signup
+      if (formData.password) {
+          await handleCompleteSignup();
+      } else {
+          await handleGoogleAuth();
       }
   };
 
@@ -565,8 +625,37 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
               {view === 'SIGNUP' && (
                   <div className="flex flex-col items-center justify-center space-y-6 py-6">
                       <div className="text-center space-y-2 mb-4">
-                          <h3 className="text-lg font-bold text-slate-800">Quick Registration</h3>
-                          <p className="text-sm text-slate-500">Use your Google account to create a new student profile instantly.</p>
+                          <h3 className="text-lg font-bold text-slate-800">Select Role</h3>
+                          <p className="text-sm text-slate-500">How do you want to use the app?</p>
+                      </div>
+
+                      <div className="flex w-full gap-4">
+                          <button
+                              type="button"
+                              onClick={() => setFormData({ ...formData, role: 'STUDENT' })}
+                              className={`flex-1 p-4 rounded-xl border-2 flex flex-col items-center justify-center gap-2 transition-all ${formData.role === 'STUDENT' ? 'border-blue-600 bg-blue-50' : 'border-slate-200 hover:bg-slate-50'}`}
+                          >
+                              <GraduationCap size={24} className={formData.role === 'STUDENT' ? 'text-blue-600' : 'text-slate-400'} />
+                              <span className={`font-bold text-sm ${formData.role === 'STUDENT' ? 'text-blue-600' : 'text-slate-600'}`}>Student</span>
+                          </button>
+
+                          <button
+                              type="button"
+                              onClick={() => setFormData({ ...formData, role: 'TEACHER' })}
+                              className={`flex-1 p-4 rounded-xl border-2 flex flex-col items-center justify-center gap-2 transition-all ${formData.role === 'TEACHER' ? 'border-purple-600 bg-purple-50' : 'border-slate-200 hover:bg-slate-50'}`}
+                          >
+                              <UserIcon size={24} className={formData.role === 'TEACHER' ? 'text-purple-600' : 'text-slate-400'} />
+                              <span className={`font-bold text-sm ${formData.role === 'TEACHER' ? 'text-purple-600' : 'text-slate-600'}`}>Teacher</span>
+                          </button>
+                      </div>
+
+                      <div className="w-full relative mt-4">
+                          <div className="absolute inset-0 flex items-center">
+                              <div className="w-full border-t border-slate-200"></div>
+                          </div>
+                          <div className="relative flex justify-center text-xs">
+                              <span className="bg-white px-2 text-slate-400">Continue</span>
+                          </div>
                       </div>
 
                       <button type="button" onClick={handleGoogleAuth} className="w-full bg-white border-2 border-slate-200 hover:border-blue-600 hover:bg-blue-50 text-[#1e293b] font-bold py-4 rounded-[2rem] flex items-center justify-center gap-3 transition-all active:scale-95 shadow-sm">
@@ -577,6 +666,33 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
                       <div className="text-xs text-slate-400 text-center mt-6 max-w-[250px]">
                           By creating an account, you agree to our Terms of Service and Privacy Policy.
                       </div>
+                  </div>
+              )}
+
+              {view === 'TEACHER_CODE' && (
+                  <div className="space-y-4">
+                      <div className="text-center mb-6">
+                          <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 text-purple-600">
+                              <KeyRound size={28} />
+                          </div>
+                          <h3 className="text-xl font-bold text-slate-800">Teacher Access Code</h3>
+                          <p className="text-sm text-slate-500 mt-2">Please enter your unique code to unlock teacher features.</p>
+                      </div>
+
+                      <div className="space-y-1.5">
+                          <label className="text-xs font-bold text-slate-500 uppercase">Access Code</label>
+                          <input
+                              name="teacherCode"
+                              type="text"
+                              placeholder="e.g. TCH12345"
+                              value={formData.teacherCode}
+                              onChange={(e) => setFormData({...formData, teacherCode: e.target.value.toUpperCase()})}
+                              className="w-full px-4 py-3 border border-slate-200 rounded-xl font-bold uppercase tracking-widest text-center text-lg"
+                              autoFocus
+                          />
+                      </div>
+                      <button type="button" onClick={handleTeacherCodeSubmit} className="w-full bg-purple-600 text-white font-bold py-3.5 rounded-xl mt-4 shadow-lg hover:bg-purple-700">Verify & Continue</button>
+                      <button type="button" onClick={() => setView('SIGNUP')} className="w-full mt-2 text-slate-500 text-sm font-bold hover:text-slate-800">Go Back</button>
                   </div>
               )}
 

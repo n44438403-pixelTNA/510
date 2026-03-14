@@ -474,6 +474,17 @@ export const ALL_FEATURES: Feature[] = [
         color: 'indigo'
     },
     {
+        id: 'ADMIN_TEACHER_CODES',
+        label: 'Teacher Codes',
+        group: 'CORE',
+        surfaceLevel: 3,
+        adminVisible: true,
+        adminTab: 'TEACHER_CODES',
+        requiredPermission: 'VIEW_USERS',
+        icon: 'Key',
+        color: 'purple'
+    },
+    {
         id: 'ADMIN_SUBSCRIPTIONS',
         label: 'Subscriptions',
         group: 'CORE',
