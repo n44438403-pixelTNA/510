@@ -27,6 +27,7 @@ import { PdfView } from './PdfView'; // Imported for PDF Flow
 import { McqView } from './McqView'; // Imported for MCQ Flow
 import { MiniPlayer } from './MiniPlayer'; // Imported for Audio Flow
 import { HistoryPage } from './HistoryPage';
+import TeacherStore from './TeacherStore';
 import { Leaderboard } from './Leaderboard';
 import { SpinWheel } from './SpinWheel';
 import { fetchChapters, generateCustomNotes } from '../services/groq'; // Needed for Video Flow
@@ -137,6 +138,20 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
   const hasPermission = (featureId: string) => {
       return getFeatureAccess(featureId).hasAccess;
   };
+
+  // --- TEACHER EXPIRY CHECK ---
+  const [isTeacherLocked, setIsTeacherLocked] = useState(false);
+  const [teacherUnlockCode, setTeacherUnlockCode] = useState('');
+
+  useEffect(() => {
+      if (user.role === 'TEACHER' && user.teacherExpiryDate) {
+          if (new Date(user.teacherExpiryDate).getTime() < Date.now()) {
+              setIsTeacherLocked(true);
+          } else {
+              setIsTeacherLocked(false);
+          }
+      }
+  }, [user.role, user.teacherExpiryDate]);
 
   // --- EXPIRY CHECK & AUTO DOWNGRADE ---
   useEffect(() => {
@@ -642,6 +657,7 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
   }, [user.id]); 
 
   useEffect(() => {
+      if (isTeacherLocked && activeTab !== 'STORE') return; // Pause updates if locked
       const interval = setInterval(() => {
           updateUserStatus(user.id, dailyStudySeconds);
           const todayStr = new Date().toDateString();
@@ -1242,7 +1258,12 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
       if (activeTab === 'REDEEM') return <div className="animate-in fade-in slide-in-from-bottom-2 duration-300"><RedeemSection user={user} onSuccess={onRedeemSuccess} /></div>;
       if (activeTab === 'PRIZES') return <div className="animate-in fade-in slide-in-from-bottom-2 duration-300"><PrizeList /></div>;
       // if (activeTab === 'REWARDS') return (...); // REMOVED TO PREVENT CRASH
-      if (activeTab === 'STORE') return <Store user={user} settings={settings} onUserUpdate={handleUserUpdate} />;
+      if (activeTab === 'STORE') {
+          if (user.role === 'TEACHER') {
+              return <TeacherStore user={user} settings={settings} onRedeemSuccess={handleUserUpdate} />;
+          }
+          return <Store user={user} settings={settings} onUserUpdate={handleUserUpdate} />;
+      }
       if (activeTab === 'PROFILE') return (
                 <div className="animate-in fade-in zoom-in duration-300 pb-24">
                     <div className={`rounded-3xl p-8 text-center text-slate-800 mb-6 shadow-sm border border-slate-200 relative overflow-hidden transition-all duration-500 ${
@@ -1576,6 +1597,76 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
 
       return null;
   };
+
+  // --- TEACHER LOCKED SCREEN MOVED TO RENDER ---
+  if (isTeacherLocked && activeTab !== 'STORE') {
+      return (
+          <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-6 text-center animate-in fade-in">
+              <Lock size={64} className="text-purple-500 mb-6" />
+              <h1 className="text-3xl font-black text-white mb-2">Teacher Access Expired</h1>
+              <p className="text-slate-400 mb-8 max-w-md">
+                  Your Teacher Code has expired. Please enter a new access code or purchase a renewal plan to continue using the platform.
+              </p>
+
+              <div className="w-full max-w-sm bg-slate-800 p-6 rounded-2xl border border-slate-700 mb-8">
+                  <h3 className="text-white font-bold mb-4 text-sm text-left">Enter New Teacher Code</h3>
+                  <div className="flex gap-2">
+                      <input
+                          type="text"
+                          value={teacherUnlockCode}
+                          onChange={(e) => setTeacherUnlockCode(e.target.value)}
+                          placeholder="e.g. TCH1234"
+                          className="flex-1 px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-purple-500 font-mono"
+                      />
+                      <button
+                          onClick={() => {
+                              const codes = settings?.teacherCodes || [];
+                              const validCode = codes.find(c => c.code === teacherUnlockCode && c.isActive);
+                              if (validCode) {
+                                  const durationDays = validCode.durationDays || 365;
+                                  const newExpiry = new Date();
+                                  newExpiry.setDate(newExpiry.getDate() + durationDays);
+                                  onRedeemSuccess({
+                                      ...user,
+                                      teacherExpiryDate: newExpiry.toISOString()
+                                  });
+                                  setTeacherUnlockCode('');
+                                  setIsTeacherLocked(false);
+                                  setAlertConfig({isOpen: true, type: "SUCCESS", message: `Success! Account renewed for ${durationDays} days.`});
+                              } else {
+                                  setAlertConfig({isOpen: true, type: "ERROR", message: "Invalid or inactive code."});
+                              }
+                          }}
+                          className="bg-purple-600 hover:bg-purple-500 text-white px-6 py-3 rounded-xl font-bold transition-colors"
+                      >
+                          Apply
+                      </button>
+                  </div>
+              </div>
+
+              <div className="flex flex-col gap-4 w-full max-w-sm">
+                  <button
+                      onClick={() => onTabChange('STORE')}
+                      className="w-full bg-white text-black py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-slate-200"
+                  >
+                      <ShoppingBag size={18} /> Visit Teacher Store
+                  </button>
+                  <button
+                      onClick={() => {
+                          if(onLogout) onLogout();
+                          else {
+                              localStorage.removeItem('nst_current_user');
+                              window.location.reload();
+                          }
+                      }}
+                      className="w-full text-slate-400 py-4 font-bold hover:text-white"
+                  >
+                      Logout
+                  </button>
+              </div>
+          </div>
+      );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
