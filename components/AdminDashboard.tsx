@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState, useRef } from 'react';
-import { User, ViewState, SystemSettings, Subject, Chapter, MCQItem, RecoveryRequest, ActivityLogEntry, LeaderboardEntry, RecycleBinItem, Stream, Board, ClassLevel, GiftCode, SubscriptionPlan, CreditPackage, SpinReward, HtmlModule, PremiumNoteSlot, ContentInfoConfig, ContentInfoItem, SubscriptionHistoryEntry, UniversalAnalysisLog, ContentType, LessonContent, DeepDiveEntry, AdditionalNoteEntry } from '../types';
+import { User, ViewState, SystemSettings, Subject, Chapter, MCQItem, RecoveryRequest, ActivityLogEntry, LeaderboardEntry, RecycleBinItem, Stream, Board, ClassLevel, GiftCode, SubscriptionPlan, CreditPackage, SpinReward, HtmlModule, PremiumNoteSlot, ContentInfoConfig, ContentInfoItem, SubscriptionHistoryEntry, UniversalAnalysisLog, ContentType, LessonContent, DeepDiveEntry, AdditionalNoteEntry, TeacherStorePlan, TeacherCode } from '../types';
 import { List, LayoutDashboard, Users, Search, Trash2, Save, X, Eye, EyeOff, Shield, Megaphone, CheckCircle, ListChecks, Database, FileText, Monitor, Sparkles, Banknote, BrainCircuit, AlertOctagon, ArrowLeft, Key, Bell, ShieldCheck, Lock, Globe, Layers, Zap, PenTool, RefreshCw, RotateCcw, Plus, LogOut, Download, Upload, CreditCard, Ticket, Video, Image as ImageIcon, Type, Link, FileJson, Activity, AlertTriangle, Gift, Book, Mail, Edit3, MessageSquare, ShoppingBag, Cloud, Rocket, Code2, Layers as LayersIcon, Wifi, WifiOff, Copy, Crown, Gamepad2, Calendar, BookOpen, Image, HelpCircle, Youtube, Play, Star, Trophy, Palette, Settings, Headphones, Layout, Bot, LayoutDashboard as DashboardIcon, Loader2, Gauge, LayoutGrid, ArrowUpCircle, KeyRound, Award } from 'lucide-react';
 import { getSubjectsList, DEFAULT_SUBJECTS, DEFAULT_APP_FEATURES, ALL_APP_FEATURES, STUDENT_APP_FEATURES, DEFAULT_CONTENT_INFO_CONFIG, ADMIN_PERMISSIONS, APP_VERSION, STATIC_SYLLABUS, LEVEL_UNLOCKABLE_FEATURES } from '../constants';
 import { fetchChapters, fetchLessonContent } from '../services/groq';
@@ -533,10 +533,15 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
       if (localSettings.teacherCodes) {
           setTeacherCodes(localSettings.teacherCodes);
       }
-  }, [localSettings.teacherCodes]);
+      if (localSettings.teacherStorePlans) {
+          setTeacherStorePlans(localSettings.teacherStorePlans);
+      }
+  }, [localSettings.teacherCodes, localSettings.teacherStorePlans]);
 
   // --- TEACHER MANAGER STATE ---
   const [newTeacherCodePrice, setNewTeacherCodePrice] = useState('299');
+  const [newTeacherCodeDuration, setNewTeacherCodeDuration] = useState('365');
+  const [teacherStorePlans, setTeacherStorePlans] = useState<TeacherStorePlan[]>([]);
 
   // --- PACKAGE MANAGER STATE ---
   const [newPkgName, setNewPkgName] = useState('');
@@ -8795,11 +8800,19 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                           placeholder="Price (₹)"
                           className="px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-purple-500 w-32"
                       />
+                      <input
+                          type="number"
+                          value={newTeacherCodeDuration}
+                          onChange={e => setNewTeacherCodeDuration(e.target.value)}
+                          placeholder="Duration (Days)"
+                          className="px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-purple-500 w-40"
+                      />
                       <button
                           onClick={() => {
                               const newCode: TeacherCode = {
                                   code: `TCH${Math.floor(1000 + Math.random() * 9000)}`,
                                   price: Number(newTeacherCodePrice) || 299,
+                                  durationDays: Number(newTeacherCodeDuration) || 365,
                                   isActive: true,
                                   createdBy: currentUser?.name || 'Admin',
                                   createdAt: new Date().toISOString(),
@@ -8809,7 +8822,7 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                               setTeacherCodes(updatedCodes);
                               setLocalSettings({...localSettings, teacherCodes: updatedCodes});
                               if(isFirebaseConnected) saveSystemSettings({...localSettings, teacherCodes: updatedCodes});
-                              alert(`Generated Teacher Code: ${newCode.code}`);
+                              alert(`Generated Teacher Code: ${newCode.code} (Valid for ${newCode.durationDays} days)`);
                           }}
                           className="bg-purple-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-purple-700"
                       >
@@ -8822,7 +8835,7 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                           <div key={idx} className="bg-white p-3 rounded-lg border border-purple-100 shadow-sm flex items-center justify-between">
                               <div>
                                   <p className="font-mono font-black text-slate-800 tracking-wider">{tc.code}</p>
-                                  <p className="text-[10px] text-slate-500">₹{tc.price} • Uses: {tc.uses || 0}</p>
+                                  <p className="text-[10px] text-slate-500">₹{tc.price} • {tc.durationDays || 365} Days • Uses: {tc.uses || 0}</p>
                               </div>
                               <div className="flex items-center gap-2">
                                   <button
@@ -8851,6 +8864,112 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                                       <Trash2 size={14}/>
                                   </button>
                               </div>
+                          </div>
+                      ))}
+                  </div>
+              </div>
+
+              {/* Teacher Store Subscription Plans Manager */}
+              <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-200 mb-8">
+                  <h4 className="font-bold text-indigo-800 mb-3 flex items-center gap-2"><ShoppingBag size={18}/> Teacher Store Subscription Plans</h4>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                      <input
+                          type="text"
+                          id="newTPlanName"
+                          placeholder="Plan Name (e.g. Pro Teacher)"
+                          className="px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 flex-1 min-w-[200px]"
+                      />
+                      <input
+                          type="number"
+                          id="newTPlanPrice"
+                          placeholder="Price (₹)"
+                          className="px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 w-24"
+                      />
+                      <input
+                          type="number"
+                          id="newTPlanDuration"
+                          placeholder="Duration (Days)"
+                          className="px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 w-32"
+                      />
+                      <input
+                          type="text"
+                          id="newTPlanBenefits"
+                          placeholder="Benefits (comma separated)"
+                          className="px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 flex-1 min-w-[200px]"
+                      />
+                      <button
+                          onClick={() => {
+                              const nameInput = document.getElementById('newTPlanName') as HTMLInputElement;
+                              const priceInput = document.getElementById('newTPlanPrice') as HTMLInputElement;
+                              const durInput = document.getElementById('newTPlanDuration') as HTMLInputElement;
+                              const benInput = document.getElementById('newTPlanBenefits') as HTMLInputElement;
+
+                              if (!nameInput.value || !priceInput.value || !durInput.value) {
+                                  alert("Please fill name, price, and duration.");
+                                  return;
+                              }
+
+                              const newPlan: TeacherStorePlan = {
+                                  id: `TPLAN_${Date.now()}`,
+                                  name: nameInput.value,
+                                  price: Number(priceInput.value),
+                                  durationDays: Number(durInput.value),
+                                  benefits: benInput.value.split(',').map(s => s.trim()).filter(Boolean),
+                                  isActive: true
+                              };
+
+                              const updatedPlans = [...teacherStorePlans, newPlan];
+                              setTeacherStorePlans(updatedPlans);
+                              setLocalSettings({...localSettings, teacherStorePlans: updatedPlans});
+                              if(isFirebaseConnected) saveSystemSettings({...localSettings, teacherStorePlans: updatedPlans});
+
+                              nameInput.value = ''; priceInput.value = ''; durInput.value = ''; benInput.value = '';
+                          }}
+                          className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-indigo-700"
+                      >
+                          Add Plan
+                      </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {teacherStorePlans.map((plan, idx) => (
+                          <div key={idx} className="bg-white p-4 rounded-xl border border-indigo-100 shadow-sm relative">
+                              <div className="flex justify-between items-start mb-2">
+                                  <div>
+                                      <h5 className="font-bold text-slate-800 text-lg">{plan.name}</h5>
+                                      <p className="text-indigo-600 font-black">₹{plan.price} <span className="text-slate-500 font-normal text-xs">/ {plan.durationDays} days</span></p>
+                                  </div>
+                                  <div className="flex gap-2">
+                                      <button
+                                          onClick={() => {
+                                              const updated = [...teacherStorePlans];
+                                              updated[idx].isActive = !updated[idx].isActive;
+                                              setTeacherStorePlans(updated);
+                                              setLocalSettings({...localSettings, teacherStorePlans: updated});
+                                              if(isFirebaseConnected) saveSystemSettings({...localSettings, teacherStorePlans: updated});
+                                          }}
+                                          className={`text-[10px] px-2 py-1 rounded-full font-bold ${plan.isActive ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-red-100 text-red-700 hover:bg-red-200'}`}
+                                      >
+                                          {plan.isActive ? 'Active' : 'Inactive'}
+                                      </button>
+                                      <button
+                                          onClick={() => {
+                                              if(window.confirm('Delete plan?')) {
+                                                  const updated = teacherStorePlans.filter((_, i) => i !== idx);
+                                                  setTeacherStorePlans(updated);
+                                                  setLocalSettings({...localSettings, teacherStorePlans: updated});
+                                                  if(isFirebaseConnected) saveSystemSettings({...localSettings, teacherStorePlans: updated});
+                                              }
+                                          }}
+                                          className="text-slate-400 hover:text-red-500"
+                                      >
+                                          <Trash2 size={16}/>
+                                      </button>
+                                  </div>
+                              </div>
+                              <ul className="text-sm text-slate-600 list-disc list-inside mt-2 space-y-1">
+                                  {plan.benefits.map((b, i) => <li key={i}>{b}</li>)}
+                              </ul>
                           </div>
                       ))}
                   </div>

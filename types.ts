@@ -349,7 +349,17 @@ export interface TeacherCode {
     price: number;
     createdBy: string;
     createdAt: string;
+    durationDays?: number;
     uses: number;
+}
+
+export interface TeacherStorePlan {
+    id: string;
+    name: string;
+    price: number;
+    durationDays: number;
+    benefits: string[];
+    isActive: boolean;
 }
 
 export interface SystemSettings {

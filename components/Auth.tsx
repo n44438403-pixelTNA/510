@@ -117,6 +117,7 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
           let assignedRole: Role = 'STUDENT';
           let finalCredits = settings?.signupBonus || 2;
           let teacherCodeStr: string | undefined = undefined;
+          let calculatedTeacherExpiry: string | undefined = undefined;
 
           if (isTeacherSignup && formData.teacherCode) {
               const codes = settings?.teacherCodes || [];
@@ -130,6 +131,11 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
               assignedRole = 'TEACHER';
               teacherCodeStr = validCode.code;
               finalCredits = 50; // default starter credits for teachers, can be customized later
+
+              const duration = validCode.durationDays || 365;
+              const expiryDate = new Date();
+              expiryDate.setDate(expiryDate.getDate() + duration);
+              calculatedTeacherExpiry = expiryDate.toISOString();
           }
 
           const newUser: User = {
@@ -141,6 +147,7 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
             email: formData.email,
             role: assignedRole,
             ...(teacherCodeStr && { teacherCode: teacherCodeStr }),
+            ...(calculatedTeacherExpiry && { teacherExpiryDate: calculatedTeacherExpiry }),
             createdAt: new Date().toISOString(),
             credits: finalCredits,
             streak: 0,

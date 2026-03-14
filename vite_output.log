@@ -3,38 +3,57 @@
 > vite
 
 
-  VITE v6.4.1  ready in 226 ms
+  VITE v6.4.1  ready in 344 ms
 
   ➜  Local:   http://localhost:5000/
   ➜  Network: http://192.168.0.2:5000/
 [BABEL] Note: The code generator has deoptimised the styling of /app/components/AdminDashboard.tsx as it exceeds the max of 500KB.
-4:30:58 PM [vite] (client) hmr update /App.tsx
-4:31:56 PM [vite] (client) hmr update /App.tsx
-4:33:12 PM [vite] (client) hmr update /App.tsx
-4:35:03 PM [vite] (client) hmr update /App.tsx
-3:43:50 AM [vite] (client) hmr update /components/PdfView.tsx
-3:55:26 AM [vite] (client) hmr update /index.css, /index.css?direct
-4:04:54 AM [vite] (client) hmr update /components/Auth.tsx
-4:06:19 AM [vite] (client) hmr update /components/Auth.tsx
-4:06:23 AM [vite] (client) hmr update /components/Auth.tsx
-4:10:14 AM [vite] (client) hmr update /index.css, /index.css?direct
-4:13:37 AM [vite] (client) hmr update /components/Auth.tsx
-4:21:45 AM [vite] (client) hmr update /components/AdminDashboard.tsx
-4:24:26 AM [vite] (client) hmr update /components/AdminDashboard.tsx
-4:31:00 AM [vite] (client) hmr update /components/AdminDashboard.tsx
-4:39:36 AM [vite] (client) hmr update /components/AdminDashboard.tsx
-4:42:32 AM [vite] (client) hmr update /components/AdminDashboard.tsx
-4:47:32 AM [vite] (client) hmr update /components/AdminDashboard.tsx
-4:49:05 AM [vite] (client) hmr update /components/AdminDashboard.tsx
-4:52:53 AM [vite] (client) hmr update /components/AdminDashboard.tsx
-5:04:16 AM [vite] (client) hmr update /components/AdminDashboard.tsx, /components/StudentDashboard.tsx, /components/MarksheetCard.tsx, /components/PdfView.tsx, /components/McqView.tsx, /components/RevisionHub.tsx, /components/FloatingActionMenu.tsx, /components/admin/FeatureGroupList.tsx
-5:08:22 AM [vite] (client) hmr update /components/AdminDashboard.tsx
-5:12:26 AM [vite] (client) hmr update /components/PdfView.tsx
-5:14:08 AM [vite] (client) hmr update /components/PdfView.tsx
-5:16:08 AM [vite] (client) hmr update /components/PdfView.tsx
-5:18:11 AM [vite] (client) hmr update /components/PdfView.tsx
-5:26:04 AM [vite] (client) hmr update /App.tsx
-[BABEL] Note: The code generator has deoptimised the styling of /app/components/AdminDashboard.tsx as it exceeds the max of 500KB.
-[BABEL] Note: The code generator has deoptimised the styling of /app/components/AdminDashboard.tsx as it exceeds the max of 500KB.
-6:31:10 AM [vite] (client) hmr update /components/AdminDashboard.tsx
-6:48:33 AM [vite] (client) hmr update /components/AdminDashboard.tsx
+8:33:42 AM [vite] (client) Pre-transform error: Failed to resolve import "./ui/AlertTriangle" from "components/TeacherStore.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /app/components/TeacherStore.tsx:4:26
+  3  |  import { useState } from "react";
+  4  |  import { Store, CheckCircle, Shield, Gift, Zap } from "lucide-react";
+  5  |  import AlertTriangle from "./ui/AlertTriangle";
+     |                             ^
+  6  |  const TeacherStore = ({ user, settings, onRedeemSuccess }) => {
+  7  |    _s();
+8:33:42 AM [vite] Internal server error: Failed to resolve import "./ui/AlertTriangle" from "components/TeacherStore.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /app/components/TeacherStore.tsx:4:26
+  3  |  import { useState } from "react";
+  4  |  import { Store, CheckCircle, Shield, Gift, Zap } from "lucide-react";
+  5  |  import AlertTriangle from "./ui/AlertTriangle";
+     |                             ^
+  6  |  const TeacherStore = ({ user, settings, onRedeemSuccess }) => {
+  7  |    _s();
+      at TransformPluginContext._formatLog (file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42528:41)
+      at TransformPluginContext.error (file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42525:16)
+      at normalizeUrl (file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40504:23)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40623:37
+      at async Promise.all (index 3)
+      at async TransformPluginContext.transform (file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40550:7)
+      at async EnvironmentPluginContainer.transform (file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42323:18)
+      at async loadAndTransform (file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:35739:27)
+      at async viteTransformMiddleware (file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:37254:24)
+8:33:43 AM [vite] Internal server error: Failed to resolve import "./ui/AlertTriangle" from "components/TeacherStore.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /app/components/TeacherStore.tsx:4:26
+  3  |  import { useState } from "react";
+  4  |  import { Store, CheckCircle, Shield, Gift, Zap } from "lucide-react";
+  5  |  import AlertTriangle from "./ui/AlertTriangle";
+     |                             ^
+  6  |  const TeacherStore = ({ user, settings, onRedeemSuccess }) => {
+  7  |    _s();
+      at TransformPluginContext._formatLog (file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42528:41)
+      at TransformPluginContext.error (file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42525:16)
+      at normalizeUrl (file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40504:23)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40623:37
+      at async Promise.all (index 3)
+      at async TransformPluginContext.transform (file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40550:7)
+      at async EnvironmentPluginContainer.transform (file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42323:18)
+      at async loadAndTransform (file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:35739:27)
+      at async viteTransformMiddleware (file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:37254:24)
+8:36:17 AM [vite] (client) hmr update /components/StudentDashboard.tsx
+8:42:12 AM [vite] (client) hmr update /components/AdminDashboard.tsx
