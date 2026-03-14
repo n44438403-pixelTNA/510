@@ -786,13 +786,22 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                                                   <div className="px-3 pb-3 pt-0 border-t border-dashed border-slate-200 mt-2 bg-white">
                                                       {/* Question */}
                                                       <div className="mt-2 mb-4">
-                                                          {q.pyqInspired && (
-                                                              <div className="mb-2">
+                                                          <div className="flex flex-wrap items-center gap-2 mb-2">
+                                                              {q.pyqInspired && (
                                                                   <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-50 border border-red-100 text-red-600 text-[10px] font-black rounded uppercase tracking-wider">
                                                                       🔥 PYQ: {q.pyqInspired}
                                                                   </span>
-                                                              </div>
-                                                          )}
+                                                              )}
+                                                              {(q.difficultyLevel || q.difficulty) && (
+                                                                  <span className={`inline-flex items-center px-2 py-0.5 text-[10px] font-black rounded uppercase tracking-wider border ${
+                                                                      (q.difficultyLevel || q.difficulty) === 'HARD' ? 'bg-red-50 border-red-100 text-red-600' :
+                                                                      (q.difficultyLevel || q.difficulty) === 'MEDIUM' ? 'bg-amber-50 border-amber-100 text-amber-600' :
+                                                                      'bg-green-50 border-green-100 text-green-600'
+                                                                  }`}>
+                                                                      {(q.difficultyLevel || q.difficulty)}
+                                                                  </span>
+                                                              )}
+                                                          </div>
                                                           <div className="text-sm font-bold text-slate-800 leading-relaxed pt-1" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.question) }} />
                                                       </div>
 
@@ -856,17 +865,6 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                                                           </div>
                                                       )}
 
-                                                      {/* Difficulty Level */}
-                                                      {(q.difficultyLevel || q.difficulty) && (
-                                                          <div className="mb-4 flex flex-wrap gap-2">
-                                                              <div className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl">
-                                                                  <p className="text-[10px] font-black text-slate-500 mb-1 uppercase tracking-widest flex items-center gap-1">Difficulty Level (कठिनाई): 📊</p>
-                                                                  <span className={`text-xs font-bold ${q.difficultyLevel === 'HARD' || q.difficulty === 'HARD' ? 'text-red-600' : q.difficultyLevel === 'MEDIUM' || q.difficulty === 'MEDIUM' ? 'text-amber-600' : 'text-green-600'}`}>
-                                                                      {q.difficultyLevel || q.difficulty}
-                                                                  </span>
-                                                              </div>
-                                                          </div>
-                                                      )}
 
                                                       <div className="mt-2 text-right">
                                                           <SpeakButton
@@ -1204,20 +1202,12 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                                   )}
                               </div>
                           )}
-                          {(q.topic || q.difficultyLevel) && (
+                          {q.topic && (
                               <div className="mb-4 ml-11 flex flex-wrap gap-2">
-                                  {q.difficultyLevel && (
-                                      <div className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl">
-                                           <p className="text-[10px] font-black text-slate-500 mb-1 uppercase tracking-widest flex items-center gap-1">Difficulty Level (कठिनाई): 📊</p>
-                                           <span className="text-xs font-bold text-slate-700">{q.difficultyLevel}</span>
-                                      </div>
-                                  )}
-                                  {q.topic && (
-                                      <div className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl flex-1">
-                                           <p className="text-[10px] font-black text-slate-500 mb-1 uppercase tracking-widest flex items-center gap-1">Topic (विषय): 📖</p>
-                                           <span className="text-xs font-bold text-slate-700">{q.topic}</span>
-                                      </div>
-                                  )}
+                                  <div className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl flex-1">
+                                       <p className="text-[10px] font-black text-slate-500 mb-1 uppercase tracking-widest flex items-center gap-1">Topic (विषय): 📖</p>
+                                       <span className="text-xs font-bold text-slate-700">{q.topic}</span>
+                                  </div>
                               </div>
                           )}
                       </div>
@@ -1413,13 +1403,22 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
                                             <div className={`p-4 ${isCorrect ? 'bg-green-50' : isSkipped ? 'bg-slate-50' : 'bg-red-50'} border-b ${isCorrect ? 'border-green-100' : isSkipped ? 'border-slate-100' : 'border-red-100'} flex flex-col gap-2`}>
                                                 <div className="flex gap-3">
                                                     <div className="flex-1 flex flex-col">
-                                                        {q.pyqInspired && (
-                                                            <div className="mb-2">
+                                                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                                                            {q.pyqInspired && (
                                                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 border border-red-200 text-red-700 text-[10px] font-black rounded uppercase tracking-wider shadow-sm">
                                                                     🔥 PYQ: {q.pyqInspired}
                                                                 </span>
-                                                            </div>
-                                                        )}
+                                                            )}
+                                                            {(q.difficultyLevel || q.difficulty) && (
+                                                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded border shadow-sm ${
+                                                                    (q.difficultyLevel || q.difficulty) === 'HARD' ? 'bg-red-50 text-red-700 border-red-200' :
+                                                                    (q.difficultyLevel || q.difficulty) === 'MEDIUM' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                                                                    'bg-green-50 text-green-700 border-green-200'
+                                                                }`}>
+                                                                    {(q.difficultyLevel || q.difficulty)}
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                         <div className="text-sm font-bold text-slate-800 leading-snug" dangerouslySetInnerHTML={{ __html: renderMathInHtml(q.question) }} />
                                                     </div>
                                                 </div>
