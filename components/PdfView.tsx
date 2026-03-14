@@ -845,65 +845,77 @@ export const PdfView: React.FC<Props> = ({
            onClose={() => setAlertConfig({...alertConfig, isOpen: false})}
        />
 
+       {/* FULLSCREEN FLOATING CONTROLS */}
+       {isFullscreen && (
+           <div className="fixed top-4 left-4 right-4 z-[100] flex justify-between items-center pointer-events-none">
+               <button onClick={onBack} className="pointer-events-auto bg-black/50 backdrop-blur-md text-white p-3 rounded-full hover:bg-black/70 border border-white/20 shadow-lg transition-transform active:scale-95 flex items-center gap-2">
+                   <ArrowLeft size={20} /> <span className="text-sm font-bold pr-1">Back</span>
+               </button>
+               <button onClick={toggleFullScreen} className="pointer-events-auto bg-black/50 backdrop-blur-md text-white p-3 rounded-full hover:bg-black/70 border border-white/20 shadow-lg transition-transform active:scale-95 flex items-center gap-2" title="Exit Full Screen">
+                   <Minimize size={20} /> <span className="text-sm font-bold pr-1">Exit</span>
+               </button>
+           </div>
+       )}
+
        {/* HEADER */}
-       <div className="sticky top-0 z-30 bg-white border-b border-slate-100 shadow-sm flex flex-col">
-           <div className="p-4 flex items-center gap-3">
-               <button onClick={onBack} className="p-2 hover:bg-slate-100 rounded-full text-slate-600">
-                   <ArrowLeft size={20} />
-               </button>
-               <div className="flex-1">
-                   {!isFullscreen && (
+       {!isFullscreen && (
+           <div className="sticky top-0 z-30 bg-white border-b border-slate-100 shadow-sm flex flex-col">
+               <div className="p-4 flex items-center gap-3">
+                   <button onClick={onBack} className="p-2 hover:bg-slate-100 rounded-full text-slate-600">
+                       <ArrowLeft size={20} />
+                   </button>
+                   <div className="flex-1">
                        <h3 className="font-bold text-slate-800 leading-tight line-clamp-1">{chapter.title}</h3>
-                   )}
-                   <div className="flex gap-2 mt-1">
-                     <button onClick={() => setSyllabusMode('SCHOOL')} className={`text-[10px] px-2 py-0.5 rounded-full font-bold transition-all ${syllabusMode === 'SCHOOL' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-500'}`}>School</button>
-                     <button onClick={() => setSyllabusMode('COMPETITION')} className={`text-[10px] px-2 py-0.5 rounded-full font-bold transition-all ${syllabusMode === 'COMPETITION' ? 'bg-purple-600 text-white shadow-sm' : 'bg-slate-100 text-slate-500'}`}>Competition</button>
+                       <div className="flex gap-2 mt-1">
+                         <button onClick={() => setSyllabusMode('SCHOOL')} className={`text-[10px] px-2 py-0.5 rounded-full font-bold transition-all ${syllabusMode === 'SCHOOL' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-500'}`}>School</button>
+                         <button onClick={() => setSyllabusMode('COMPETITION')} className={`text-[10px] px-2 py-0.5 rounded-full font-bold transition-all ${syllabusMode === 'COMPETITION' ? 'bg-purple-600 text-white shadow-sm' : 'bg-slate-100 text-slate-500'}`}>Competition</button>
+                       </div>
                    </div>
+                   <button onClick={toggleFullScreen} className="p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-colors" title="Full Screen">
+                       <Maximize size={18} />
+                   </button>
                </div>
-               <button onClick={toggleFullScreen} className="p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-colors" title="Full Screen">
-                   <Maximize size={18} />
-               </button>
-           </div>
 
-           {/* TABS */}
-           <div className="flex overflow-x-auto border-t border-slate-100 scrollbar-hide">
-               {[
-                   { id: 'QUICK', label: 'Quick', icon: Zap, show: true },
-                   { id: 'DEEP_DIVE', label: 'Concept', icon: BookOpen, show: true },
-                   { id: 'PREMIUM', label: 'Retention', icon: Crown, show: true },
-                   { id: 'RESOURCES', label: 'Extended', icon: Layers, show: true },
-                   { id: 'TEACHER', label: 'Teaching Strategy', icon: BookOpen, show: user.role === 'TEACHER' || user.role === 'ADMIN' }
-                       ].filter(t => t.show).map(tab => {
-                           const { hasAccess, cost } = getTabAccess(tab.id);
-                           const isLocked = !hasAccess;
+               {/* TABS */}
+               <div className="flex overflow-x-auto border-t border-slate-100 scrollbar-hide">
+                   {[
+                       { id: 'QUICK', label: 'Quick', icon: Zap, show: true },
+                       { id: 'DEEP_DIVE', label: 'Concept', icon: BookOpen, show: true },
+                       { id: 'PREMIUM', label: 'Retention', icon: Crown, show: true },
+                       { id: 'RESOURCES', label: 'Extended', icon: Layers, show: true },
+                       { id: 'TEACHER', label: 'Teaching Strategy', icon: BookOpen, show: user.role === 'TEACHER' || user.role === 'ADMIN' }
+                           ].filter(t => t.show).map(tab => {
+                               const { hasAccess, cost } = getTabAccess(tab.id);
+                               const isLocked = !hasAccess;
 
-                           return (
-                               <button
-                                   key={tab.id}
-                                   onClick={() => {
-                                       if (isLocked) {
-                                           if (cost > 0) {
-                                               setPendingPdf({ type: tab.id as any, price: cost, link: `UNLOCK_TAB_${tab.id}` });
-                                           } else {
-                                               setAlertConfig({isOpen: true, message: `🔒 Locked! Upgrade your plan or wait for Admin access.`});
+                               return (
+                                   <button
+                                       key={tab.id}
+                                       onClick={() => {
+                                           if (isLocked) {
+                                               if (cost > 0) {
+                                                   setPendingPdf({ type: tab.id as any, price: cost, link: `UNLOCK_TAB_${tab.id}` });
+                                               } else {
+                                                   setAlertConfig({isOpen: true, message: `🔒 Locked! Upgrade your plan or wait for Admin access.`});
+                                               }
+                                               return;
                                            }
-                                           return;
-                                       }
-                                       setActiveTab(tab.id as any);
-                                       stopAllSpeech();
-                                   }}
-                                   className={`flex-1 min-w-[100px] py-3 text-xs font-bold flex flex-col items-center gap-1 border-b-2 transition-all ${activeTab === tab.id ? 'border-blue-600 text-blue-600 bg-blue-50' : 'border-transparent text-slate-500 hover:bg-slate-50'} ${isLocked && cost === 0 ? 'grayscale' : ''}`}
-                               >
-                                   <div className="relative">
-                                       <tab.icon size={16} />
-                                       {isLocked && <div className="absolute -top-1 -right-2 bg-red-500 rounded-full p-0.5 border border-white"><Lock size={8} className="text-white"/></div>}
-                                   </div>
-                                   {tab.label}
-                               </button>
-                           );
-                       })}
+                                           setActiveTab(tab.id as any);
+                                           stopAllSpeech();
+                                       }}
+                                       className={`flex-1 min-w-[100px] py-3 text-xs font-bold flex flex-col items-center gap-1 border-b-2 transition-all ${activeTab === tab.id ? 'border-blue-600 text-blue-600 bg-blue-50' : 'border-transparent text-slate-500 hover:bg-slate-50'} ${isLocked && cost === 0 ? 'grayscale' : ''}`}
+                                   >
+                                       <div className="relative">
+                                           <tab.icon size={16} />
+                                           {isLocked && <div className="absolute -top-1 -right-2 bg-red-500 rounded-full p-0.5 border border-white"><Lock size={8} className="text-white"/></div>}
+                                       </div>
+                                       {tab.label}
+                                   </button>
+                               );
+                           })}
+               </div>
            </div>
-       </div>
+       )}
 
        {/* CONTENT BODY (WRAPPED IN ERROR BOUNDARY) */}
        <ErrorBoundary>
