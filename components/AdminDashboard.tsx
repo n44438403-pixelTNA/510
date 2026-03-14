@@ -159,7 +159,8 @@ interface ContentConfig {
     competitionFreeNotesList?: {title: string, url: string, type: 'PDF' | 'HTML', content?: string}[];
     schoolPremiumNotesList?: {title: string, url: string, type: 'PDF' | 'HTML', content?: string}[];
     competitionPremiumNotesList?: {title: string, url: string, type: 'PDF' | 'HTML', content?: string}[];
-    teachingStrategyHtml?: string; // NEW: For Teacher Mode
+    teachingStrategyHtml?: string; // NEW: For Teacher Mode (Legacy)
+    teachingStrategyNotes?: {id: string, title: string, content: string, type: 'HTML'}[]; // NEW: Unlimited Teacher Notes
     freeNotesLabel?: string; // Custom Label for Free Notes Button
 
     schoolVideoPlaylist?: {title: string, url: string, price?: number, access?: 'FREE' | 'BASIC' | 'ULTRA'}[];
@@ -632,7 +633,8 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
           [currentPremiumNotesField]: premiumNotesList,
           [currentDeepDiveField]: deepDiveEntries,
           [currentAdditionalField]: additionalNotes,
-          teachingStrategyHtml: teachingStrategyHtml
+          teachingStrategyHtml: teachingStrategyHtml,
+          teachingStrategyNotes: teachingStrategyNotes
       };
       setEditConfig(updatedConfig);
 
@@ -697,6 +699,7 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
   const [topicNotes, setTopicNotes] = useState<{ id: string, title: string, content: string, isPremium: boolean, topic: string }[]>([]);
   const [topicVideos, setTopicVideos] = useState<{ id: string, title: string, url: string, isPremium: boolean, topic: string }[]>([]);
   const [teachingStrategyHtml, setTeachingStrategyHtml] = useState<string>(''); // NEW: Teaching Strategy content
+  const [teachingStrategyNotes, setTeachingStrategyNotes] = useState<{ id: string, title: string, content: string, type: 'HTML' }[]>([]); // NEW: Unlimited Teaching Strategy Notes
   const [editingMcqs, setEditingMcqs] = useState<MCQItem[]>([]);
   const [editingTestMcqs, setEditingTestMcqs] = useState<MCQItem[]>([]);
   const [importText, setImportText] = useState('');
@@ -1979,6 +1982,7 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
       setTopicNotes(data.topicNotes || []);
       setTopicVideos(data.topicVideos || []);
       setTeachingStrategyHtml(data.teachingStrategyHtml || '');
+      setTeachingStrategyNotes(data.teachingStrategyNotes || []);
   };
 
 
@@ -5412,15 +5416,55 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                                   <h4 className="font-bold text-emerald-900 mb-4 flex items-center gap-2">
                                       <GraduationCap size={20} /> Teaching Strategy (Teacher Mode)
                                   </h4>
-                                  <p className="text-[10px] text-emerald-600 mb-4">
-                                      Paste HTML content specifically for the Teacher Guide. Use standard formatting (`&lt;h2&gt;`, `&lt;p&gt;`, `&lt;ul&gt;`).
-                                  </p>
-                                  <textarea
-                                      value={teachingStrategyHtml}
-                                      onChange={e => setTeachingStrategyHtml(e.target.value)}
-                                      className="w-full p-4 border border-emerald-200 rounded-lg text-xs font-mono h-48 outline-none focus:border-emerald-500"
-                                      placeholder="<div class='teacher-section'>\n  <h2>🎓 Topic Core</h2>\n  <p>Explanation here...</p>\n</div>"
-                                  />
+
+                                  <div className="space-y-4 mb-4">
+                                      {teachingStrategyNotes.map((note, idx) => (
+                                          <div key={note.id} className="bg-white p-3 rounded-lg border border-emerald-200 shadow-sm relative group">
+                                              <button onClick={() => setTeachingStrategyNotes(teachingStrategyNotes.filter((_, i) => i !== idx))} className="absolute -top-2 -right-2 bg-red-100 text-red-600 p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                                  <Trash2 size={12} />
+                                              </button>
+                                              <input
+                                                  type="text"
+                                                  value={note.title}
+                                                  onChange={e => {
+                                                      const updated = [...teachingStrategyNotes];
+                                                      updated[idx].title = e.target.value;
+                                                      setTeachingStrategyNotes(updated);
+                                                  }}
+                                                  className="w-full bg-slate-50 border border-emerald-100 rounded p-2 text-sm font-bold mb-2 outline-none focus:border-emerald-500"
+                                                  placeholder="Note Title (e.g. Topic Core, Teaching Method)"
+                                              />
+                                              <textarea
+                                                  value={note.content}
+                                                  onChange={e => {
+                                                      const updated = [...teachingStrategyNotes];
+                                                      updated[idx].content = e.target.value;
+                                                      setTeachingStrategyNotes(updated);
+                                                  }}
+                                                  className="w-full p-2 border border-emerald-100 rounded bg-slate-50 text-xs font-mono h-32 outline-none focus:border-emerald-500"
+                                                  placeholder="<div class='teacher-section'>\n  <p>Explanation here...</p>\n</div>"
+                                              />
+                                          </div>
+                                      ))}
+                                      <button
+                                          onClick={() => setTeachingStrategyNotes([...teachingStrategyNotes, { id: Date.now().toString(), title: `Strategy ${teachingStrategyNotes.length + 1}`, content: '', type: 'HTML' }])}
+                                          className="w-full py-2 bg-emerald-100 text-emerald-700 rounded-lg text-sm font-bold border border-emerald-200 border-dashed hover:bg-emerald-200 transition-colors"
+                                      >
+                                          + Add Strategy Note
+                                      </button>
+                                  </div>
+
+                                  <div className="pt-4 border-t border-emerald-200">
+                                      <p className="text-[10px] text-emerald-600 mb-2 font-bold uppercase">
+                                          Legacy Single-Note View
+                                      </p>
+                                      <textarea
+                                          value={teachingStrategyHtml}
+                                          onChange={e => setTeachingStrategyHtml(e.target.value)}
+                                          className="w-full p-4 border border-emerald-200 rounded-lg text-xs font-mono h-32 outline-none focus:border-emerald-500"
+                                          placeholder="<div class='teacher-section'>\n  <h2>🎓 Topic Core</h2>\n  <p>Explanation here...</p>\n</div>"
+                                      />
+                                  </div>
                               </div>
 
                               <div className="flex gap-2">
