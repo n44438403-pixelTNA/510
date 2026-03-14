@@ -1581,12 +1581,14 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
                                 <Cloud size={16} /> Recover
                             </button>
 
-                            <button
-                                onClick={onLogout}
-                                className="bg-red-50 p-3 rounded-xl border border-red-100 flex items-center justify-center gap-2 hover:bg-red-100 transition-colors text-red-600 font-bold text-sm"
-                            >
-                                <LogOut size={16} /> Logout
-                            </button>
+                            {(settings?.isLogoutEnabled !== false || user.role === 'ADMIN' || isImpersonating) && (
+                                <button
+                                    onClick={onLogout}
+                                    className="bg-red-50 p-3 rounded-xl border border-red-100 flex items-center justify-center gap-2 hover:bg-red-100 transition-colors text-red-600 font-bold text-sm"
+                                >
+                                    <LogOut size={16} /> Logout
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>

@@ -2,58 +2,12 @@
 > students@0.0.0 dev
 > vite
 
+Port 5000 is in use, trying another one...
+Port 5001 is in use, trying another one...
+Port 5002 is in use, trying another one...
+Port 5003 is in use, trying another one...
 
-  VITE v6.4.1  ready in 344 ms
+  VITE v6.4.1  ready in 239 ms
 
-  ➜  Local:   http://localhost:5000/
-  ➜  Network: http://192.168.0.2:5000/
-[BABEL] Note: The code generator has deoptimised the styling of /app/components/AdminDashboard.tsx as it exceeds the max of 500KB.
-8:33:42 AM [vite] (client) Pre-transform error: Failed to resolve import "./ui/AlertTriangle" from "components/TeacherStore.tsx". Does the file exist?
-  Plugin: vite:import-analysis
-  File: /app/components/TeacherStore.tsx:4:26
-  3  |  import { useState } from "react";
-  4  |  import { Store, CheckCircle, Shield, Gift, Zap } from "lucide-react";
-  5  |  import AlertTriangle from "./ui/AlertTriangle";
-     |                             ^
-  6  |  const TeacherStore = ({ user, settings, onRedeemSuccess }) => {
-  7  |    _s();
-8:33:42 AM [vite] Internal server error: Failed to resolve import "./ui/AlertTriangle" from "components/TeacherStore.tsx". Does the file exist?
-  Plugin: vite:import-analysis
-  File: /app/components/TeacherStore.tsx:4:26
-  3  |  import { useState } from "react";
-  4  |  import { Store, CheckCircle, Shield, Gift, Zap } from "lucide-react";
-  5  |  import AlertTriangle from "./ui/AlertTriangle";
-     |                             ^
-  6  |  const TeacherStore = ({ user, settings, onRedeemSuccess }) => {
-  7  |    _s();
-      at TransformPluginContext._formatLog (file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42528:41)
-      at TransformPluginContext.error (file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42525:16)
-      at normalizeUrl (file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40504:23)
-      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
-      at async file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40623:37
-      at async Promise.all (index 3)
-      at async TransformPluginContext.transform (file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40550:7)
-      at async EnvironmentPluginContainer.transform (file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42323:18)
-      at async loadAndTransform (file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:35739:27)
-      at async viteTransformMiddleware (file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:37254:24)
-8:33:43 AM [vite] Internal server error: Failed to resolve import "./ui/AlertTriangle" from "components/TeacherStore.tsx". Does the file exist?
-  Plugin: vite:import-analysis
-  File: /app/components/TeacherStore.tsx:4:26
-  3  |  import { useState } from "react";
-  4  |  import { Store, CheckCircle, Shield, Gift, Zap } from "lucide-react";
-  5  |  import AlertTriangle from "./ui/AlertTriangle";
-     |                             ^
-  6  |  const TeacherStore = ({ user, settings, onRedeemSuccess }) => {
-  7  |    _s();
-      at TransformPluginContext._formatLog (file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42528:41)
-      at TransformPluginContext.error (file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42525:16)
-      at normalizeUrl (file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40504:23)
-      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
-      at async file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40623:37
-      at async Promise.all (index 3)
-      at async TransformPluginContext.transform (file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40550:7)
-      at async EnvironmentPluginContainer.transform (file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42323:18)
-      at async loadAndTransform (file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:35739:27)
-      at async viteTransformMiddleware (file:///app/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:37254:24)
-8:36:17 AM [vite] (client) hmr update /components/StudentDashboard.tsx
-8:42:12 AM [vite] (client) hmr update /components/AdminDashboard.tsx
+  ➜  Local:   http://localhost:5004/
+  ➜  Network: http://192.168.0.2:5004/
