@@ -40,7 +40,7 @@ import { StudentTab, PendingReward, MCQResult, SubscriptionHistoryEntry } from '
 import { storage } from './utils/storage';
 
 const TermsPopup: React.FC<{ onClose: () => void, text?: string }> = ({ onClose, text }) => (
-    <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-end md:items-center justify-center p-0 md:p-4 animate-in fade-in duration-300">
+    <div className="fixed inset-0 max-w-md mx-auto z-[100] bg-black/60 backdrop-blur-sm flex items-end md:items-center justify-center p-0 md:p-4 animate-in fade-in duration-300">
         <div className="bg-white w-full max-w-lg md:rounded-3xl rounded-t-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div className="bg-white p-6 border-b border-slate-100 flex justify-between items-center sticky top-0 z-10">
                 <h3 className="text-xl font-black text-slate-900 flex items-center gap-2">
@@ -2287,9 +2287,9 @@ const App: React.FC = () => {
       )}
 
       {/* STATUS BAR BACKGROUND */}
-      <div className="fixed top-0 left-0 right-0 h-[env(safe-area-inset-top,24px)] bg-slate-900 z-[100]"></div>
+      <div className="fixed top-0 left-0 right-0 max-w-md mx-auto h-[env(safe-area-inset-top,24px)] bg-slate-900 z-[100]"></div>
       {/* BOTTOM SAFE AREA BACKGROUND */}
-      <div className="fixed bottom-0 left-0 right-0 h-[env(safe-area-inset-bottom,32px)] bg-slate-900 z-[100]"></div>
+      <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto h-[env(safe-area-inset-bottom,32px)] bg-slate-900 z-[100]"></div>
 
       {/* GLOBAL WATERMARK LAYER (FIXED: Single Logo, Configurable Position, Z-Index Low) */}
       {/* User Requirement: "app ka logo full screen pe dikhega nahi chhota sa... background me hi logo hoga" */}
@@ -2348,8 +2348,8 @@ const App: React.FC = () => {
 
       {/* IMPERSONATION RETURN BUTTON */}
       {state.originalAdmin && (
-          <div className="fixed bottom-24 right-6 z-[90] animate-bounce">
-              <button onClick={handleReturnToAdmin} className="bg-red-600 text-white font-bold py-3 px-6 rounded-full shadow-2xl flex items-center gap-2 border-4 border-white">
+          <div className="fixed inset-x-0 bottom-24 max-w-md mx-auto pointer-events-none z-[90] flex justify-end px-6 animate-bounce">
+              <button onClick={handleReturnToAdmin} className="pointer-events-auto bg-red-600 text-white font-bold py-3 px-6 rounded-full shadow-2xl flex items-center gap-2 border-4 border-white">
                   <EyeOff size={20} /> Exit User View
               </button>
           </div>
@@ -2473,7 +2473,7 @@ const App: React.FC = () => {
       
       {/* PERSISTENT FOOTER - Hide in Student Dashboard as it has its own Bottom Nav */}
       {!isFullScreen && state.view !== 'STUDENT_DASHBOARD' && state.settings.showFooter !== false && (
-      <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 py-1 text-center z-[40]">
+      <footer className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-slate-200 py-1 text-center z-[40]">
           <p
             className="text-[10px] font-black uppercase tracking-widest"
             style={{ color: state.settings.footerColor || '#94a3b8' }}
@@ -2486,7 +2486,7 @@ const App: React.FC = () => {
       {/* GLOBAL LIVE DASHBOARD 2 (BOTTOM) */}
       {state.settings.bannerConfig?.bottom?.enabled && showBottomBanner && (
           <div
-            className="fixed bottom-6 left-0 right-0 text-[10px] font-bold py-1 overflow-hidden relative whitespace-nowrap z-[39] transition-all duration-500 ease-in-out"
+            className="fixed bottom-6 left-0 right-0 max-w-md mx-auto text-[10px] font-bold py-1 overflow-hidden relative whitespace-nowrap z-[39] transition-all duration-500 ease-in-out"
             style={{
                 backgroundColor: state.settings.bannerConfig.bottom.bgColor || '#2563eb',
                 color: state.settings.bannerConfig.bottom.textColor || '#ffffff',

@@ -2062,7 +2062,7 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
         )}
 
         {/* FIXED BOTTOM NAVIGATION */}
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg z-50 pb-safe">
+        <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-slate-200 shadow-lg z-50 pb-safe">
             <div className="flex justify-around items-center h-16">
                 {(() => {
                     const access = getFeatureAccess('NAV_HOME');

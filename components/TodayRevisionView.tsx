@@ -300,7 +300,7 @@ export const TodayRevisionView: React.FC<Props> = ({ user, topics, onClose, onCo
             </div>
 
             {/* FOOTER ACTIONS */}
-            <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 shadow-2xl flex flex-col sm:flex-row gap-4 items-center justify-center z-30">
+            <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-slate-200 p-4 shadow-2xl flex flex-col sm:flex-row gap-4 items-center justify-center z-30">
                 <button
                     onClick={() => { onComplete(topics); }}
                     disabled={loading}
