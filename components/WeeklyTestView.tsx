@@ -138,14 +138,14 @@ export const WeeklyTestView: React.FC<Props> = ({ test, onComplete, onExit }) =>
                 {q.options && q.options.map((opt, oIdx) => (
                   <button
                     key={oIdx}
-                    onClick={() => setAnswers(prev => ({ ...prev, [idx]: oIdx }))}
+                    onPointerDown={() => setAnswers(prev => ({ ...prev, [idx]: oIdx }))}
                     className={`w-full text-left p-3 rounded-lg border transition-all text-sm font-medium flex items-center justify-between
                       ${answers[idx] === oIdx 
                         ? 'bg-blue-50 border-blue-500 text-blue-700 ring-1 ring-blue-500' 
                         : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-700'}`}
                   >
-                    {opt}
-                    {answers[idx] === oIdx && <CheckCircle size={16} className="text-blue-600" />}
+                    <span className="pointer-events-none">{opt}</span>
+                    {answers[idx] === oIdx && <CheckCircle size={16} className="text-blue-600 pointer-events-none" />}
                   </button>
                 ))}
               </div>

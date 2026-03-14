@@ -1589,12 +1589,12 @@ export const LessonView: React.FC<Props> = ({
                                                    <button
                                                        key={oIdx}
                                                        disabled={isAnswered || showResults}
-                                                       onClick={() => handleOptionSelect(idx, oIdx)}
+                                                       onPointerDown={() => handleOptionSelect(idx, oIdx)}
                                                        className={btnClass}
                                                    >
-                                                       <span className="relative z-10 flex justify-between items-center w-full gap-2">
-                                                           <div dangerouslySetInnerHTML={{ __html: renderMathInHtml(opt) }} className="flex-1" />
-                                                           <div className="flex items-center gap-2 shrink-0">
+                                                       <span className="relative z-10 flex justify-between items-center w-full gap-2 pointer-events-none">
+                                                               <div dangerouslySetInnerHTML={{ __html: renderMathInHtml(opt) }} className="flex-1 pointer-events-none" />
+                                                               <div className="flex items-center gap-2 shrink-0 pointer-events-none">
                                                               {showColors && oIdx === q.correctAnswer && <CheckCircle size={16} className="text-green-600" />}
                                                               {showColors && userAnswer === oIdx && userAnswer !== q.correctAnswer && <XCircle size={16} className="text-red-500" />}
                                                            </div>

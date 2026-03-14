@@ -393,20 +393,20 @@ export const RevisionSession: React.FC<Props> = ({ user, settings, chapterId, su
                                                     return (
                                                         <button
                                                             key={idx}
-                                                            onClick={() => handleOptionSelect(idx)}
+                                                            onPointerDown={() => handleOptionSelect(idx)}
                                                             disabled={selectedOption !== null}
                                                             className={`w-full p-4 rounded-xl border-2 text-left transition-all flex items-center gap-3 ${stateClass}`}
                                                         >
-                                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border ${
+                                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border pointer-events-none ${
                                                                 selectedOption !== null && idx === mcqData[currentQIndex].correctAnswer ? 'bg-green-500 border-green-600 text-white' :
                                                                 selectedOption === idx ? 'bg-red-500 border-red-600 text-white' :
                                                                 'bg-white border-slate-300 text-slate-500'
                                                             }`}>
                                                                 {['A','B','C','D'][idx]}
                                                             </div>
-                                                            <span className="flex-1 text-sm">{opt}</span>
-                                                            {selectedOption !== null && idx === mcqData[currentQIndex].correctAnswer && <CheckCircle size={20} className="text-green-600" />}
-                                                            {selectedOption === idx && idx !== mcqData[currentQIndex].correctAnswer && <AlertCircle size={20} className="text-red-600" />}
+                                                            <span className="flex-1 text-sm pointer-events-none">{opt}</span>
+                                                            {selectedOption !== null && idx === mcqData[currentQIndex].correctAnswer && <CheckCircle size={20} className="text-green-600 pointer-events-none" />}
+                                                            {selectedOption === idx && idx !== mcqData[currentQIndex].correctAnswer && <AlertCircle size={20} className="text-red-600 pointer-events-none" />}
                                                         </button>
                                                     );
                                                 })}
