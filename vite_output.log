@@ -13,3 +13,26 @@
 4:33:12 PM [vite] (client) hmr update /App.tsx
 4:35:03 PM [vite] (client) hmr update /App.tsx
 3:43:50 AM [vite] (client) hmr update /components/PdfView.tsx
+3:55:26 AM [vite] (client) hmr update /index.css, /index.css?direct
+4:04:54 AM [vite] (client) hmr update /components/Auth.tsx
+4:06:19 AM [vite] (client) hmr update /components/Auth.tsx
+4:06:23 AM [vite] (client) hmr update /components/Auth.tsx
+4:10:14 AM [vite] (client) hmr update /index.css, /index.css?direct
+4:13:37 AM [vite] (client) hmr update /components/Auth.tsx
+4:21:45 AM [vite] (client) hmr update /components/AdminDashboard.tsx
+4:24:26 AM [vite] (client) hmr update /components/AdminDashboard.tsx
+4:31:00 AM [vite] (client) hmr update /components/AdminDashboard.tsx
+4:39:36 AM [vite] (client) hmr update /components/AdminDashboard.tsx
+4:42:32 AM [vite] (client) hmr update /components/AdminDashboard.tsx
+4:47:32 AM [vite] (client) hmr update /components/AdminDashboard.tsx
+4:49:05 AM [vite] (client) hmr update /components/AdminDashboard.tsx
+4:52:53 AM [vite] (client) hmr update /components/AdminDashboard.tsx
+5:04:16 AM [vite] (client) hmr update /components/AdminDashboard.tsx, /components/StudentDashboard.tsx, /components/MarksheetCard.tsx, /components/PdfView.tsx, /components/McqView.tsx, /components/RevisionHub.tsx, /components/FloatingActionMenu.tsx, /components/admin/FeatureGroupList.tsx
+5:08:22 AM [vite] (client) hmr update /components/AdminDashboard.tsx
+5:12:26 AM [vite] (client) hmr update /components/PdfView.tsx
+5:14:08 AM [vite] (client) hmr update /components/PdfView.tsx
+5:16:08 AM [vite] (client) hmr update /components/PdfView.tsx
+5:18:11 AM [vite] (client) hmr update /components/PdfView.tsx
+5:26:04 AM [vite] (client) hmr update /App.tsx
+[BABEL] Note: The code generator has deoptimised the styling of /app/components/AdminDashboard.tsx as it exceeds the max of 500KB.
+[BABEL] Note: The code generator has deoptimised the styling of /app/components/AdminDashboard.tsx as it exceeds the max of 500KB.

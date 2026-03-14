@@ -64,7 +64,32 @@ const App: React.FC = () => {
   // TESTING OVERRIDE: Render component directly bypassing auth
   useEffect(() => {
       const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('mock') === 'marksheet') {
+      if (urlParams.get('mock') === 'pdf_view') {
+          // Force view into PDF View mock
+          setState(prev => ({
+              ...prev,
+              user: {
+                 id: "mock-teacher",
+                 role: "TEACHER",
+                 name: "Prof. Smith",
+                 isPremium: true,
+                 profileCompleted: true
+              } as any,
+              view: 'LESSON',
+              selectedBoard: 'CBSE',
+              selectedClass: '10',
+              selectedSubject: { id: "sub", name: "Science", icon: "Flask" } as any,
+              selectedChapter: { id: "chap", title: "Photosynthesis", isLocked: false } as any,
+              lessonContent: {
+                 id: "lesson",
+                 type: "NOTES_HTML_FREE",
+                 title: "Photosynthesis",
+                 subjectName: "Science",
+                 dateCreated: new Date().toISOString(),
+                 content: "Test notes"
+              } as any
+          }));
+      } else if (urlParams.get('mock') === 'marksheet') {
           // Dummy data to trigger the MarksheetCard
           setLastTestResult({
               id: "mock-result-123",
