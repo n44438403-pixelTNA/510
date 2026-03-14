@@ -126,7 +126,8 @@ type AdminTab =
   | 'DEPLOY'
   | 'EVENT_MANAGER' // NEW
   | 'NSTA_CONTROL' // NEW - Replaces APP_SOUL
-  | 'DOCUMENTATION'; // NEW
+  | 'DOCUMENTATION'
+  | 'TEACHERS'; // NEW
 
 interface ContentConfig {
     freeLink?: string;
@@ -158,6 +159,7 @@ interface ContentConfig {
     competitionFreeNotesList?: {title: string, url: string, type: 'PDF' | 'HTML', content?: string}[];
     schoolPremiumNotesList?: {title: string, url: string, type: 'PDF' | 'HTML', content?: string}[];
     competitionPremiumNotesList?: {title: string, url: string, type: 'PDF' | 'HTML', content?: string}[];
+    teachingStrategyHtml?: string; // NEW: For Teacher Mode
     freeNotesLabel?: string; // Custom Label for Free Notes Button
 
     schoolVideoPlaylist?: {title: string, url: string, price?: number, access?: 'FREE' | 'BASIC' | 'ULTRA'}[];
@@ -396,6 +398,7 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
   const [recoveryRequests, setRecoveryRequests] = useState<RecoveryRequest[]>([]);
   const [demands, setDemands] = useState<{id:string, details:string, timestamp:string}[]>([]);
   const [giftCodes, setGiftCodes] = useState<GiftCode[]>([]);
+  const [teacherCodes, setTeacherCodes] = useState<TeacherCode[]>([]); // NEW: Teacher Codes
 
   // --- DATABASE EDITOR ---
   const [dbKey, setDbKey] = useState('nst_users');
@@ -525,6 +528,16 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
       }
   }, [settings]);
 
+  // Sync teacher codes with localSettings
+  useEffect(() => {
+      if (localSettings.teacherCodes) {
+          setTeacherCodes(localSettings.teacherCodes);
+      }
+  }, [localSettings.teacherCodes]);
+
+  // --- TEACHER MANAGER STATE ---
+  const [newTeacherCodePrice, setNewTeacherCodePrice] = useState('299');
+
   // --- PACKAGE MANAGER STATE ---
   const [newPkgName, setNewPkgName] = useState('');
   const [newPkgPrice, setNewPkgPrice] = useState('');
@@ -613,7 +626,8 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
           [currentFreeNotesField]: freeNotesList,
           [currentPremiumNotesField]: premiumNotesList,
           [currentDeepDiveField]: deepDiveEntries,
-          [currentAdditionalField]: additionalNotes
+          [currentAdditionalField]: additionalNotes,
+          teachingStrategyHtml: teachingStrategyHtml
       };
       setEditConfig(updatedConfig);
 
@@ -677,6 +691,7 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
   // NEW TOPIC CONTENT STATE
   const [topicNotes, setTopicNotes] = useState<{ id: string, title: string, content: string, isPremium: boolean, topic: string }[]>([]);
   const [topicVideos, setTopicVideos] = useState<{ id: string, title: string, url: string, isPremium: boolean, topic: string }[]>([]);
+  const [teachingStrategyHtml, setTeachingStrategyHtml] = useState<string>(''); // NEW: Teaching Strategy content
   const [editingMcqs, setEditingMcqs] = useState<MCQItem[]>([]);
   const [editingTestMcqs, setEditingTestMcqs] = useState<MCQItem[]>([]);
   const [importText, setImportText] = useState('');
@@ -1958,6 +1973,7 @@ const AdminDashboardInner: React.FC<Props> = ({ onNavigate, settings, onUpdateSe
       // Load Topic Content (Shared)
       setTopicNotes(data.topicNotes || []);
       setTopicVideos(data.topicVideos || []);
+      setTeachingStrategyHtml(data.teachingStrategyHtml || '');
   };
 
 
@@ -5386,6 +5402,22 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                                   </button>
                               </div>
 
+                              {/* TEACHING STRATEGY EDITOR */}
+                              <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-100 mt-4">
+                                  <h4 className="font-bold text-emerald-900 mb-4 flex items-center gap-2">
+                                      <GraduationCap size={20} /> Teaching Strategy (Teacher Mode)
+                                  </h4>
+                                  <p className="text-[10px] text-emerald-600 mb-4">
+                                      Paste HTML content specifically for the Teacher Guide. Use standard formatting (`&lt;h2&gt;`, `&lt;p&gt;`, `&lt;ul&gt;`).
+                                  </p>
+                                  <textarea
+                                      value={teachingStrategyHtml}
+                                      onChange={e => setTeachingStrategyHtml(e.target.value)}
+                                      className="w-full p-4 border border-emerald-200 rounded-lg text-xs font-mono h-48 outline-none focus:border-emerald-500"
+                                      placeholder="<div class='teacher-section'>\n  <h2>🎓 Topic Core</h2>\n  <p>Explanation here...</p>\n</div>"
+                                  />
+                              </div>
+
                               <div className="flex gap-2">
                                   <label className="flex items-center gap-2 cursor-pointer bg-white px-3 py-3 rounded-xl border border-blue-200">
                                       <input 
@@ -8738,6 +8770,157 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                           </button>
                       </div>
                   ))}
+              </div>
+          </div>
+      )}
+
+      {/* --- TEACHERS TAB (NEW) --- */}
+      {activeTab === 'TEACHERS' && (
+          <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 animate-in slide-in-from-bottom-4">
+              <div className="flex items-center justify-between mb-6 border-b pb-4">
+                  <div className="flex items-center gap-4">
+                      <button onClick={() => setActiveTab('DASHBOARD')} className="bg-slate-100 p-2 rounded-full hover:bg-slate-200"><ArrowLeft size={20} /></button>
+                      <h3 className="text-xl font-black text-slate-800">Teacher Management</h3>
+                  </div>
+              </div>
+
+              {/* Teacher Codes Manager */}
+              <div className="bg-purple-50 p-4 rounded-xl border border-purple-200 mb-8">
+                  <h4 className="font-bold text-purple-800 mb-3 flex items-center gap-2"><KeyRound size={18}/> Teacher Access Codes</h4>
+                  <div className="flex gap-2 mb-4">
+                      <input
+                          type="number"
+                          value={newTeacherCodePrice}
+                          onChange={e => setNewTeacherCodePrice(e.target.value)}
+                          placeholder="Price (₹)"
+                          className="px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-purple-500 w-32"
+                      />
+                      <button
+                          onClick={() => {
+                              const newCode: TeacherCode = {
+                                  code: `TCH${Math.floor(1000 + Math.random() * 9000)}`,
+                                  price: Number(newTeacherCodePrice) || 299,
+                                  isActive: true,
+                                  createdBy: currentUser?.name || 'Admin',
+                                  createdAt: new Date().toISOString(),
+                                  uses: 0
+                              };
+                              const updatedCodes = [newCode, ...teacherCodes];
+                              setTeacherCodes(updatedCodes);
+                              setLocalSettings({...localSettings, teacherCodes: updatedCodes});
+                              if(isFirebaseConnected) saveSystemSettings({...localSettings, teacherCodes: updatedCodes});
+                              alert(`Generated Teacher Code: ${newCode.code}`);
+                          }}
+                          className="bg-purple-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-purple-700"
+                      >
+                          Generate New Code
+                      </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {teacherCodes.map((tc, idx) => (
+                          <div key={idx} className="bg-white p-3 rounded-lg border border-purple-100 shadow-sm flex items-center justify-between">
+                              <div>
+                                  <p className="font-mono font-black text-slate-800 tracking-wider">{tc.code}</p>
+                                  <p className="text-[10px] text-slate-500">₹{tc.price} • Uses: {tc.uses || 0}</p>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                  <button
+                                      onClick={() => {
+                                          const updated = [...teacherCodes];
+                                          updated[idx].isActive = !updated[idx].isActive;
+                                          setTeacherCodes(updated);
+                                          setLocalSettings({...localSettings, teacherCodes: updated});
+                                          if(isFirebaseConnected) saveSystemSettings({...localSettings, teacherCodes: updated});
+                                      }}
+                                      className={`px-2 py-1 rounded text-[10px] font-bold ${tc.isActive ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
+                                  >
+                                      {tc.isActive ? 'ACTIVE' : 'DISABLED'}
+                                  </button>
+                                  <button
+                                      onClick={() => {
+                                          if(confirm("Delete this code?")) {
+                                              const updated = teacherCodes.filter((_, i) => i !== idx);
+                                              setTeacherCodes(updated);
+                                              setLocalSettings({...localSettings, teacherCodes: updated});
+                                              if(isFirebaseConnected) saveSystemSettings({...localSettings, teacherCodes: updated});
+                                          }
+                                      }}
+                                      className="p-1 text-red-400 hover:text-red-600 hover:bg-red-50 rounded"
+                                  >
+                                      <Trash2 size={14}/>
+                                  </button>
+                              </div>
+                          </div>
+                      ))}
+                  </div>
+              </div>
+
+              {/* Teachers Leaderboard / List */}
+              <div className="mb-4 flex items-center justify-between">
+                  <h4 className="font-bold text-slate-800">Registered Teachers</h4>
+                  <div className="relative">
+                      <Search className="absolute left-3 top-2.5 text-slate-400" size={16} />
+                      <input type="text" placeholder="Search Teachers..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 text-sm" />
+                  </div>
+              </div>
+
+              <div className="overflow-x-auto border rounded-xl">
+                  <table className="w-full text-left text-sm">
+                      <thead className="bg-slate-50 border-b border-slate-200 text-slate-600">
+                          <tr className="uppercase text-[10px] font-bold tracking-wider">
+                              <th className="p-4">Rank / Name</th>
+                              <th className="p-4">Contact</th>
+                              <th className="p-4">Class</th>
+                              <th className="p-4">Code Used</th>
+                              <th className="p-4">Active Time</th>
+                              <th className="p-4 text-right">Actions</th>
+                          </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                          {users.filter(u => u.role === 'TEACHER' && (u.name.toLowerCase().includes(searchTerm.toLowerCase()) || u.id.includes(searchTerm)))
+                                .sort((a, b) => (b.totalActiveDays || 0) - (a.totalActiveDays || 0))
+                                .map((u, index) => (
+                              <tr key={u.id} className="hover:bg-slate-50 transition-colors group">
+                                  <td className="p-4">
+                                      <div className="flex items-center gap-3">
+                                          {index < 3 ? (
+                                              <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-white shadow-md ${index === 0 ? 'bg-yellow-400' : index === 1 ? 'bg-slate-300' : 'bg-amber-600'}`}>
+                                                  #{index + 1}
+                                              </div>
+                                          ) : (
+                                              <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-xs">
+                                                  #{index + 1}
+                                              </div>
+                                          )}
+                                          <div>
+                                              <p className="font-bold text-slate-800 flex items-center gap-1">
+                                                  {u.name} {index < 3 && <Award size={14} className="text-yellow-500"/>}
+                                              </p>
+                                              <p className="text-[10px] text-slate-400 font-mono">{u.id}</p>
+                                          </div>
+                                      </div>
+                                  </td>
+                                  <td className="p-4">
+                                      <p className="text-xs text-slate-600">{u.email}</p>
+                                      <p className="text-[10px] text-slate-400 font-mono">{u.mobile}</p>
+                                  </td>
+                                  <td className="p-4 font-bold text-slate-700">{u.classLevel || '-'}</td>
+                                  <td className="p-4"><span className="px-2 py-1 bg-purple-50 text-purple-700 rounded font-mono text-[10px] font-bold border border-purple-100">{u.teacherCode || 'N/A'}</span></td>
+                                  <td className="p-4 font-bold text-blue-600">{u.totalActiveDays || 0} days</td>
+                                  <td className="p-4 text-right flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <button onClick={() => openEditUser(u)} className="p-2 text-slate-400 hover:text-orange-600 bg-white shadow-sm border border-slate-200 rounded-lg" title="Edit"><Edit3 size={14} /></button>
+                                      <button onClick={() => deleteUser(u.id)} className="p-2 text-slate-400 hover:text-red-600 bg-white shadow-sm border border-slate-200 rounded-lg" title="Delete"><Trash2 size={14} /></button>
+                                  </td>
+                              </tr>
+                          ))}
+                          {users.filter(u => u.role === 'TEACHER').length === 0 && (
+                              <tr>
+                                  <td colSpan={6} className="p-8 text-center text-slate-400 font-bold">No teachers registered yet.</td>
+                              </tr>
+                          )}
+                      </tbody>
+                  </table>
               </div>
           </div>
       )}

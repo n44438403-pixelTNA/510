@@ -5,7 +5,7 @@ export type Board = 'CBSE' | 'BSEB' | 'COMPETITION';
 
 export type Stream = 'Science' | 'Commerce' | 'Arts';
 
-export type Role = 'STUDENT' | 'ADMIN' | 'SUB_ADMIN';
+export type Role = 'STUDENT' | 'TEACHER' | 'ADMIN' | 'SUB_ADMIN';
 
 export interface TimeConfig {
     days: number;
@@ -19,7 +19,7 @@ export interface FrequencyConfig {
     unit: 'seconds' | 'minutes' | 'hours' | 'days' | 'months' | 'years';
 }
 
-export type ContentType = 'NOTES_SIMPLE' | 'NOTES_PREMIUM' | 'MCQ_ANALYSIS' | 'MCQ_SIMPLE' | 'MCQ_RESULT' | 'PDF_FREE' | 'PDF_PREMIUM' | 'PDF_ULTRA' | 'PDF_VIEWER' | 'WEEKLY_TEST' | 'VIDEO_LECTURE' | 'NOTES_HTML_FREE' | 'NOTES_HTML_PREMIUM' | 'NOTES_IMAGE_AI';
+export type ContentType = 'NOTES_SIMPLE' | 'NOTES_PREMIUM' | 'MCQ_ANALYSIS' | 'MCQ_SIMPLE' | 'MCQ_RESULT' | 'PDF_FREE' | 'PDF_PREMIUM' | 'PDF_ULTRA' | 'PDF_VIEWER' | 'WEEKLY_TEST' | 'VIDEO_LECTURE' | 'NOTES_HTML_FREE' | 'NOTES_HTML_PREMIUM' | 'NOTES_IMAGE_AI' | 'TEACHING_STRATEGY';
 
 export interface PrizeRule {
   id: string;
@@ -87,6 +87,7 @@ export interface User {
   mobile: string;
   email: string;
   role: Role;
+  teacherCode?: string; // The code used to register as a teacher
   createdAt: string;
   credits: number; // Premium Credits
   streak: number; // Consecutive days
@@ -342,7 +343,17 @@ export interface EventBannerConfig {
     textColor?: string;
 }
 
+export interface TeacherCode {
+    code: string;
+    isActive: boolean;
+    price: number;
+    createdBy: string;
+    createdAt: string;
+    uses: number;
+}
+
 export interface SystemSettings {
+    teacherCodes?: TeacherCode[];
   appName: string; // Long Name
   activeEvents?: EventBannerConfig[]; // NEW: Event Banners
   mcqUnlockThreshold?: number; // NEW: Customizable unlock threshold

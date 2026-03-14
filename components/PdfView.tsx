@@ -4,7 +4,7 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 import { Chapter, User, Subject, SystemSettings, HtmlModule, PremiumNoteSlot, DeepDiveEntry, AdditionalNoteEntry } from '../types';
-import { FileText, Lock, ArrowLeft, Crown, Star, CheckCircle, AlertCircle, Globe, Maximize, Layers, HelpCircle, Minus, Plus, Volume2, Square, Zap, Headphones, BookOpen, Music, Play, Pause, SkipForward, SkipBack, Book, List, Layout, ExternalLink } from 'lucide-react';
+import { FileText, Lock, ArrowLeft, Crown, Star, CheckCircle, AlertCircle, Globe, Maximize, Layers, HelpCircle, Minus, Plus, Volume2, Square, Zap, Headphones, BookOpen, Music, Play, Pause, SkipForward, SkipBack, Book, List, Layout, ExternalLink, GraduationCap } from 'lucide-react';
 import { CustomAlert } from './CustomDialogs';
 import { getChapterData, saveUserToLive } from '../firebase';
 import { CreditConfirmationModal } from './CreditConfirmationModal';
@@ -116,7 +116,7 @@ export const PdfView: React.FC<Props> = ({
   const [pendingPdf, setPendingPdf] = useState<{type: string, price: number, link: string, tts?: string} | null>(null);
   
   // NEW: TAB STATE
-  const [activeTab, setActiveTab] = useState<'QUICK' | 'DEEP_DIVE' | 'PREMIUM' | 'RESOURCES'>('QUICK');
+  const [activeTab, setActiveTab] = useState<'QUICK' | 'DEEP_DIVE' | 'PREMIUM' | 'RESOURCES' | 'TEACHER'>('QUICK');
   const [sessionUnlockedTabs, setSessionUnlockedTabs] = useState<string[]>([]);
   const [quickRevisionPoints, setQuickRevisionPoints] = useState<{title: string, points: string[]}[]>([]);
   const [currentPremiumEntryIdx, setCurrentPremiumEntryIdx] = useState(0);
@@ -854,11 +854,12 @@ export const PdfView: React.FC<Props> = ({
            {/* TABS */}
            <div className="flex overflow-x-auto border-t border-slate-100 scrollbar-hide">
                {[
-                   { id: 'QUICK', label: 'Quick', icon: Zap },
-                   { id: 'DEEP_DIVE', label: 'Concept', icon: BookOpen },
-                   { id: 'PREMIUM', label: 'Retention', icon: Crown },
-                   { id: 'RESOURCES', label: 'Extended', icon: Layers }
-                       ].map(tab => {
+                   { id: 'QUICK', label: 'Quick', icon: Zap, show: true },
+                   { id: 'DEEP_DIVE', label: 'Concept', icon: BookOpen, show: true },
+                   { id: 'PREMIUM', label: 'Retention', icon: Crown, show: true },
+                   { id: 'RESOURCES', label: 'Extended', icon: Layers, show: true },
+                   { id: 'TEACHER', label: 'Teaching Strategy', icon: BookOpen, show: user.role === 'TEACHER' || user.role === 'ADMIN' }
+                       ].filter(t => t.show).map(tab => {
                            const { hasAccess, cost } = getTabAccess(tab.id);
                            const isLocked = !hasAccess;
 
@@ -1240,6 +1241,38 @@ export const PdfView: React.FC<Props> = ({
                                </div>
                            </>
                         );
+                   })()}
+               </div>
+           )}
+
+           {/* 5. TEACHER GUIDE (TEACHING STRATEGY) */}
+           {activeTab === 'TEACHER' && (
+               <div className="p-0 sm:p-4 space-y-4 w-full max-w-3xl mx-auto">
+                   {(() => {
+                       const strategyHtml = contentData?.teachingStrategyHtml;
+
+                       if (!strategyHtml || strategyHtml.trim().length === 0) {
+                           return (
+                               <div className="flex flex-col items-center justify-center py-20 text-center text-slate-500">
+                                   <BookOpen size={48} className="mb-4 text-purple-200" />
+                                   <h3 className="font-bold text-lg text-slate-700">No Strategy Guide Added</h3>
+                                   <p className="text-xs max-w-xs mt-2">The admin hasn't added a Teaching Strategy for this chapter yet.</p>
+                               </div>
+                           );
+                       }
+
+                       return (
+                           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                               <div className="bg-purple-600 p-4 text-white">
+                                   <h3 className="font-black text-lg flex items-center gap-2"><GraduationCap size={20} /> Teaching Strategy</h3>
+                                   <p className="text-xs text-purple-200 font-medium">Exclusive Guide for Educators</p>
+                               </div>
+                               <div
+                                   className="p-4 sm:p-6 prose prose-slate max-w-none teacher-guide-container"
+                                   dangerouslySetInnerHTML={{ __html: strategyHtml }}
+                               />
+                           </div>
+                       );
                    })()}
                </div>
            )}

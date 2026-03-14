@@ -34,8 +34,10 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
     board: '',
     classLevel: '',
     stream: '',
-    recoveryCode: ''
+    recoveryCode: '',
+    teacherCode: ''
   });
+  const [isTeacherSignup, setIsTeacherSignup] = useState(false);
   
   // ADMIN VERIFICATION STATE
   const [showAdminVerify, setShowAdminVerify] = useState(false);
@@ -112,6 +114,24 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
           const newId = generateUserId();
 
           
+          let assignedRole: Role = 'STUDENT';
+          let finalCredits = settings?.signupBonus || 2;
+          let teacherCodeStr: string | undefined = undefined;
+
+          if (isTeacherSignup && formData.teacherCode) {
+              const codes = settings?.teacherCodes || [];
+              const validCode = codes.find(c => c.code === formData.teacherCode && c.isActive);
+
+              if (!validCode) {
+                  setError("Invalid or inactive Teacher Code.");
+                  return;
+              }
+
+              assignedRole = 'TEACHER';
+              teacherCodeStr = validCode.code;
+              finalCredits = 50; // default starter credits for teachers, can be customized later
+          }
+
           const newUser: User = {
             id: uid,
             displayId: newId,
@@ -119,9 +139,10 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
             name: formData.name,
             mobile: formData.mobile,
             email: formData.email,
-            role: 'STUDENT',
+            role: assignedRole,
+            ...(teacherCodeStr && { teacherCode: teacherCodeStr }),
             createdAt: new Date().toISOString(),
-            credits: settings?.signupBonus || 2,
+            credits: finalCredits,
             streak: 0,
             lastLoginDate: new Date().toISOString(),
             redeemedCodes: [],
@@ -563,21 +584,62 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
         {view !== 'HOME' && (
             <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
               {view === 'SIGNUP' && (
-                  <div className="flex flex-col items-center justify-center space-y-6 py-6">
-                      <div className="text-center space-y-2 mb-4">
-                          <h3 className="text-lg font-bold text-slate-800">Quick Registration</h3>
-                          <p className="text-sm text-slate-500">Use your Google account to create a new student profile instantly.</p>
+                  <>
+                      {/* Role Selection */}
+                      <div className="flex gap-4 mb-4">
+                          <button
+                              type="button"
+                              onClick={() => setIsTeacherSignup(false)}
+                              className={`flex-1 py-3 rounded-xl font-bold border-2 transition-all ${!isTeacherSignup ? 'bg-blue-50 border-blue-600 text-blue-700' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
+                          >
+                              Student
+                          </button>
+                          <button
+                              type="button"
+                              onClick={() => setIsTeacherSignup(true)}
+                              className={`flex-1 py-3 rounded-xl font-bold border-2 transition-all ${isTeacherSignup ? 'bg-purple-50 border-purple-600 text-purple-700' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
+                          >
+                              Teacher
+                          </button>
                       </div>
 
-                      <button type="button" onClick={handleGoogleAuth} className="w-full bg-white border-2 border-slate-200 hover:border-blue-600 hover:bg-blue-50 text-[#1e293b] font-bold py-4 rounded-[2rem] flex items-center justify-center gap-3 transition-all active:scale-95 shadow-sm">
-                          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-6 h-6" />
-                          Continue with Google
+                      {isTeacherSignup && (
+                          <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2 mb-4">
+                              <label className="text-xs font-bold text-purple-600 uppercase flex items-center gap-1">
+                                  <ShieldAlert size={12} /> Teacher Invite Code
+                              </label>
+                              <input
+                                  name="teacherCode"
+                                  type="text"
+                                  placeholder="Enter 8-digit Teacher Code"
+                                  value={formData.teacherCode}
+                                  onChange={handleChange}
+                                  className="w-full px-4 py-3 border border-purple-200 bg-purple-50/50 rounded-xl font-bold tracking-wider text-purple-900 focus:ring-2 focus:ring-purple-500 outline-none"
+                              />
+                          </div>
+                      )}
+
+                      <div className="space-y-1.5"><label className="text-xs font-bold text-slate-500 uppercase">Full Name</label><input name="name" type="text" placeholder="Full Name" value={formData.name} onChange={handleChange} className="w-full px-4 py-3 border border-slate-200 rounded-xl" /></div>
+                      <div className="space-y-1.5"><label className="text-xs font-bold text-slate-500 uppercase">Mobile Number</label><input name="mobile" type="tel" placeholder="10-digit Mobile Number" value={formData.mobile} onChange={handleChange} className="w-full px-4 py-3 border border-slate-200 rounded-xl" /></div>
+                      <div className="space-y-1.5"><label className="text-xs font-bold text-slate-500 uppercase">Email Address</label><input name="email" type="email" placeholder="Email Address" value={formData.email} onChange={handleChange} className="w-full px-4 py-3 border border-slate-200 rounded-xl" /></div>
+                      <div className="space-y-1.5"><label className="text-xs font-bold text-slate-500 uppercase">Password</label><input name="password" type="password" placeholder="Create Password" value={formData.password} onChange={handleChange} className="w-full px-4 py-3 border border-slate-200 rounded-xl" /></div>
+
+                      <button type="submit" className={`w-full text-white font-bold py-3.5 rounded-xl mt-4 shadow-lg transition-colors ${isTeacherSignup ? 'bg-purple-600 hover:bg-purple-700' : 'bg-blue-600 hover:bg-blue-700'}`}>
+                          Create {isTeacherSignup ? 'Teacher' : 'Student'} Account
                       </button>
 
-                      <div className="text-xs text-slate-400 text-center mt-6 max-w-[250px]">
-                          By creating an account, you agree to our Terms of Service and Privacy Policy.
+                      <div className="text-center mt-6">
+                          <div className="relative">
+                              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200"></div></div>
+                              <div className="relative flex justify-center text-xs uppercase"><span className="bg-white px-2 text-slate-400 font-bold">Or</span></div>
+                          </div>
+
+                          <button type="button" onClick={handleGoogleAuth} className="w-full mt-6 bg-white border border-slate-200 hover:border-blue-600 hover:bg-blue-50 text-slate-700 font-bold py-3 rounded-xl flex items-center justify-center gap-3 transition-all shadow-sm">
+                              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
+                              Continue with Google
+                          </button>
                       </div>
-                  </div>
+                  </>
               )}
 
               {view === 'LOGIN' && (
