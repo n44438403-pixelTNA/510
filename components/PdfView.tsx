@@ -287,6 +287,16 @@ export const PdfView: React.FC<Props> = ({
   };
 
   const pdfContainerRef = useRef<HTMLDivElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+      const handleFullscreenChange = () => {
+          setIsFullscreen(!!document.fullscreenElement);
+      };
+      document.addEventListener('fullscreenchange', handleFullscreenChange);
+      return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
   const toggleFullScreen = () => {
       if (!document.fullscreenElement) {
           document.documentElement.requestFullscreen().catch(err => console.error(err));
@@ -389,7 +399,8 @@ export const PdfView: React.FC<Props> = ({
                             const lowerText = text.toLowerCase();
 
                             // Check if the current node contains a trigger word
-                            if (lowerText.includes('quick revision') || lowerText.includes('mini revision') || lowerText.includes('recap')) {
+                            const triggerRegex = /(quick revision|mini revision|recap|summary|key points|महत्वपूर्ण बिंदु|सार|संशोधन|तथ्य)/i;
+                            if (triggerRegex.test(lowerText)) {
 
                                 // Avoid re-extracting the overall topic title if it contains the word "revision" by accident
                                 if (currentNode.textContent?.trim().toLowerCase() === topicTitle.toLowerCase()) {
@@ -398,7 +409,7 @@ export const PdfView: React.FC<Props> = ({
                                 }
 
                                 // Extract the matched text to prefix it
-                                const match = lowerText.match(/(quick revision|mini revision|recap)/);
+                                const match = lowerText.match(triggerRegex);
                                 const prefix = match ? match[1].replace(/\b\w/g, c => c.toUpperCase()) : 'Revision';
 
                                 if (/^h[1-6]$/.test(currentNode.tagName.toLowerCase())) {
@@ -432,7 +443,8 @@ export const PdfView: React.FC<Props> = ({
                                     // Found the phrase inside a paragraph/div (e.g., <p><strong>Recap:</strong> The cell is...</p>)
                                     const cleanHtml = currentNode.innerHTML.trim();
                                     // Remove the trigger word from the text to prevent doubling up (e.g. "Recap: Recap: text")
-                                    const strippedHtml = cleanHtml.replace(/(?:<b>|<strong>)?\s*(Quick Revision|Mini Revision|Recap):?\s*(?:<\/b>|<\/strong>)?/gi, '').trim();
+                                    const replaceRegex = new RegExp(`(?:<b>|<strong>)?\\s*(${triggerRegex.source}):?\\s*(?:<\\/b>|<\\/strong>)?`, 'gi');
+                                    const strippedHtml = cleanHtml.replace(replaceRegex, '').trim();
 
                                     if (strippedHtml && !currentTopicPoints.some(qp => qp.includes(strippedHtml) || strippedHtml.includes(qp.replace(/<(?:b|strong)>.*?(?:<\/b>|<\/strong>)/gi, '').trim()))) {
                                          currentTopicPoints.push(`<b>${prefix}:</b> ${strippedHtml}`);
@@ -443,9 +455,9 @@ export const PdfView: React.FC<Props> = ({
                         }
 
                         // 2. Fallback regex approach (catches inline stuff the walker might miss)
-                        const regex = /(?:<b>|<strong>)?\s*(Quick Revision|Mini Revision|Recap):?\s*(?:<\/b>|<\/strong>)?\s*([\s\S]*?)(?:<br\/?>|<\/p>|<hr\/?>|$)/gi;
+                        const fallbackRegex = new RegExp(`(?:<b>|<strong>)?\\s*(Quick Revision|Mini Revision|Recap|Summary|Key Points|महत्वपूर्ण बिंदु|सार|संशोधन|तथ्य):?\\s*(?:<\\/b>|<\\/strong>)?\\s*([\\s\\S]*?)(?:<br\\/?>|<\\/p>|<hr\\/?>|$)`, 'gi');
                         let matchRegex;
-                        while ((matchRegex = regex.exec(entry.htmlContent)) !== null) {
+                        while ((matchRegex = fallbackRegex.exec(entry.htmlContent)) !== null) {
                             if (matchRegex[2] && matchRegex[2].trim().length > 0) {
                                 const cleanMatch = matchRegex[2].trim();
                                 if (!currentTopicPoints.some(qp => qp.includes(cleanMatch) || cleanMatch.includes(qp.replace(/<(?:b|strong)>.*?(?:<\/b>|<\/strong>)/gi, '').trim()))) {
@@ -840,7 +852,9 @@ export const PdfView: React.FC<Props> = ({
                    <ArrowLeft size={20} />
                </button>
                <div className="flex-1">
-                   <h3 className="font-bold text-slate-800 leading-tight line-clamp-1">{chapter.title}</h3>
+                   {!isFullscreen && (
+                       <h3 className="font-bold text-slate-800 leading-tight line-clamp-1">{chapter.title}</h3>
+                   )}
                    <div className="flex gap-2 mt-1">
                      <button onClick={() => setSyllabusMode('SCHOOL')} className={`text-[10px] px-2 py-0.5 rounded-full font-bold transition-all ${syllabusMode === 'SCHOOL' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-500'}`}>School</button>
                      <button onClick={() => setSyllabusMode('COMPETITION')} className={`text-[10px] px-2 py-0.5 rounded-full font-bold transition-all ${syllabusMode === 'COMPETITION' ? 'bg-purple-600 text-white shadow-sm' : 'bg-slate-100 text-slate-500'}`}>Competition</button>
