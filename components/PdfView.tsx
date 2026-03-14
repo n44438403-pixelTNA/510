@@ -382,10 +382,25 @@ export const PdfView: React.FC<Props> = ({
 
                         const currentTopicPoints: string[] = [];
 
+                        // 0. High priority: Check for explicitly structured AI output like <div class="recap"><ul><li>
+                        const structuredRecaps = tempDiv.querySelectorAll('.recap li, .quick-revision li, [data-type="recap"] li');
+                        if (structuredRecaps && structuredRecaps.length > 0) {
+                            structuredRecaps.forEach(li => {
+                                const cleanHtml = li.innerHTML.trim();
+                                if (cleanHtml && !currentTopicPoints.some(qp => qp.includes(cleanHtml) || cleanHtml.includes(qp))) {
+                                    currentTopicPoints.push(`<b>Recap:</b> ${cleanHtml}`);
+                                }
+                            });
+                        }
+
                         // 1. DOM based extraction logic (handles headers + lists or direct paragraphs)
                         const walker = document.createTreeWalker(tempDiv, NodeFilter.SHOW_ELEMENT, {
                             acceptNode: (node: Element) => {
                                 const tag = node.tagName.toLowerCase();
+                                // Skip elements we already extracted via structured classes
+                                if (node.closest('.recap') || node.closest('.quick-revision') || node.closest('[data-type="recap"]')) {
+                                    return NodeFilter.FILTER_SKIP;
+                                }
                                 if (['p', 'li', 'blockquote', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(tag)) {
                                     return NodeFilter.FILTER_ACCEPT;
                                 }
@@ -442,11 +457,13 @@ export const PdfView: React.FC<Props> = ({
                                 } else {
                                     // Found the phrase inside a paragraph/div (e.g., <p><strong>Recap:</strong> The cell is...</p>)
                                     const cleanHtml = currentNode.innerHTML.trim();
-                                    // Remove the trigger word from the text to prevent doubling up (e.g. "Recap: Recap: text")
-                                    const replaceRegex = new RegExp(`(?:<b>|<strong>)?\\s*(${triggerRegex.source}):?\\s*(?:<\\/b>|<\\/strong>)?`, 'gi');
-                                    const strippedHtml = cleanHtml.replace(replaceRegex, '').trim();
+                                    // Remove the trigger word and any leading symbols/emojis (like > 🔁) to prevent doubling up and artifacts
+                                    const replaceRegex = new RegExp(`(?:<b>|<strong>)?\\s*[\\u2700-\\u27BF\\uE000-\\uF8FF\\u2011-\\u26FF\\>\\s]*(${triggerRegex.source})[\\u2700-\\u27BF\\uE000-\\uF8FF\\u2011-\\u26FF\\>\\s]*:?\\s*(?:<\\/b>|<\\/strong>)?`, 'gi');
+                                    let strippedHtml = cleanHtml.replace(replaceRegex, '').trim();
+                                    // Secondary clean up for leading non-alphanumeric chars (e.g., '> Recap' -> 'Recap')
+                                    strippedHtml = strippedHtml.replace(/^[>\s🔁🔄📌💡📝]+/, '').trim();
 
-                                    if (strippedHtml && !currentTopicPoints.some(qp => qp.includes(strippedHtml) || strippedHtml.includes(qp.replace(/<(?:b|strong)>.*?(?:<\/b>|<\/strong>)/gi, '').trim()))) {
+                                    if (strippedHtml && strippedHtml.length > 5 && !currentTopicPoints.some(qp => qp.includes(strippedHtml) || strippedHtml.includes(qp.replace(/<(?:b|strong)>.*?(?:<\/b>|<\/strong>)/gi, '').trim()))) {
                                          currentTopicPoints.push(`<b>${prefix}:</b> ${strippedHtml}`);
                                     }
                                 }
@@ -455,12 +472,14 @@ export const PdfView: React.FC<Props> = ({
                         }
 
                         // 2. Fallback regex approach (catches inline stuff the walker might miss)
-                        const fallbackRegex = new RegExp(`(?:<b>|<strong>)?\\s*(Quick Revision|Mini Revision|Recap|Summary|Key Points|महत्वपूर्ण बिंदु|सार|संशोधन|तथ्य|Topic Quick Recap):?\\s*(?:<\\/b>|<\\/strong>)?\\s*([\\s\\S]*?)(?:<br\\/?>|<\\/p>|<hr\\/?>|$)`, 'gi');
+                        // Note: added support for emojis and special chars in the prefix matching
+                        const fallbackRegex = new RegExp(`(?:<b>|<strong>)?\\s*[\\u2700-\\u27BF\\uE000-\\uF8FF\\u2011-\\u26FF\\>\\s]*(Quick Revision|Mini Revision|Recap|Summary|Key Points|महत्वपूर्ण बिंदु|सार|संशोधन|तथ्य|Topic Quick Recap)[\\u2700-\\u27BF\\uE000-\\uF8FF\\u2011-\\u26FF\\>\\s]*:?\\s*(?:<\\/b>|<\\/strong>)?\\s*([\\s\\S]*?)(?:<br\\/?>|<\\/p>|<hr\\/?>|$)`, 'gi');
                         let matchRegex;
                         while ((matchRegex = fallbackRegex.exec(entry.htmlContent)) !== null) {
                             if (matchRegex[2] && matchRegex[2].trim().length > 0) {
-                                const cleanMatch = matchRegex[2].trim();
-                                if (!currentTopicPoints.some(qp => qp.includes(cleanMatch) || cleanMatch.includes(qp.replace(/<(?:b|strong)>.*?(?:<\/b>|<\/strong>)/gi, '').trim()))) {
+                                let cleanMatch = matchRegex[2].trim();
+                                cleanMatch = cleanMatch.replace(/^[>\s🔁🔄📌💡📝]+/, '').trim();
+                                if (cleanMatch.length > 5 && !currentTopicPoints.some(qp => qp.includes(cleanMatch) || cleanMatch.includes(qp.replace(/<(?:b|strong)>.*?(?:<\/b>|<\/strong>)/gi, '').trim()))) {
                                     currentTopicPoints.push(`<b>${matchRegex[1]}:</b> ${cleanMatch}`);
                                 }
                             }
