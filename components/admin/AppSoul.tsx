@@ -132,10 +132,10 @@ export const AppSoul: React.FC<Props> = ({ settings, onUpdateSettings, onBack })
             </div>
 
             {/* Sticky Save Button - Mobile Optimized */}
-            <div className="fixed bottom-8 right-6 z-[9999] flex justify-end safe-area-bottom">
+            <div className="fixed inset-x-0 bottom-8 max-w-md mx-auto pointer-events-none z-[9999] flex justify-end px-6 safe-area-bottom">
                 <button
                     onClick={saveChanges}
-                    className="w-12 h-12 bg-violet-600 text-white rounded-full shadow-2xl hover:bg-violet-700 active:scale-95 transition-all flex items-center justify-center border-2 border-white"
+                    className="pointer-events-auto w-12 h-12 bg-violet-600 text-white rounded-full shadow-2xl hover:bg-violet-700 active:scale-95 transition-all flex items-center justify-center border-2 border-white"
                     title="Save Soul Config"
                 >
                     <Save size={20} />
