@@ -399,7 +399,7 @@ export const PdfView: React.FC<Props> = ({
                             const lowerText = text.toLowerCase();
 
                             // Check if the current node contains a trigger word
-                            const triggerRegex = /(quick revision|mini revision|recap|summary|key points|महत्वपूर्ण बिंदु|सार|संशोधन|तथ्य)/i;
+                            const triggerRegex = /(quick revision|mini revision|recap|summary|key points|महत्वपूर्ण बिंदु|सार|संशोधन|तथ्य|topic quick recap)/i;
                             if (triggerRegex.test(lowerText)) {
 
                                 // Avoid re-extracting the overall topic title if it contains the word "revision" by accident
@@ -455,7 +455,7 @@ export const PdfView: React.FC<Props> = ({
                         }
 
                         // 2. Fallback regex approach (catches inline stuff the walker might miss)
-                        const fallbackRegex = new RegExp(`(?:<b>|<strong>)?\\s*(Quick Revision|Mini Revision|Recap|Summary|Key Points|महत्वपूर्ण बिंदु|सार|संशोधन|तथ्य):?\\s*(?:<\\/b>|<\\/strong>)?\\s*([\\s\\S]*?)(?:<br\\/?>|<\\/p>|<hr\\/?>|$)`, 'gi');
+                        const fallbackRegex = new RegExp(`(?:<b>|<strong>)?\\s*(Quick Revision|Mini Revision|Recap|Summary|Key Points|महत्वपूर्ण बिंदु|सार|संशोधन|तथ्य|Topic Quick Recap):?\\s*(?:<\\/b>|<\\/strong>)?\\s*([\\s\\S]*?)(?:<br\\/?>|<\\/p>|<hr\\/?>|$)`, 'gi');
                         let matchRegex;
                         while ((matchRegex = fallbackRegex.exec(entry.htmlContent)) !== null) {
                             if (matchRegex[2] && matchRegex[2].trim().length > 0) {
@@ -1276,8 +1276,9 @@ export const PdfView: React.FC<Props> = ({
                <div className="p-0 sm:p-4 space-y-4 w-full max-w-7xl mx-auto">
                    {(() => {
                        const strategyHtml = contentData?.teachingStrategyHtml;
+                       const strategyNotes = contentData?.teachingStrategyNotes || [];
 
-                       if (!strategyHtml || strategyHtml.trim().length === 0) {
+                       if ((!strategyHtml || strategyHtml.trim().length === 0) && strategyNotes.length === 0) {
                            return (
                                <div className="flex flex-col items-center justify-center py-20 text-center text-slate-500">
                                    <BookOpen size={48} className="mb-4 text-purple-200" />
@@ -1288,16 +1289,33 @@ export const PdfView: React.FC<Props> = ({
                        }
 
                        return (
-                           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                               <div className="bg-purple-600 p-4 text-white">
-                                   <h3 className="font-black text-lg flex items-center gap-2"><GraduationCap size={20} /> Teaching Strategy</h3>
-                                   <p className="text-xs text-purple-200 font-medium">Exclusive Guide for Educators</p>
-                               </div>
-                               <div
-                                   className="p-4 sm:p-6 prose prose-slate max-w-none teacher-guide-container"
-                                   dangerouslySetInnerHTML={{ __html: strategyHtml }}
-                               />
-                           </div>
+                           <>
+                               {strategyNotes.length > 0 && strategyNotes.map((note) => (
+                                   <div key={note.id} className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-6">
+                                       <div className="bg-purple-600 p-4 text-white">
+                                           <h3 className="font-black text-lg flex items-center gap-2"><GraduationCap size={20} /> {note.title || 'Teaching Strategy'}</h3>
+                                           <p className="text-xs text-purple-200 font-medium">Exclusive Guide for Educators</p>
+                                       </div>
+                                       <div
+                                           className="p-4 sm:p-6 prose prose-slate max-w-none teacher-guide-container"
+                                           dangerouslySetInnerHTML={{ __html: note.content }}
+                                       />
+                                   </div>
+                               ))}
+
+                               {strategyHtml && strategyHtml.trim().length > 0 && (
+                                   <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                                       <div className="bg-purple-600 p-4 text-white">
+                                           <h3 className="font-black text-lg flex items-center gap-2"><GraduationCap size={20} /> Legacy Teaching Strategy</h3>
+                                           <p className="text-xs text-purple-200 font-medium">Exclusive Guide for Educators</p>
+                                       </div>
+                                       <div
+                                           className="p-4 sm:p-6 prose prose-slate max-w-none teacher-guide-container"
+                                           dangerouslySetInnerHTML={{ __html: strategyHtml }}
+                                       />
+                                   </div>
+                               )}
+                           </>
                        );
                    })()}
                </div>
