@@ -343,10 +343,17 @@ export const PdfView: React.FC<Props> = ({
             }
 
             // 1. QUICK REVISION EXTRACTION
+            // Include legacy deep dive HTML and new entries
+            const legacyDeepDiveHtml = syllabusMode === 'SCHOOL' ? data.deepDiveNotesHtml : data.competitionDeepDiveNotesHtml;
+            const extractionSources = [...entries.map(e => ({ title: e.title, htmlContent: e.htmlContent }))];
+            if (legacyDeepDiveHtml) {
+                extractionSources.push({ title: "Deep Dive Notes", htmlContent: legacyDeepDiveHtml });
+            }
+
             const quickGroups: {title: string, points: string[]}[] = [];
 
             try {
-                entries.forEach((entry, index) => {
+                extractionSources.forEach((entry, index) => {
                     if (entry.htmlContent) {
                         const tempDiv = document.createElement('div');
                         tempDiv.innerHTML = entry.htmlContent;
