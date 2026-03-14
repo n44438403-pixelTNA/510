@@ -210,7 +210,7 @@ export const TodayRevisionView: React.FC<Props> = ({ user, topics, onClose, onCo
                         <p className="text-xs font-bold">Loading Revision Content...</p>
                     </div>
                 ) : (
-                    <div className="max-w-3xl mx-auto space-y-8">
+                    <div className="max-w-7xl mx-auto space-y-8">
                         {displayList.map((topic, index) => {
                             const isCurrent = currentPlayingIndex === index;
 
@@ -277,7 +277,7 @@ export const TodayRevisionView: React.FC<Props> = ({ user, topics, onClose, onCo
 
                 {/* SELF STUDY BOX (Topics without notes) */}
                 {!loading && missingNoteTopics.length > 0 && (
-                    <div className="max-w-3xl mx-auto mt-8 bg-orange-50 border-2 border-orange-100 rounded-2xl p-6">
+                    <div className="max-w-7xl mx-auto mt-8 bg-orange-50 border-2 border-orange-100 rounded-2xl p-6">
                         <h4 className="font-black text-orange-800 flex items-center gap-2 mb-4">
                             <BookOpen size={20} /> Self Study Topics
                         </h4>

@@ -1228,7 +1228,7 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
   );
 
   const renderFullReport = () => (
-      <div className="p-8 bg-white max-w-4xl mx-auto space-y-8">
+      <div className="p-8 bg-white max-w-7xl mx-auto space-y-8">
           {renderMarksheetStyle1()}
           <div className="border-t-2 border-dashed border-slate-300 my-8"></div>
           {renderAnalysisContent()}
@@ -1253,7 +1253,7 @@ export const MarksheetCard: React.FC<Props> = ({ result, user, settings, onClose
             {renderFullReport()}
         </div>
 
-        <div className="w-full max-w-2xl h-full sm:h-auto sm:max-h-[90vh] bg-white sm:rounded-3xl shadow-2xl flex flex-col relative overflow-hidden transition-all duration-300">
+        <div className="w-full max-w-7xl h-full sm:h-auto sm:max-h-[90vh] bg-white sm:rounded-3xl shadow-2xl flex flex-col relative overflow-hidden transition-all duration-300">
             {/* Header */}
             <div className="bg-white text-slate-800 border-b border-slate-100 flex justify-between items-center z-10 sticky top-0 shrink-0 px-4 py-3">
                 <div className="flex items-center gap-3">
