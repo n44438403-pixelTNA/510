@@ -37,3 +37,4 @@
 [BABEL] Note: The code generator has deoptimised the styling of /app/components/AdminDashboard.tsx as it exceeds the max of 500KB.
 [BABEL] Note: The code generator has deoptimised the styling of /app/components/AdminDashboard.tsx as it exceeds the max of 500KB.
 6:31:10 AM [vite] (client) hmr update /components/AdminDashboard.tsx
+6:48:33 AM [vite] (client) hmr update /components/AdminDashboard.tsx
