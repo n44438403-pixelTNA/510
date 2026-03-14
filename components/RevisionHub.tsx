@@ -827,7 +827,7 @@ const RevisionHubComponent: React.FC<Props> = ({ user, onTabChange, settings, on
             </div>
 
             {/* STICKY HEADER & MODE SWITCHER */}
-            <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-md p-3 rounded-2xl shadow-sm border border-slate-100 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="bg-white/95 backdrop-blur-md p-3 rounded-2xl shadow-sm border border-slate-100 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative z-30">
                 <div className="flex items-center justify-between sm:justify-start w-full sm:w-auto gap-3">
                     <div className="flex items-center gap-2">
                         <BrainCircuit className={hubMode === 'PREMIUM' ? "text-indigo-600" : "text-slate-600"} size={24} />
