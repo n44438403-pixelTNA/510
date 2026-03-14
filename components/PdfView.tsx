@@ -813,7 +813,7 @@ export const PdfView: React.FC<Props> = ({
                   ) : (
                       // TEXT ONLY VIEW (Dark Mode Reader)
                       <div className="flex-1 overflow-y-auto px-4 md:px-6 py-6 bg-slate-900 text-slate-300">
-                          <div className="w-full max-w-7xl mx-auto pt-16">
+                          <div className="w-full max-w-none mx-auto pt-16">
                               <h2 className="text-2xl font-black text-white mb-6">{activeNoteContent.title}</h2>
                               <div className="prose prose-invert prose-lg max-w-none px-2" dangerouslySetInnerHTML={{ __html: activeNoteContent.content }} />
                           </div>
@@ -897,8 +897,8 @@ export const PdfView: React.FC<Props> = ({
 
            {/* 1. QUICK REVISION */}
            {activeTab === 'QUICK' && (
-               <div className="p-4 space-y-4">
-                   <div className="flex justify-end mb-2">
+               <div className="p-0 sm:p-4 space-y-4 w-full">
+                   <div className="flex justify-end mb-2 px-4 sm:px-0 mt-4 sm:mt-0">
                        {quickRevisionPoints.length > 0 && (
                            <button
                                onClick={() => {
@@ -947,7 +947,7 @@ export const PdfView: React.FC<Props> = ({
 
                                    <div className="space-y-3 pl-2">
                                        {group.points.map((point, idx) => (
-                                            <div key={idx} className="prose prose-sm text-slate-700 bg-slate-50/50 p-3 rounded-xl border border-slate-50" dangerouslySetInnerHTML={{ __html: point }} />
+                                            <div key={idx} className="prose prose-sm max-w-none text-slate-700 bg-slate-50/50 p-3 rounded-xl border border-slate-50" dangerouslySetInnerHTML={{ __html: point }} />
                                        ))}
                                    </div>
                                </div>
@@ -959,7 +959,7 @@ export const PdfView: React.FC<Props> = ({
 
            {/* 2. DEEP DIVE (HTML + SCROLL) */}
            {activeTab === 'DEEP_DIVE' && (
-               <div className="p-0 sm:p-4 space-y-6 w-full max-w-7xl mx-auto">
+               <div className="p-0 sm:p-4 space-y-6 w-full max-w-none mx-auto">
                    {(() => {
                         const access = getTabAccess('DEEP_DIVE');
 
@@ -1048,7 +1048,7 @@ export const PdfView: React.FC<Props> = ({
                                               </button>
                                           </div>
                                           <div
-                                              className="prose prose-sm text-slate-600 leading-relaxed"
+                                              className="prose prose-sm max-w-none text-slate-600 leading-relaxed"
                                               dangerouslySetInnerHTML={{ __html: topic.content }}
                                           />
                                       </div>
@@ -1247,7 +1247,7 @@ export const PdfView: React.FC<Props> = ({
 
            {/* 5. TEACHER GUIDE (TEACHING STRATEGY) */}
            {activeTab === 'TEACHER' && (
-               <div className="p-0 sm:p-4 space-y-4 w-full max-w-7xl mx-auto">
+               <div className="p-0 sm:p-4 space-y-4 w-full max-w-none mx-auto">
                    {(() => {
                        const strategyHtml = contentData?.teachingStrategyHtml;
 
@@ -1279,7 +1279,7 @@ export const PdfView: React.FC<Props> = ({
 
            {/* 4. RESOURCES (ADDITIONAL NOTES) */}
            {activeTab === 'RESOURCES' && (
-               <div className="p-0 sm:p-4 space-y-4 w-full max-w-7xl mx-auto">
+               <div className="p-0 sm:p-4 space-y-4 w-full max-w-none mx-auto">
                    {(() => {
                         const access = getTabAccess('RESOURCES');
 
