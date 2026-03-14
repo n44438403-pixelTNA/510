@@ -649,6 +649,7 @@ export interface SystemSettings {
   planComparison?: FeatureCategory[]; // NEW: Admin Configurable Feature Matrix
   revisionConfig?: RevisionConfig; // NEW: Dynamic Revision Logic
   isWatermarkEnabled?: boolean; // NEW: Global Watermark Toggle
+  isLogoutEnabled?: boolean; // NEW: Global Logout Toggle
 }
 
 export interface RevisionConfig {

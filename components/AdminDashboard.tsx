@@ -6288,6 +6288,21 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                                       className="w-5 h-5 accent-indigo-600 cursor-pointer"
                                   />
                               </div>
+                              <div className="bg-white p-3 rounded-lg flex items-center justify-between border border-indigo-100">
+                                  <div>
+                                      <p className="font-bold text-slate-700 text-xs">Student Logout Button</p>
+                                      <p className="text-[10px] text-slate-500">Allow students to log out of the app.</p>
+                                  </div>
+                                  <input
+                                      type="checkbox"
+                                      checked={localSettings.isLogoutEnabled !== false}
+                                      onChange={() => setLocalSettings({
+                                          ...localSettings,
+                                          isLogoutEnabled: localSettings.isLogoutEnabled === false ? true : false
+                                      })}
+                                      className="w-5 h-5 accent-indigo-600 cursor-pointer"
+                                  />
+                              </div>
                           </div>
                       </div>
 

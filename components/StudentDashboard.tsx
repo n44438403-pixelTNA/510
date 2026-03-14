@@ -1651,18 +1651,20 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
                   >
                       <ShoppingBag size={18} /> Visit Teacher Store
                   </button>
-                  <button
-                      onClick={() => {
-                          if(onLogout) onLogout();
-                          else {
-                              localStorage.removeItem('nst_current_user');
-                              window.location.reload();
-                          }
-                      }}
-                      className="w-full text-slate-400 py-4 font-bold hover:text-white"
-                  >
-                      Logout
-                  </button>
+                  {(settings?.isLogoutEnabled !== false || user.role === 'ADMIN' || isImpersonating) && (
+                      <button
+                          onClick={() => {
+                              if(onLogout) onLogout();
+                              else {
+                                  localStorage.removeItem('nst_current_user');
+                                  window.location.reload();
+                              }
+                          }}
+                          className="w-full text-slate-400 py-4 font-bold hover:text-white"
+                      >
+                          Logout
+                      </button>
+                  )}
               </div>
           </div>
       );
