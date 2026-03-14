@@ -1052,7 +1052,12 @@ const App: React.FC = () => {
   };
 
   const [logoutPending, setLogoutPending] = useState(false);
+  const [logoutStep, setLogoutStep] = useState<1 | 2 | 3 | 4>(1);
   const [logoutTimeLeft, setLogoutTimeLeft] = useState(10);
+  const [logoutInput1, setLogoutInput1] = useState('');
+  const [logoutInput2, setLogoutInput2] = useState('');
+  const [logoutInput3, setLogoutInput3] = useState('');
+  const [logoutPassword, setLogoutPassword] = useState('');
   const [cloudUser, setCloudUser] = useState<User | null>(null);
   const [showCloudRecoveryModal, setShowCloudRecoveryModal] = useState(false);
 
@@ -1066,20 +1071,13 @@ const App: React.FC = () => {
 
   useEffect(() => {
      let timer: NodeJS.Timeout;
-     if (logoutPending && logoutTimeLeft > 0) {
+     if (logoutPending && logoutStep === 1 && logoutTimeLeft > 0) {
         timer = setTimeout(() => {
             setLogoutTimeLeft(prev => prev - 1);
         }, 1000);
-     } else if (logoutPending && logoutTimeLeft <= 0) {
-        // Sync and logout
-        if (state.user) {
-            saveUserToLive(state.user).catch(err => console.error("Error syncing on logout", err));
-        }
-        performLogout();
-        setLogoutPending(false);
      }
      return () => clearTimeout(timer);
-  }, [logoutPending, logoutTimeLeft]);
+  }, [logoutPending, logoutStep, logoutTimeLeft]);
 
   const handleLogout = () => {
     if (!state.user) {
@@ -1087,7 +1085,12 @@ const App: React.FC = () => {
        return;
     }
     setLogoutPending(true);
+    setLogoutStep(1);
     setLogoutTimeLeft(10);
+    setLogoutInput1('');
+    setLogoutInput2('');
+    setLogoutInput3('');
+    setLogoutPassword('');
   };
 
   const handleMCQComplete = (score: number, answers: Record<number, number>, displayData: MCQItem[], timeTaken: number) => {
@@ -2207,21 +2210,120 @@ const App: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-white font-sans relative pt-[env(safe-area-inset-top,24px)] pb-[env(safe-area-inset-bottom,32px)]">
       {/* LOGOUT OVERLAY */}
       {logoutPending && (
-          <div className="fixed inset-0 z-[9999] bg-slate-900/90 backdrop-blur-sm flex flex-col items-center justify-center text-white">
-              <div className="bg-slate-800 p-8 rounded-3xl border border-slate-700 flex flex-col items-center max-w-sm w-full mx-4 shadow-2xl animate-in zoom-in duration-200">
-                 <div className="w-16 h-16 bg-blue-500/20 text-blue-400 rounded-full flex items-center justify-center mb-6">
-                     <Cloud size={32} className="animate-pulse" />
-                 </div>
-                 <h2 className="text-xl font-black mb-2 text-center">Saving Your Progress</h2>
-                 <p className="text-slate-400 text-sm text-center mb-6">Please don't close the app. We are securely syncing your data to the cloud.</p>
+          <div className="fixed inset-0 z-[9999] bg-slate-900/95 backdrop-blur-sm flex flex-col items-center justify-center text-white p-4">
+              <div className="bg-slate-800 p-6 md:p-8 rounded-3xl border border-slate-700 flex flex-col items-center max-w-sm w-full mx-auto shadow-2xl animate-in zoom-in duration-200 relative overflow-hidden">
 
-                 <div className="text-5xl font-black font-mono mb-8 text-blue-400">
-                     {logoutTimeLeft}s
+                 {/* Step Indicator */}
+                 <div className="w-full flex justify-center gap-2 mb-6">
+                     {[1, 2, 3, 4].map((step) => (
+                         <div key={step} className={`h-1.5 rounded-full flex-1 transition-all ${logoutStep >= step ? 'bg-red-500' : 'bg-slate-700'}`}></div>
+                     ))}
                  </div>
+
+                 <div className="w-16 h-16 bg-red-500/20 text-red-400 rounded-full flex items-center justify-center mb-6">
+                     <LogOut size={32} className="animate-pulse" />
+                 </div>
+
+                 <h2 className="text-xl font-black mb-2 text-center text-white">Are you absolutely sure?</h2>
+                 <p className="text-slate-400 text-sm text-center mb-6">Logging out will remove your active session.</p>
+
+                 {logoutStep === 1 && (
+                     <>
+                        <div className="text-5xl font-black font-mono mb-8 text-red-400">
+                            {logoutTimeLeft}s
+                        </div>
+                        {logoutTimeLeft === 0 && (
+                            <button
+                                onClick={() => setLogoutStep(2)}
+                                className="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-xl transition-colors text-sm mb-3"
+                            >
+                                Proceed to Step 2
+                            </button>
+                        )}
+                     </>
+                 )}
+
+                 {logoutStep === 2 && (
+                     <div className="w-full mb-6">
+                         <p className="text-sm text-slate-300 mb-2">Type <span className="font-mono text-red-400 font-bold select-none">I CONFIRM</span> below:</p>
+                         <input
+                             type="text"
+                             value={logoutInput1}
+                             onChange={(e) => setLogoutInput1(e.target.value.toUpperCase())}
+                             className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none uppercase"
+                             placeholder="I CONFIRM"
+                         />
+                         <button
+                             disabled={logoutInput1 !== 'I CONFIRM'}
+                             onClick={() => setLogoutStep(3)}
+                             className="w-full mt-4 bg-red-600 disabled:bg-slate-700 disabled:text-slate-500 hover:bg-red-500 text-white font-bold py-3 rounded-xl transition-colors text-sm"
+                         >
+                             Next Step
+                         </button>
+                     </div>
+                 )}
+
+                 {logoutStep === 3 && (
+                     <div className="w-full mb-6">
+                         <p className="text-sm text-slate-300 mb-2">Type <span className="font-mono text-red-400 font-bold select-none">LOGOUT MY ACCOUNT</span> below:</p>
+                         <input
+                             type="text"
+                             value={logoutInput2}
+                             onChange={(e) => setLogoutInput2(e.target.value.toUpperCase())}
+                             className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none uppercase"
+                             placeholder="LOGOUT MY ACCOUNT"
+                         />
+                         <p className="text-sm text-slate-300 mb-2 mt-4">Type <span className="font-mono text-red-400 font-bold select-none">YES</span> to proceed:</p>
+                         <input
+                             type="text"
+                             value={logoutInput3}
+                             onChange={(e) => setLogoutInput3(e.target.value.toUpperCase())}
+                             className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none uppercase"
+                             placeholder="YES"
+                         />
+                         <button
+                             disabled={logoutInput2 !== 'LOGOUT MY ACCOUNT' || logoutInput3 !== 'YES'}
+                             onClick={() => setLogoutStep(4)}
+                             className="w-full mt-4 bg-red-600 disabled:bg-slate-700 disabled:text-slate-500 hover:bg-red-500 text-white font-bold py-3 rounded-xl transition-colors text-sm"
+                         >
+                             Final Step
+                         </button>
+                     </div>
+                 )}
+
+                 {logoutStep === 4 && (
+                     <div className="w-full mb-6">
+                         <p className="text-sm text-slate-300 mb-2">Enter your password to finalize logout:</p>
+                         <input
+                             type="password"
+                             value={logoutPassword}
+                             onChange={(e) => setLogoutPassword(e.target.value)}
+                             className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-red-500 outline-none"
+                             placeholder="Enter Password"
+                         />
+                         <button
+                             disabled={logoutPassword !== state.user?.password}
+                             onClick={async () => {
+                                 if (logoutPassword === state.user?.password) {
+                                     // Sync and logout
+                                     if (state.user) {
+                                         await saveUserToLive(state.user).catch(err => console.error("Error syncing on logout", err));
+                                     }
+                                     performLogout();
+                                     setLogoutPending(false);
+                                 }
+                             }}
+                             className="w-full mt-4 bg-red-600 disabled:bg-slate-700 disabled:text-slate-500 hover:bg-red-500 text-white font-bold py-3 rounded-xl transition-colors text-sm"
+                         >
+                             Confirm Logout
+                         </button>
+                     </div>
+                 )}
 
                  <button
                      onClick={() => {
                          setLogoutPending(false);
+                         setLogoutStep(1);
                          setLogoutTimeLeft(0);
                      }}
                      className="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl transition-colors text-sm"
