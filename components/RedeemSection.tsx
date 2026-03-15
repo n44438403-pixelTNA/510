@@ -232,6 +232,16 @@ export const RedeemSection: React.FC<Props> = ({ user, onSuccess }) => {
                 duration: targetCode.duration || { days: 1, hours: 0 } // Assuming 24h fallback if not specified
             });
             setShowUnlockPopup(true);
+        } else if (targetCode.type === 'SUBSCRIPTION') {
+            setUnlockedDetails({
+                type: 'Subscription Plan',
+                tier: targetCode.subTier || 'Premium',
+                level: targetCode.subLevel || 'Access',
+                startDate: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+                endDate: updatedUser.subscriptionEndDate ? new Date(updatedUser.subscriptionEndDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Lifetime',
+                isSubscription: true
+            });
+            setShowUnlockPopup(true);
         }
 
         onSuccess(updatedUser);
@@ -307,26 +317,47 @@ export const RedeemSection: React.FC<Props> = ({ user, onSuccess }) => {
                                 <span className="text-xs font-bold text-purple-600 uppercase tracking-wider">Content Type</span>
                                 <span className="text-sm font-black text-slate-800">{unlockedDetails.type}</span>
                             </div>
-                            <div className="flex justify-between items-center mb-2">
-                                <span className="text-xs font-bold text-purple-600 uppercase tracking-wider">Valid For</span>
-                                <span className="text-sm font-bold text-slate-700">
-                                    {unlockedDetails.duration?.days ? `${unlockedDetails.duration.days} Days ` : ''}
-                                    {unlockedDetails.duration?.hours ? `${unlockedDetails.duration.hours} Hours` : ''}
-                                </span>
-                            </div>
+                            {unlockedDetails.isSubscription ? (
+                                <>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="text-xs font-bold text-purple-600 uppercase tracking-wider">Plan</span>
+                                        <span className="text-sm font-bold text-slate-700">{unlockedDetails.tier} {unlockedDetails.level}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="text-xs font-bold text-purple-600 uppercase tracking-wider">Valid From</span>
+                                        <span className="text-sm font-bold text-slate-700">{unlockedDetails.startDate}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="text-xs font-bold text-purple-600 uppercase tracking-wider">Valid Until</span>
+                                        <span className="text-sm font-bold text-slate-700">{unlockedDetails.endDate}</span>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="text-xs font-bold text-purple-600 uppercase tracking-wider">Valid For</span>
+                                        <span className="text-sm font-bold text-slate-700">
+                                            {unlockedDetails.duration?.days ? `${unlockedDetails.duration.days} Days ` : ''}
+                                            {unlockedDetails.duration?.hours ? `${unlockedDetails.duration.hours} Hours` : ''}
+                                        </span>
+                                    </div>
+                                </>
+                            )}
                         </div>
 
-                        <div className="space-y-3">
-                            <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                                <Map size={14} className="text-slate-400" /> How to Access
-                            </h4>
-                            <ol className="text-sm text-slate-600 space-y-2 list-decimal list-inside pl-2">
-                                <li>Go to the <span className="font-bold text-slate-800">Library / Search</span> tab.</li>
-                                <li>Find the specific Subject and Chapter.</li>
-                                <li>Look for the <span className="font-bold text-purple-600">Premium {unlockedDetails.type}</span> section.</li>
-                                <li>Tap to open and start learning immediately!</li>
-                            </ol>
-                        </div>
+                        {!unlockedDetails.isSubscription && (
+                            <div className="space-y-3">
+                                <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                                    <Map size={14} className="text-slate-400" /> How to Access
+                                </h4>
+                                <ol className="text-sm text-slate-600 space-y-2 list-decimal list-inside pl-2">
+                                    <li>Go to the <span className="font-bold text-slate-800">Library / Search</span> tab.</li>
+                                    <li>Find the specific Subject and Chapter.</li>
+                                    <li>Look for the <span className="font-bold text-purple-600">Premium {unlockedDetails.type}</span> section.</li>
+                                    <li>Tap to open and start learning immediately!</li>
+                                </ol>
+                            </div>
+                        )}
 
                         <button
                             onClick={() => setShowUnlockPopup(false)}

@@ -12,6 +12,8 @@ interface Props {
     onOpenProfile: () => void;
     onOpenStore: () => void;
     onNavigate?: (path: string) => void;
+    onToggleLayoutEdit?: () => void;
+    isLayoutEditing?: boolean;
 }
 
 // Icon Mapper
@@ -40,7 +42,7 @@ const getIconComponent = (iconName?: string) => {
     }
 };
 
-export const FloatingActionMenu: React.FC<Props> = ({ settings, user, isFlashSaleActive, onOpenProfile, onOpenStore, onNavigate, activeTab }) => {
+export const FloatingActionMenu: React.FC<Props> = ({ settings, user, isFlashSaleActive, onOpenProfile, onOpenStore, onNavigate, activeTab, onToggleLayoutEdit, isLayoutEditing }) => {
     const [isOpen, setIsOpen] = useState(false);
     // const [showPlanModal, setShowPlanModal] = useState(false); // Unused
     const [position, setPosition] = useState({ x: window.innerWidth - 80, y: window.innerHeight - 200 });
