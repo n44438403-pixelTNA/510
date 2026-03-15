@@ -21,7 +21,7 @@ export const LoginGuide: React.FC<Props> = ({ onClose }) => {
                         <div>
                             <h4 className="font-bold text-slate-800">Login कैसे करें?</h4>
                             <p className="text-xs text-slate-500 mt-1">
-                                अपना <strong>Email</strong> या <strong>Mobile Number</strong> डालें और अपना पासवर्ड डालें। फिर Login बटन दबाएं।
+                                अपना <strong>Mobile Number</strong>, <strong>Email</strong> या <strong>Student ID</strong> डालें और अपना पासवर्ड भरें। फिर <strong>Login</strong> बटन दबाएं।
                             </p>
                         </div>
                     </div>
@@ -31,7 +31,7 @@ export const LoginGuide: React.FC<Props> = ({ onClose }) => {
                         <div>
                             <h4 className="font-bold text-slate-800">पासवर्ड भूल गए?</h4>
                             <p className="text-xs text-slate-500 mt-1">
-                                नीचे दिए गए <strong>"Request Login without Password"</strong> बटन पर क्लिक करें। अपना मोबाइल नंबर डालें और रिक्वेस्ट भेजें। एडमिन अप्रूव करेंगे तो आप सीधे लॉगिन कर पाएंगे।
+                                नीचे दिए गए <strong>"Forgot Password? Recover Account"</strong> बटन पर क्लिक करें। अपना मोबाइल नंबर डालें और रिक्वेस्ट भेजें। एडमिन अप्रूव करेंगे तो आप बिना पासवर्ड के सीधे लॉगिन कर पाएंगे।
                             </p>
                         </div>
                     </div>
@@ -41,7 +41,7 @@ export const LoginGuide: React.FC<Props> = ({ onClose }) => {
                         <div>
                             <h4 className="font-bold text-slate-800">नया अकाउंट?</h4>
                             <p className="text-xs text-slate-500 mt-1">
-                                अगर आपका अकाउंट नहीं है, तो <strong>"Register Here"</strong> पर क्लिक करें। बस अपना नाम, मोबाइल और क्लास चुनें।
+                                <strong>"Create New Account"</strong> पर क्लिक करें। अपना नाम, मोबाइल नंबर, ईमेल (ऑप्शनल) और नया पासवर्ड डालें। अगर आपके पास रेफरल कोड है तो उसे भी भर सकते हैं।
                             </p>
                         </div>
                     </div>
