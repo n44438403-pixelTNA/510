@@ -33,8 +33,8 @@ export const ClassSelection: React.FC<Props> = ({ selectedBoard, allowedClasses,
   });
 
   // Check if User is Locked to a Class (1 Account = 1 Class)
-  // Admin/Sub-Admin are exempt
-  const userLockedClass = (user && user.role !== 'ADMIN' && user.role !== 'SUB_ADMIN') ? user.classLevel : null;
+  // Admin/Sub-Admin/Teacher are exempt
+  const userLockedClass = (user && user.role !== 'ADMIN' && user.role !== 'SUB_ADMIN' && user.role !== 'TEACHER') ? user.classLevel : null;
 
   // Auto-Select Competition Level if Board is COMPETITION
   React.useEffect(() => {
