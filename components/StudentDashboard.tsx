@@ -921,7 +921,7 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
           return (
               <div className="space-y-4 pb-24">
                 {/* NEW HEADER DESIGN */}
-                <div className="bg-white p-4 rounded-b-3xl shadow-sm border-b border-slate-200 mb-2 flex items-center justify-between sticky top-0 z-40">
+                <div className="bg-white p-4 rounded-b-3xl shadow-sm border-b border-slate-200 mb-2 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         {/* Menu Button Restored */}
                         <button
@@ -939,9 +939,17 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
                                 <h2 className="text-lg font-black text-slate-800 leading-none">
                                     {settings?.appName || 'Student App'}
                                 </h2>
-                                <div className="flex items-center gap-2 mt-1">
-                                    <span className="text-[10px] font-black text-blue-600 truncate max-w-[100px]">{user.name}</span>
-                                    {user.role === 'ADMIN' && <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-[9px] font-bold">ADMIN</span>}
+                                <div className="flex items-center gap-1 mt-1">
+                                    <span className="text-[10px] font-black text-slate-600 truncate max-w-[100px]">{user.name}</span>
+                                    <span className="bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase">{user.role}</span>
+                                    {user.isPremium ? (
+                                        <span className="bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase">
+                                            {user.subscriptionLevel || user.subscriptionTier}
+                                            {user.subscriptionTier !== 'LIFETIME' && user.subscriptionEndDate && ` - ${Math.max(0, Math.ceil((new Date(user.subscriptionEndDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))}d`}
+                                        </span>
+                                    ) : (
+                                        <span className="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase">FREE</span>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -983,7 +991,7 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
                                         }}
                                         className={`bg-red-50 border border-red-200 text-red-600 px-2 py-1.5 rounded-lg flex items-center gap-1 text-[10px] font-black ${isLocked ? 'opacity-50 grayscale' : 'animate-pulse'}`}
                                     >
-                                        <Zap size={12} className="fill-red-600"/> SALE
+                                        <Zap size={12} className="fill-red-600"/> {settings.specialDiscountEvent.discountPercent}% OFF
                                         {isLocked && <Lock size={10} className="ml-1 text-red-500" />}
                                     </button>
                                 );
@@ -1002,7 +1010,7 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
                                         if (isLocked) { showAlert("🔒 Store Access Locked", "ERROR"); return; }
                                         onTabChange('STORE');
                                     }}
-                                    className={`bg-blue-50 border border-blue-200 text-blue-600 px-3 py-1.5 rounded-xl flex items-center gap-2 font-black text-xs transition-colors ${isLocked ? 'opacity-50 grayscale' : 'hover:bg-blue-100'}`}
+                                    className={`bg-blue-50 border border-blue-200 text-blue-600 px-3 py-1.5 rounded-xl flex items-center gap-1 font-black text-xs transition-colors ${isLocked ? 'opacity-50 grayscale' : 'hover:bg-blue-100'}`}
                                 >
                                     <Crown size={14} className="fill-blue-600"/> {user.credits}
                                     {isLocked && <Lock size={12} className="ml-1 text-red-500" />}
