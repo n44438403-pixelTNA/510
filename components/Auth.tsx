@@ -301,7 +301,7 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
                   name: firebaseUser.displayName || 'Student',
                   email: firebaseUser.email || '',
                   password: '', // Passwordless for Google Auth, will be set in Onboarding
-                  mobile: '',
+                  mobile: firebaseUser.phoneNumber || '',
                   role: 'STUDENT',
                   createdAt: new Date().toISOString(),
                   credits: settings?.signupBonus || 2,
@@ -662,6 +662,18 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
                          </div>
                      </div>
                      <button type="submit" className="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl mt-4 shadow-lg hover:bg-blue-700">Login</button>
+
+                     <div className="text-center mt-6">
+                         <div className="relative">
+                             <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200"></div></div>
+                             <div className="relative flex justify-center text-xs uppercase"><span className="bg-white px-2 text-slate-400 font-bold">Or</span></div>
+                         </div>
+
+                         <button type="button" onClick={handleGoogleAuth} className="w-full mt-6 bg-white border border-slate-200 hover:border-blue-600 hover:bg-blue-50 text-slate-700 font-bold py-3 rounded-xl flex items-center justify-center gap-3 transition-all shadow-sm">
+                             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
+                             Login with Google
+                         </button>
+                     </div>
                   </>
               )}
               
