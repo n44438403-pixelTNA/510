@@ -288,9 +288,9 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
           }
 
           if (appUser) {
-              // The user requested that Google is ONLY for account creation.
-              // If an account already exists, we must block them and ask them to log in via standard means.
-              setError("You already have an account associated with this email. Please go back and Log in using your Mobile Number / Email / User ID and Password.");
+              // User account exists, log them in directly
+              logActivity("LOGIN", "Student Logged In via Google Auth", appUser);
+              onLogin(appUser);
               return;
           } else {
               console.log("No existing user found for this Google account. Creating new profile...");
