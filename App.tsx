@@ -7,8 +7,8 @@ import { getChapterData, saveChapterData, checkFirebaseConnection, saveTestResul
 import { recalculateSubscriptionStatus, addSubscription } from './utils/subscriptionUtils';
 import { signInAnonymously } from 'firebase/auth';
 import { fetchChapters, fetchLessonContent } from './services/groq';
-import { Onboarding } from './components/Onboarding';
-import { MockPdfViewWrapper } from './components/MockPdfViewWrapper';
+import { Onboarding }
+from './components/Onboarding';
 import { BoardSelection } from './components/BoardSelection';
 import { ClassSelection } from './components/ClassSelection';
 import { SubjectSelection } from './components/SubjectSelection';
@@ -134,10 +134,6 @@ const App: React.FC = () => {
 
   // ABANDONMENT DISCOUNT STATE
   const [isFlashSaleActive, setIsFlashSaleActive] = useState(false);
-
-  if (window.location.search.includes('mock=pdfview')) {
-    return <MockPdfViewWrapper />;
-  }
 
   useEffect(() => {
       // Check Discount Logic Periodically

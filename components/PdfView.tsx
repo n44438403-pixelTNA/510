@@ -882,7 +882,7 @@ export const PdfView: React.FC<Props> = ({
 
   // --- NEW TABBED VIEW ---
   return (
-    <div onScroll={handleScroll} className="bg-slate-50 h-screen overflow-y-auto pb-20 animate-in fade-in slide-in-from-right-8">
+    <div onScroll={handleScroll} className={`bg-slate-50 h-screen overflow-y-auto pb-20 animate-in fade-in slide-in-from-right-8 ${isFullscreen ? 'm-0 p-0' : ''}`}>
        <CustomAlert
            isOpen={alertConfig.isOpen}
            message={alertConfig.message}
@@ -890,8 +890,8 @@ export const PdfView: React.FC<Props> = ({
        />
 
        {/* HEADER */}
-       <div className={`sticky top-0 z-30 bg-white shadow-sm flex flex-col ${isFullscreen ? '' : 'border-b border-slate-100'}`}>
-           <div className="p-4 flex items-center gap-3">
+       <div className={`sticky top-0 z-30 bg-white shadow-sm flex flex-col ${isFullscreen ? 'w-full m-0 rounded-none' : 'border-b border-slate-100'}`}>
+           <div className={`flex items-center gap-3 ${isFullscreen ? 'p-2 sm:p-4' : 'p-4'}`}>
                <button onClick={onBack} className="p-2 hover:bg-slate-100 rounded-full text-slate-600">
                    <ArrowLeft size={20} />
                </button>
