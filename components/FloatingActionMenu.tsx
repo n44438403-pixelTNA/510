@@ -319,15 +319,16 @@ export const FloatingActionMenu: React.FC<Props> = ({ settings, user, isFlashSal
                             </div>
 
                             {/* NSTA CONTROL FEATURES */}
-                            {user.role === 'ADMIN' && (
+                            {(user.role === 'ADMIN' || user.role === 'TEACHER') && (
                                 <div className="grid grid-cols-2 gap-2 mb-6 shrink-0">
                                     <button
                                         onClick={() => { setIsOpen(false); if (onNavigate) onNavigate('ADMIN_DASHBOARD'); }}
                                         className="flex items-center gap-2 p-2 rounded-xl bg-purple-50 border border-purple-100 text-purple-700 font-bold hover:bg-purple-100 transition-all text-xs"
                                     >
                                         <div className="bg-purple-100 p-1.5 rounded-lg"><Shield size={14} className="text-purple-600"/></div>
-                                        Admin Panel
+                                        {user.role === 'TEACHER' ? 'Teacher Panel' : 'Admin Panel'}
                                     </button>
+                                    {user.role === 'ADMIN' && (
                                     <button
                                         onClick={() => { setIsOpen(false); if (onToggleLayoutEdit) onToggleLayoutEdit(); }}
                                         className={`flex items-center gap-2 p-2 rounded-xl border font-bold transition-all text-xs ${isLayoutEditing ? 'bg-yellow-100 border-yellow-200 text-yellow-800' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'}`}
@@ -335,6 +336,7 @@ export const FloatingActionMenu: React.FC<Props> = ({ settings, user, isFlashSal
                                         <div className={`${isLayoutEditing ? 'bg-yellow-200' : 'bg-slate-200'} p-1.5 rounded-lg`}><Wrench size={14} className={isLayoutEditing ? 'text-yellow-700' : 'text-slate-600'}/></div>
                                         Edit Layout
                                     </button>
+                                    )}
                                 </div>
                             )}
 
