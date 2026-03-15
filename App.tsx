@@ -64,7 +64,19 @@ const App: React.FC = () => {
   // TESTING OVERRIDE: Render component directly bypassing auth
   useEffect(() => {
       const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('mock') === 'pdf_view') {
+      if (urlParams.get('mock') === 'dashboard') {
+          setState(prev => ({
+              ...prev,
+              user: {
+                 id: "mock-teacher",
+                 role: "TEACHER",
+                 name: "Prof. Smith",
+                 isPremium: true,
+                 profileCompleted: true
+              } as any,
+              currentView: 'DASHBOARD'
+          }));
+      } else if (urlParams.get('mock') === 'pdf_view') {
           // Force view into PDF View mock
           setState(prev => ({
               ...prev,

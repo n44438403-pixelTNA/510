@@ -5,6 +5,7 @@ import { saveUserToLive, auth, getUserByEmail, getUserByMobileOrId, rtdb, getUse
 import { ref, set } from "firebase/database";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, setPersistence, browserLocalPersistence, signInAnonymously, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { UserPlus, LogIn, Lock, User as UserIcon, Phone, Mail, ShieldCheck, ArrowRight, School, GraduationCap, Layers, KeyRound, Copy, Check, AlertTriangle, XCircle, MessageCircle, Send, RefreshCcw, ShieldAlert, HelpCircle, Eye, EyeOff } from 'lucide-react';
+import { saveSystemSettings } from '../firebase';
 import { LoginGuide } from './LoginGuide';
 import { CustomAlert } from './CustomDialogs';
 import { SpeakButton } from './SpeakButton';
@@ -128,6 +129,11 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
                   return;
               }
 
+              if (validCode.uses && validCode.uses >= 1) {
+                  setError("This Teacher Code has already been used.");
+                  return;
+              }
+
               assignedRole = 'TEACHER';
               teacherCodeStr = validCode.code;
               finalCredits = 50; // default starter credits for teachers, can be customized later
@@ -136,6 +142,14 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
               const expiryDate = new Date();
               expiryDate.setDate(expiryDate.getDate() + duration);
               calculatedTeacherExpiry = expiryDate.toISOString();
+
+              // Burn the teacher code
+              if (settings) {
+                  const updatedCodes = codes.map(c => c.code === validCode.code ? { ...c, uses: (c.uses || 0) + 1, isActive: false } : c);
+                  const updatedSettings = { ...settings, teacherCodes: updatedCodes };
+                  setSettings(updatedSettings);
+                  await saveSystemSettings(updatedSettings);
+              }
           }
 
           const newUser: User = {
