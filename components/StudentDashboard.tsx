@@ -1567,13 +1567,6 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
                                 <span className={`text-[10px] font-bold ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>
                             </button>
 
-                            <button
-                                onClick={onRecoverData}
-                                className="bg-blue-50 p-3 rounded-xl border border-blue-100 flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors text-blue-600 font-bold text-sm"
-                            >
-                                <Cloud size={16} /> Recover
-                            </button>
-
                             {(settings?.isLogoutEnabled !== false || user.role === 'ADMIN' || isImpersonating) && (
                                 <button
                                     onClick={onLogout}
