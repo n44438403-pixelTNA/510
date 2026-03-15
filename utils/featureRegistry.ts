@@ -385,9 +385,10 @@ export const ALL_FEATURES: Feature[] = [
         label: 'Deep Dive',
         group: 'CONTENT',
         surfaceLevel: 2,
-        requiredSubscription: 'BASIC',
+        requiredSubscription: 'FREE',
+        creditCost: 1,
         adminVisible: true,
-        description: 'Detailed HTML notes with audio.'
+        description: 'Detailed HTML notes with audio (Costs 1 credit).'
     },
     {
         id: 'AUDIO_SLIDE',
