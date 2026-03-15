@@ -36,7 +36,23 @@ export const downloadAsPDF = async (elementId: string, filename: string) => {
                 if (clonedEl) {
                     clonedEl.style.opacity = '1';
                     clonedEl.style.display = 'block';
-                    clonedEl.style.position = 'static'; // reset in clone
+                    clonedEl.style.position = 'absolute'; // ensure it expands fully
+                    clonedEl.style.top = '0';
+                    clonedEl.style.left = '0';
+                    clonedEl.style.height = 'max-content';
+                    clonedEl.style.overflow = 'visible';
+                    clonedEl.style.zIndex = '9999';
+
+                    // Remove constraints from all parent elements
+                    let parent = clonedEl.parentElement;
+                    while (parent && parent !== clonedDoc.body) {
+                        parent.style.position = 'static';
+                        parent.style.overflow = 'visible';
+                        parent.style.height = 'auto';
+                        parent.style.maxHeight = 'none';
+                        parent.style.transform = 'none';
+                        parent = parent.parentElement;
+                    }
                 }
             }
         });
