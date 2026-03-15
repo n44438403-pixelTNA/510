@@ -5331,6 +5331,21 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                                                   className="w-full p-3 border border-purple-100 rounded-lg text-xs font-mono h-32 focus:ring-1 focus:ring-purple-300 outline-none"
                                                   placeholder="<h1>Topic Content</h1><p>Detailed explanation...</p><p>Quick Revision: Key point...</p>"
                                               />
+                                              {/* QUICK REVISION INJECTOR (Helper Button) */}
+                                              <div className="flex justify-end mt-1">
+                                                  <button
+                                                      onClick={() => {
+                                                          const updated = [...deepDiveEntries];
+                                                          const qrTemplate = `\n<div class='recap'><b>🔁 Recap</b><br>Your quick revision point here...</div>\n`;
+                                                          updated[idx].htmlContent = (updated[idx].htmlContent || '') + qrTemplate;
+                                                          setDeepDiveEntries(updated);
+                                                      }}
+                                                      className="text-[10px] font-bold text-yellow-600 bg-yellow-50 px-2 py-1 rounded hover:bg-yellow-100 transition-colors flex items-center gap-1 border border-yellow-200"
+                                                      title="Append Quick Revision Template"
+                                                  >
+                                                      <Zap size={12} /> Add Quick Revision
+                                                  </button>
+                                              </div>
                                           </div>
                                       ))}
                                   </div>

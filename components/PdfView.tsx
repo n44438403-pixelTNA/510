@@ -383,12 +383,34 @@ export const PdfView: React.FC<Props> = ({
                         const currentTopicPoints: string[] = [];
 
                         // 0. High priority: Check for explicitly structured AI output like <div class="recap"><ul><li>
-                        const structuredRecaps = tempDiv.querySelectorAll('.recap li, .quick-revision li, [data-type="recap"] li');
+                        const structuredRecaps = tempDiv.querySelectorAll('.recap, .quick-revision, [data-type="recap"]');
                         if (structuredRecaps && structuredRecaps.length > 0) {
-                            structuredRecaps.forEach(li => {
-                                const cleanHtml = li.innerHTML.trim();
-                                if (cleanHtml && !currentTopicPoints.some(qp => qp.includes(cleanHtml) || cleanHtml.includes(qp))) {
-                                    currentTopicPoints.push(`<b>Recap:</b> ${cleanHtml}`);
+                            structuredRecaps.forEach(div => {
+                                const listItems = div.querySelectorAll('li');
+                                if (listItems.length > 0) {
+                                    listItems.forEach(li => {
+                                        const cleanHtml = li.innerHTML.trim();
+                                        if (cleanHtml && !currentTopicPoints.some(qp => qp.includes(cleanHtml) || cleanHtml.includes(qp))) {
+                                            currentTopicPoints.push(`<b>Recap:</b> ${cleanHtml}`);
+                                        }
+                                    });
+                                } else {
+                                    // Handle cases where it's a div with a title and <br> separator
+                                    const clone = div.cloneNode(true) as HTMLElement;
+                                    const titleElement = clone.querySelector('b, strong, h3, h4');
+                                    let title = 'Recap';
+                                    if (titleElement && titleElement.textContent) {
+                                        title = titleElement.textContent.replace(/^[>\s🔁🔄📌💡📝⚡]+/, '').trim();
+                                        titleElement.remove();
+                                    }
+                                    let cleanHtml = clone.innerHTML.trim();
+                                    // Remove trailing or leading breaks
+                                    cleanHtml = cleanHtml.replace(/^(?:<br\s*\/?>\s*)+/i, '').trim();
+                                    cleanHtml = cleanHtml.replace(/(?:<br\s*\/?>\s*)+$/i, '').trim();
+
+                                    if (cleanHtml && cleanHtml.length > 5 && !currentTopicPoints.some(qp => qp.includes(cleanHtml) || cleanHtml.includes(qp))) {
+                                        currentTopicPoints.push(`<b>${title}:</b> ${cleanHtml}`);
+                                    }
                                 }
                             });
                         }
@@ -498,13 +520,14 @@ export const PdfView: React.FC<Props> = ({
 
                         // 2. Fallback regex approach (catches inline stuff the walker might miss)
                         // Note: added support for emojis and special chars in the prefix matching
-                        const fallbackRegex = new RegExp(`(?:<b>|<strong>)?\\s*[\\u2700-\\u27BF\\uE000-\\uF8FF\\u2011-\\u26FF\\>\\s]*(Quick Revision|Mini Revision|Recap|Summary|Key Points|महत्वपूर्ण बिंदु|सार|संशोधन|तथ्य|Topic Quick Recap)[\\u2700-\\u27BF\\uE000-\\uF8FF\\u2011-\\u26FF\\>\\s]*:?\\s*(?:<\\/b>|<\\/strong>)?\\s*([\\s\\S]*?)(?:<br\\/?>|<\\/p>|<hr\\/?>|$)`, 'gi');
+                        const fallbackRegex = new RegExp(`(?:<b>|<strong>)?\\s*[\\u2700-\\u27BF\\uE000-\\uF8FF\\u2011-\\u26FF\\>\\s]*(Quick Revision|Mini Revision|Recap|Summary|Key Points|महत्वपूर्ण बिंदु|सार|संशोधन|तथ्य|Topic Quick Recap)[\\u2700-\\u27BF\\uE000-\\uF8FF\\u2011-\\u26FF\\>\\s]*:?\\s*(?:<\\/b>|<\\/strong>)?\\s*(?:<br\\s*\\/?>)?\\s*([\\s\\S]*?)(?:<br\\/?>|<\\/p>|<hr\\/?>|<\\/div>|$)`, 'gi');
                         let matchRegex;
                         while ((matchRegex = fallbackRegex.exec(entry.htmlContent)) !== null) {
                             if (matchRegex[2] && matchRegex[2].trim().length > 0) {
                                 let cleanMatch = matchRegex[2].trim();
-                                cleanMatch = cleanMatch.replace(/^[>\s🔁🔄📌💡📝]+/, '').trim();
-                                if (cleanMatch.length > 5 && !currentTopicPoints.some(qp => qp.includes(cleanMatch) || cleanMatch.includes(qp.replace(/<(?:b|strong)>.*?(?:<\/b>|<\/strong>)/gi, '').trim()))) {
+                                cleanMatch = cleanMatch.replace(/^[>\s🔁🔄📌💡📝⚡]+/, '').trim();
+                                // Ignore if it accidentally captured a huge block of HTML due to greedy matching
+                                if (cleanMatch.length > 5 && cleanMatch.length < 500 && !currentTopicPoints.some(qp => qp.includes(cleanMatch) || cleanMatch.includes(qp.replace(/<(?:b|strong)>.*?(?:<\/b>|<\/strong>)/gi, '').trim()))) {
                                     currentTopicPoints.push(`<b>${matchRegex[1]}:</b> ${cleanMatch}`);
                                 }
                             }
@@ -882,7 +905,7 @@ export const PdfView: React.FC<Props> = ({
 
   // --- NEW TABBED VIEW ---
   return (
-    <div onScroll={handleScroll} className="bg-slate-50 h-screen overflow-y-auto pb-20 animate-in fade-in slide-in-from-right-8">
+    <div onScroll={handleScroll} className={`bg-slate-50 h-screen overflow-y-auto pb-20 animate-in fade-in slide-in-from-right-8 ${isFullscreen ? 'm-0 p-0' : ''}`}>
        <CustomAlert
            isOpen={alertConfig.isOpen}
            message={alertConfig.message}
@@ -890,8 +913,8 @@ export const PdfView: React.FC<Props> = ({
        />
 
        {/* HEADER */}
-       <div className={`sticky top-0 z-30 bg-white shadow-sm flex flex-col ${isFullscreen ? '' : 'border-b border-slate-100'}`}>
-           <div className="p-4 flex items-center gap-3">
+       <div className={`sticky top-0 z-30 bg-white shadow-sm flex flex-col ${isFullscreen ? 'w-full m-0 rounded-none' : 'border-b border-slate-100'}`}>
+           <div className={`flex items-center gap-3 ${isFullscreen ? 'p-2 sm:p-4' : 'p-4'}`}>
                <button onClick={onBack} className="p-2 hover:bg-slate-100 rounded-full text-slate-600">
                    <ArrowLeft size={20} />
                </button>
