@@ -5336,7 +5336,7 @@ Capital of India?       Mumbai  Delhi   Kolkata Chennai 2       Delhi is the cap
                                                   <button
                                                       onClick={() => {
                                                           const updated = [...deepDiveEntries];
-                                                          const qrTemplate = `\n<p>>🔁 Recap</p>\n<ul>\n  <li>Key point 1</li>\n  <li>Key point 2</li>\n</ul>\n`;
+                                                          const qrTemplate = `\n<div class='recap'><b>🔁 Recap</b><br>Your quick revision point here...</div>\n`;
                                                           updated[idx].htmlContent = (updated[idx].htmlContent || '') + qrTemplate;
                                                           setDeepDiveEntries(updated);
                                                       }}
