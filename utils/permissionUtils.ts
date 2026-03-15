@@ -105,16 +105,23 @@ export const checkFeatureAccess = (
         }
     }
 
-    // --- STATIC FALLBACK (Only if NSTA_CONTROL config is missing) ---
-    // User requested strict NSTA_CONTROL enforcement: Plan Matrix (tierPermissions) is bypassed.
-    // NSTA_CONTROL (featureConfig) strictly controls feature lock/unlocks.
+    // --- MATRIX FALLBACK (Only if Feed is NOT active) ---
     if (!isFeedControl) {
-        if (staticConfig?.requiredSubscription) {
-            if (staticConfig.requiredSubscription === 'ULTRA') allowedTiers = ['ULTRA'];
-            else if (staticConfig.requiredSubscription === 'BASIC') allowedTiers = ['BASIC', 'ULTRA'];
-            else allowedTiers = ['FREE', 'BASIC', 'ULTRA'];
-        } else {
-            allowedTiers = ['FREE', 'BASIC', 'ULTRA'];
+        if (settings.tierPermissions) {
+            if (settings.tierPermissions.FREE?.includes(featureId)) allowedTiers.push('FREE');
+            if (settings.tierPermissions.BASIC?.includes(featureId)) allowedTiers.push('BASIC');
+            if (settings.tierPermissions.ULTRA?.includes(featureId)) allowedTiers.push('ULTRA');
+        }
+
+        // Final Fallback to Static Registry if Matrix is empty/missing
+        if (allowedTiers.length === 0) {
+             if (staticConfig?.requiredSubscription) {
+                if (staticConfig.requiredSubscription === 'ULTRA') allowedTiers = ['ULTRA'];
+                else if (staticConfig.requiredSubscription === 'BASIC') allowedTiers = ['BASIC', 'ULTRA'];
+                else allowedTiers = ['FREE', 'BASIC', 'ULTRA'];
+             } else {
+                allowedTiers = ['FREE', 'BASIC', 'ULTRA'];
+             }
         }
     }
 
