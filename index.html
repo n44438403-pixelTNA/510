@@ -51,8 +51,20 @@
       }
     </style>
 <link rel="stylesheet" href="/index.css">
+<style>
+  /* Hides the Google Translate top banner/frame completely */
+  .goog-te-banner-frame.skiptranslate { display: none !important; }
+  /* Resets the 40px margin Google Translate adds to the body */
+  body { top: 0px !important; position: static !important; }
+  /* Hides the original text tooltip popups that appear on hover */
+  .goog-tooltip { display: none !important; }
+  .goog-tooltip:hover { display: none !important; }
+  .goog-text-highlight { background-color: transparent !important; border: none !important; box-shadow: none !important; }
+  /* Optional: Hide the Google Translate widget completely if it decides to pop up */
+  #goog-gt-tt { display: none !important; }
+</style>
 </head>
-  <body class="bg-slate-200 text-slate-900 min-h-screen flex justify-center">
+  <body class="bg-slate-200 text-slate-900 min-h-screen flex justify-center translate-body">
     <!-- Google Translate Script -->
     <div id="google_translate_element" style="display:none;"></div>
     <script type="text/javascript">
