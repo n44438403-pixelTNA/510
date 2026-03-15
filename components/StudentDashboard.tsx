@@ -944,10 +944,30 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
                         </div>
 
                         {/* Right Side: Badges & Logo */}
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5">
+                            {/* Language Toggle */}
+                             {(() => {
+                                const access = getFeatureAccess('NAV_LANGUAGE');
+                                if (access.isHidden) return null;
+                                const isLocked = !access.hasAccess;
+                                return (
+                                    <button
+                                        onClick={() => {
+                                            if (isLocked) { showAlert("🔒 Language Toggle Locked", "ERROR"); return; }
+                                            const newBoard = user.board === 'CBSE' ? 'BSEB' : 'CBSE';
+                                            handleUserUpdate({ ...user, board: newBoard });
+                                            showAlert(`Language switched to ${newBoard === 'CBSE' ? 'English' : 'Hindi'}`, 'SUCCESS');
+                                        }}
+                                        className={`flex items-center gap-1 bg-indigo-50 text-indigo-600 px-1.5 py-1 rounded-lg text-[9px] font-black border border-indigo-100 transition-colors ${isLocked ? 'opacity-50 grayscale' : 'hover:bg-indigo-100'}`}
+                                    >
+                                        <Globe size={10} /> {user.board === 'CBSE' ? 'EN' : 'HI'}
+                                    </button>
+                                );
+                            })()}
+
                             {/* Streak Badge */}
-                            <div className="flex items-center gap-1 bg-orange-50 px-2 py-1 rounded-lg border border-orange-100 shadow-sm">
-                                <Zap size={12} className="text-orange-500 shrink-0 fill-orange-500" />
+                            <div className="flex items-center gap-0.5 bg-orange-50 px-1.5 py-1 rounded-lg border border-orange-100 shadow-sm">
+                                <Zap size={10} className="text-orange-500 shrink-0 fill-orange-500" />
                                 <span className="font-black text-orange-600 text-[10px] leading-none">{user.streak || 0}</span>
                             </div>
 
@@ -955,18 +975,18 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
                             {settings?.bannerConfig?.bottom?.enabled && (
                                 <button
                                     onClick={() => onTabChange('STORE')}
-                                    className="flex items-center gap-1 bg-red-50 text-red-600 px-2 py-1 rounded-lg text-[10px] font-black border border-red-100 animate-pulse shadow-sm active:scale-95 transition-transform"
+                                    className="flex items-center gap-0.5 bg-red-50 text-red-600 px-1.5 py-1 rounded-lg text-[9px] font-black border border-red-100 animate-pulse shadow-sm active:scale-95 transition-transform"
                                 >
-                                    <Zap size={12} /> SALE
+                                    <Zap size={10} className="fill-red-600" /> SALE
                                 </button>
                             )}
 
                             {/* Credits Badge - Now clickable */}
                             <button
                                 onClick={() => onTabChange('STORE')}
-                                className="flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-lg border border-blue-100 shadow-sm active:scale-95 transition-transform"
+                                className="flex items-center gap-0.5 bg-blue-50 px-1.5 py-1 rounded-lg border border-blue-100 shadow-sm active:scale-95 transition-transform"
                             >
-                                <Crown size={12} className="text-blue-600 shrink-0" />
+                                <Crown size={10} className="text-blue-600 shrink-0 fill-blue-600" />
                                 <span className="font-black text-blue-700 text-[10px] leading-none">{user.credits}</span>
                             </button>
                         </div>
@@ -1220,10 +1240,10 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
       if (activeTab === 'PRIZES') return <div className="animate-in fade-in slide-in-from-bottom-2 duration-300"><PrizeList /></div>;
       // if (activeTab === 'REWARDS') return (...); // REMOVED TO PREVENT CRASH
       if (activeTab === 'STORE') {
-          if (user.role === 'TEACHER') {
-              return <TeacherStore user={user} settings={settings} onRedeemSuccess={handleUserUpdate} />;
-          }
           return <Store user={user} settings={settings} onUserUpdate={handleUserUpdate} />;
+      }
+      if ((activeTab as any) === 'TEACHER_STORE') {
+          return <TeacherStore user={user} settings={settings} onRedeemSuccess={handleUserUpdate} />;
       }
       if (activeTab === 'PROFILE') return (
                 <div className="animate-in fade-in zoom-in duration-300 pb-24">
@@ -1525,6 +1545,18 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
                             >
                                 <History size={20} className="text-purple-500" />
                                 <span className="text-[10px] font-bold text-slate-700">Sub History</span>
+                            </button>
+
+                            {/* TEACHER UPGRADE / STORE BUTTON */}
+                            <button
+                                onClick={() => onTabChange('TEACHER_STORE' as any)}
+                                className="bg-gradient-to-br from-purple-50 to-indigo-50 p-3 rounded-xl border border-purple-200 shadow-sm flex flex-col items-center justify-center gap-2 hover:bg-purple-100 transition-colors relative overflow-hidden group"
+                            >
+                                <div className="absolute inset-0 bg-white/20 group-hover:animate-pulse"></div>
+                                <Crown size={20} className="text-purple-600 relative z-10" />
+                                <span className="text-[10px] font-bold text-purple-800 relative z-10 text-center leading-tight">
+                                    {user.role === 'TEACHER' ? 'Teacher Store' : 'Upgrade to Teacher'}
+                                </span>
                             </button>
 
                             <button
@@ -2027,7 +2059,15 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
                 isFlashSaleActive={settings?.specialDiscountEvent?.enabled}
                 onOpenProfile={() => onTabChange('PROFILE')}
                 onOpenStore={() => onTabChange('STORE')}
-                onNavigate={(tab) => onTabChange(tab as any)}
+                onNavigate={(path) => {
+                    if (path === 'ADMIN_DASHBOARD' && onNavigate) {
+                        onNavigate('ADMIN_DASHBOARD');
+                    } else {
+                        onTabChange(path as any);
+                    }
+                }}
+                onToggleLayoutEdit={() => setIsLayoutEditing(!isLayoutEditing)}
+                isLayoutEditing={isLayoutEditing}
             />
         )}
 
