@@ -920,8 +920,9 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
       if (activeTab === 'HOME') {
           return (
               <div className="space-y-4 pb-24">
-                {/* NEW HEADER DESIGN */}
-                <div className="bg-white p-4 rounded-b-3xl shadow-sm border-b border-slate-200 mb-2 flex items-center justify-between">
+                {/* NEW HEADER DESIGN - 2 LINES */}
+                <div className="bg-white p-4 rounded-b-3xl shadow-sm border-b border-slate-200 mb-2 flex flex-col gap-3">
+                    {/* Line 1: User Info */}
                     <div className="flex items-center gap-3">
                         {/* Menu Button Restored */}
                         <button
@@ -954,7 +955,9 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
                             </div>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2">
+
+                    {/* Line 2: Action Buttons */}
+                    <div className="flex items-center gap-2 justify-end w-full">
                         {/* Language Toggle */}
                         {(() => {
                             const access = getFeatureAccess('NAV_LANGUAGE');
@@ -964,14 +967,24 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
                                 <button
                                     onClick={() => {
                                         if (isLocked) { showAlert("🔒 Language Toggle Locked", "ERROR"); return; }
-                                        const newBoard = user.board === 'CBSE' ? 'BSEB' : 'CBSE';
-                                        handleUserUpdate({ ...user, board: newBoard });
-                                        showAlert(`Language switched to ${newBoard === 'CBSE' ? 'English' : 'Hindi'}`, 'SUCCESS');
+                                        // Update standard Google Translate mechanism or standard callback if implemented
+                                        if ((window as any).googleTranslateElementInit) {
+                                            const event = new Event('change');
+                                            const select = document.querySelector('.goog-te-combo') as HTMLSelectElement;
+                                            if (select) {
+                                                const currentLang = select.value || 'en';
+                                                select.value = currentLang === 'en' ? 'hi' : 'en';
+                                                select.dispatchEvent(event);
+                                            }
+                                        } else {
+                                             showAlert("Google Translate API is not initialized.", "INFO");
+                                        }
+                                        // NO LONGER UPDATING BOARD STATE
                                     }}
-                                    className={`flex items-center gap-1 bg-indigo-50 text-indigo-600 px-2 py-1.5 rounded-lg text-[9px] font-black border border-indigo-100 transition-colors ${isLocked ? 'opacity-50 grayscale' : 'hover:bg-indigo-100'}`}
+                                    className={`flex-1 flex items-center justify-center gap-1 bg-indigo-50 text-indigo-600 px-3 py-2 rounded-xl text-xs font-black border border-indigo-100 transition-colors ${isLocked ? 'opacity-50 grayscale' : 'hover:bg-indigo-100'}`}
                                 >
-                                    <Globe size={12} /> {user.board === 'CBSE' ? 'EN' : 'HI'}
-                                    {isLocked && <Lock size={10} className="ml-1 text-red-500" />}
+                                    <Globe size={14} /> TR
+                                    {isLocked && <Lock size={12} className="ml-1 text-red-500" />}
                                 </button>
                             );
                         })()}
@@ -989,10 +1002,10 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
                                             if (isLocked) { showAlert("🔒 Store Access Locked", "ERROR"); return; }
                                             onTabChange('STORE');
                                         }}
-                                        className={`bg-red-50 border border-red-200 text-red-600 px-2 py-1.5 rounded-lg flex items-center gap-1 text-[10px] font-black ${isLocked ? 'opacity-50 grayscale' : 'animate-pulse'}`}
+                                        className={`flex-1 flex items-center justify-center gap-1 bg-red-50 border border-red-200 text-red-600 px-3 py-2 rounded-xl text-xs font-black ${isLocked ? 'opacity-50 grayscale' : 'animate-pulse'}`}
                                     >
-                                        <Zap size={12} className="fill-red-600"/> {settings.specialDiscountEvent.discountPercent}% OFF
-                                        {isLocked && <Lock size={10} className="ml-1 text-red-500" />}
+                                        <Zap size={14} className="fill-red-600"/> {settings.specialDiscountEvent.discountPercent}% OFF
+                                        {isLocked && <Lock size={12} className="ml-1 text-red-500" />}
                                     </button>
                                 );
                             }
@@ -1010,7 +1023,7 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
                                         if (isLocked) { showAlert("🔒 Store Access Locked", "ERROR"); return; }
                                         onTabChange('STORE');
                                     }}
-                                    className={`bg-blue-50 border border-blue-200 text-blue-600 px-3 py-1.5 rounded-xl flex items-center gap-1 font-black text-xs transition-colors ${isLocked ? 'opacity-50 grayscale' : 'hover:bg-blue-100'}`}
+                                    className={`flex-1 flex items-center justify-center gap-1 bg-blue-50 border border-blue-200 text-blue-600 px-3 py-2 rounded-xl text-xs font-black transition-colors ${isLocked ? 'opacity-50 grayscale' : 'hover:bg-blue-100'}`}
                                 >
                                     <Crown size={14} className="fill-blue-600"/> {user.credits}
                                     {isLocked && <Lock size={12} className="ml-1 text-red-500" />}
