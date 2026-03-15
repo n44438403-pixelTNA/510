@@ -1,0 +1,16 @@
+--- components/Auth.tsx
++++ components/Auth.tsx
+@@ -288,10 +288,8 @@
+           }
+
+           if (appUser) {
+-              // The user requested that Google is ONLY for account creation.
+-              // If an account already exists, we must block them and ask them to log in via standard means.
+-              setError("You already have an account associated with this email. Please go back and Log in using your Mobile Number / Email / User ID and Password.");
+-              return;
++              // Account exists, log them in directly
++              onLogin(appUser);
++              return;
+           }
+
+           // New User: Extract First Name for Mobile Request
