@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { SystemSettings, User } from '../types';
 import { ALL_FEATURES, Feature } from '../utils/featureRegistry';
 import { checkFeatureAccess } from '../utils/permissionUtils';
-import { Crown, User as UserIcon, ShoppingBag, X, Zap, Menu, ChevronUp, Book, CheckSquare, BrainCircuit, BarChart3, AlertCircle, PlayCircle, Sparkles, Wrench, Gamepad2, Trophy, Shield, Gift, Terminal, MessageSquare, FileText, Video, Headphones, Lock, Download } from 'lucide-react';
+import { Crown, User as UserIcon, ShoppingBag, X, Zap, Menu, ChevronUp, Book, CheckSquare, BrainCircuit, BarChart3, AlertCircle, PlayCircle, Sparkles, Wrench, Gamepad2, Trophy, Shield, Gift, Terminal, MessageSquare, FileText, Video, Headphones, Lock, Download, Globe } from 'lucide-react';
 
 interface Props {
     activeTab?: string;
@@ -214,13 +214,9 @@ export const FloatingActionMenu: React.FC<Props> = ({ settings, user, isFlashSal
             >
                 <button
                     onClick={toggleMenu}
-                    className={`relative w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 border-2 border-white/50 backdrop-blur-md ${isFlashSaleActive ? 'bg-gradient-to-r from-red-500 to-pink-600 animate-pulse' : 'bg-slate-900/90'} ${isOpen ? 'rotate-90 scale-0' : 'rotate-0 scale-100'}`}
+                    className={`relative w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 border-2 border-white backdrop-blur-md bg-white ${isFlashSaleActive ? 'ring-4 ring-pink-500 animate-pulse' : ''} ${isOpen ? 'rotate-90 scale-0' : 'rotate-0 scale-100'}`}
                 >
-                    {settings.appLogo ? (
-                        <img src={settings.appLogo} alt="Menu" className="w-10 h-10 rounded-full object-cover" />
-                    ) : (
-                        <Menu size={24} className="text-white" />
-                    )}
+                    <img src={settings.appLogo || "/pwa-192x192.png"} alt="App Logo" className="w-12 h-12 rounded-full object-cover" />
 
                     {/* Flash Sale Badge */}
                     {isFlashSaleActive && (
@@ -276,24 +272,41 @@ export const FloatingActionMenu: React.FC<Props> = ({ settings, user, isFlashSal
                         <div className="flex flex-col max-h-[60vh] overflow-y-auto">
 
                             {/* FIXED ACTIONS ROW */}
-                            <div className="grid grid-cols-3 gap-3 mb-4 shrink-0">
+                            <div className="grid grid-cols-4 gap-2 mb-4 shrink-0">
                                 <button
                                     onClick={() => { setIsOpen(false); onOpenStore(); }}
-                                    className="flex items-center justify-center gap-1.5 p-3 rounded-xl bg-blue-600 text-white font-bold shadow-lg hover:bg-blue-700 transition-all text-xs"
+                                    className="flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-blue-50 text-blue-700 font-bold hover:bg-blue-100 transition-all text-[10px]"
                                 >
-                                    <ShoppingBag size={16} /> Store
+                                    <ShoppingBag size={18} /> Store
                                 </button>
                                 <button
                                     onClick={() => { setIsOpen(false); if (onNavigate) onNavigate('DOWNLOADS'); }}
-                                    className="flex items-center justify-center gap-1.5 p-3 rounded-xl bg-indigo-600 text-white font-bold shadow-lg hover:bg-indigo-700 transition-all text-xs"
+                                    className="flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-indigo-50 text-indigo-700 font-bold hover:bg-indigo-100 transition-all text-[10px]"
                                 >
-                                    <Download size={16} /> Saved
+                                    <Download size={18} /> Saved
                                 </button>
                                 <button
                                     onClick={() => { setIsOpen(false); onOpenProfile(); }}
-                                    className="flex items-center justify-center gap-1.5 p-3 rounded-xl bg-slate-800 text-white font-bold shadow-lg hover:bg-slate-900 transition-all text-xs"
+                                    className="flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 transition-all text-[10px]"
                                 >
-                                    <UserIcon size={16} /> Profile
+                                    <UserIcon size={18} /> Profile
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setIsOpen(false);
+                                        if ((window as any).googleTranslateElementInit) {
+                                            const event = new Event('change');
+                                            const select = document.querySelector('.goog-te-combo') as HTMLSelectElement;
+                                            if (select) {
+                                                const currentLang = select.value || 'en';
+                                                select.value = currentLang === 'en' ? 'hi' : 'en';
+                                                select.dispatchEvent(event);
+                                            }
+                                        }
+                                    }}
+                                    className="flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-teal-50 text-teal-700 font-bold hover:bg-teal-100 transition-all text-[10px]"
+                                >
+                                    <Globe size={18} /> Translate
                                 </button>
                             </div>
 

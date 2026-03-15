@@ -920,95 +920,65 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
       if (activeTab === 'HOME') {
           return (
               <div className="space-y-4 pb-24">
-                {/* NEW HEADER DESIGN - 2 LINES */}
-                <div className="bg-white p-4 rounded-b-3xl shadow-sm border-b border-slate-200 mb-2 flex flex-col gap-3">
-                    {/* Line 1: User Info */}
-                    <div className="flex items-center justify-between">
-                        {/* Menu Button Restored */}
-                        <button
-                            onClick={() => setShowSidebar(true)}
-                            className="bg-white border border-slate-200 shadow-sm px-3 py-2 rounded-xl hover:bg-slate-50 transition-all flex items-center gap-2 group active:scale-95"
-                        >
-                            <div className="space-y-1">
-                                <span className="block w-5 h-0.5 bg-slate-600 group-hover:bg-blue-600 transition-colors rounded-full"></span>
-                                <span className="block w-3 h-0.5 bg-slate-600 group-hover:bg-blue-600 transition-colors rounded-full"></span>
-                                <span className="block w-5 h-0.5 bg-slate-600 group-hover:bg-blue-600 transition-colors rounded-full"></span>
-                            </div>
-                        </button>
-
+                {/* NEW COMPACT HEADER DESIGN */}
+                <div className="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 mb-2 flex flex-col gap-2 sticky top-0 z-40 mx-2 mt-2">
+                    {/* Top Row: Menu & Logo / Banner Content */}
+                    <div className="flex items-center justify-between w-full">
+                        {/* Left Side: Hamburger & App Name */}
                         <div className="flex items-center gap-3">
                             <button
-                                onClick={() => { onTabChange('CUSTOM_PAGE' as any); setShowSidebar(false); }}
-                                className="flex items-center justify-center gap-1 bg-teal-50 text-teal-600 px-3 py-2 rounded-xl text-xs font-black border border-teal-100 hover:bg-teal-100 transition-colors"
+                                onClick={() => setShowSidebar(true)}
+                                className="bg-white border border-slate-200 shadow-sm p-2 rounded-xl hover:bg-slate-50 transition-all flex items-center justify-center active:scale-95"
                             >
-                                <Zap size={14} className="fill-teal-600"/>
-                                What's New
+                                <Menu size={20} className="text-slate-600" />
                             </button>
-                            {settings?.appLogo && (
-                                <div className="w-10 h-10 rounded-full border-2 border-slate-200 overflow-hidden bg-white flex items-center justify-center shadow-sm">
-                                    <img src={settings.appLogo} alt="App Logo" className="w-full h-full object-cover" />
+                            <div className="flex flex-col">
+                                <h2 className="text-lg font-black text-slate-800 leading-none tracking-tight">
+                                    {settings?.appName || 'NSTA'}
+                                </h2>
+                                <div className="flex items-center gap-1 mt-0.5">
+                                    <span className="text-[10px] font-black text-blue-600 truncate max-w-[80px]">{user.name}</span>
+                                    {user.role === 'ADMIN' && <span className="bg-purple-100 text-purple-700 px-1 py-0.5 rounded text-[8px] font-bold ml-1">ADMIN</span>}
                                 </div>
-                            )}
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="flex items-center gap-1 mb-2">
-                        <span className="text-[10px] font-black text-slate-600 truncate max-w-[100px]">{user.name}</span>
-                        <span className="bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase">{user.role}</span>
-                        {user.isPremium ? (
-                            <span className="bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase">
-                                {user.subscriptionLevel || user.subscriptionTier}
-                                {user.subscriptionTier !== 'LIFETIME' && user.subscriptionEndDate && ` - ${Math.max(0, Math.ceil((new Date(user.subscriptionEndDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))}d`}
-                            </span>
-                        ) : (
-                            <span className="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase">FREE</span>
-                        )}
-                    </div>
-
-                    {/* Line 2: Action Buttons */}
-                    <div className="flex items-center gap-2 justify-end w-full">
-                        {/* Language Toggle removed from here, moving to global floating button */}
-                        {/* Sale Banner */}
-                        {(() => {
-                            const access = getFeatureAccess('NAV_SALE_BANNER');
-                            if (access.isHidden) return null;
-                            const isLocked = !access.hasAccess;
-
-                            if (settings?.specialDiscountEvent?.enabled) {
+                        {/* Right Side: Badges & Logo */}
+                        <div className="flex items-center gap-2">
+                             {/* Language Toggle */}
+                             {(() => {
+                                const access = getFeatureAccess('NAV_LANGUAGE');
+                                if (access.isHidden) return null;
+                                const isLocked = !access.hasAccess;
                                 return (
                                     <button
                                         onClick={() => {
-                                            if (isLocked) { showAlert("🔒 Store Access Locked", "ERROR"); return; }
-                                            onTabChange('STORE');
+                                            if (isLocked) { showAlert("🔒 Language Toggle Locked", "ERROR"); return; }
+                                            const newBoard = user.board === 'CBSE' ? 'BSEB' : 'CBSE';
+                                            handleUserUpdate({ ...user, board: newBoard });
+                                            showAlert(`Language switched to ${newBoard === 'CBSE' ? 'English' : 'Hindi'}`, 'SUCCESS');
                                         }}
-                                        className={`flex-1 flex items-center justify-center gap-1 bg-red-50 border border-red-200 text-red-600 px-3 py-2 rounded-xl text-xs font-black ${isLocked ? 'opacity-50 grayscale' : 'animate-pulse'}`}
+                                        className={`flex items-center gap-1 bg-indigo-50 text-indigo-600 px-2 py-1 rounded-lg text-[10px] font-black border border-indigo-100 transition-colors ${isLocked ? 'opacity-50 grayscale' : 'hover:bg-indigo-100'}`}
                                     >
-                                        <Zap size={14} className="fill-red-600"/> {settings.specialDiscountEvent.discountPercent}% OFF
-                                        {isLocked && <Lock size={12} className="ml-1 text-red-500" />}
+                                        <Globe size={12} /> {user.board === 'CBSE' ? 'EN' : 'HI'}
                                     </button>
                                 );
-                            }
-                            return null;
-                        })()}
+                            })()}
 
-                        {/* Store & Credits */}
-                        {(() => {
-                            const access = getFeatureAccess('NAV_STORE_CREDITS');
-                            if (access.isHidden) return null;
-                            const isLocked = !access.hasAccess;
-                            return (
-                                <button
-                                    onClick={() => {
-                                        if (isLocked) { showAlert("🔒 Store Access Locked", "ERROR"); return; }
-                                        onTabChange('STORE');
-                                    }}
-                                    className={`flex-1 flex items-center justify-center gap-1 bg-blue-50 border border-blue-200 text-blue-600 px-3 py-2 rounded-xl text-xs font-black transition-colors ${isLocked ? 'opacity-50 grayscale' : 'hover:bg-blue-100'}`}
-                                >
-                                    <Crown size={14} className="fill-blue-600"/> {user.credits}
-                                    {isLocked && <Lock size={12} className="ml-1 text-red-500" />}
-                                </button>
-                            );
-                        })()}
+                            {/* Flash Sale Badge (if active) */}
+                            {settings?.bannerConfig?.bottom?.enabled && (
+                                <div className="flex items-center gap-1 bg-red-50 text-red-600 px-2 py-1 rounded-lg text-[10px] font-black border border-red-100 animate-pulse">
+                                    <Zap size={12} /> SALE
+                                </div>
+                            )}
+
+                            {/* Credits Badge */}
+                            <div className="flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-lg border border-blue-100">
+                                <Crown size={12} className="text-blue-600 shrink-0" />
+                                <span className="font-black text-blue-700 text-[10px] leading-none">{user.credits}</span>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
 
@@ -1681,35 +1651,6 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
-        {/* GLOBAL TRANSLATE BUTTON */}
-        {(() => {
-            const access = getFeatureAccess('NAV_LANGUAGE');
-            if (access.isHidden) return null;
-            const isLocked = !access.hasAccess;
-            return (
-                <button
-                    onClick={() => {
-                        if (isLocked) { showAlert("🔒 Language Toggle Locked", "ERROR"); return; }
-                        if ((window as any).googleTranslateElementInit) {
-                            const event = new Event('change');
-                            const select = document.querySelector('.goog-te-combo') as HTMLSelectElement;
-                            if (select) {
-                                const currentLang = select.value || 'en';
-                                select.value = currentLang === 'en' ? 'hi' : 'en';
-                                select.dispatchEvent(event);
-                            }
-                        } else {
-                             showAlert("Google Translate API is not initialized.", "INFO");
-                        }
-                    }}
-                    className={`fixed bottom-24 right-4 z-50 p-4 rounded-full shadow-2xl border-2 flex items-center justify-center transition-transform hover:scale-110 ${isLocked ? 'bg-slate-200 text-slate-400 border-slate-300 opacity-80' : 'bg-indigo-600 text-white border-indigo-500'}`}
-                >
-                    <Globe size={24} />
-                    {isLocked && <Lock size={12} className="absolute top-0 right-0 text-red-500 bg-white rounded-full" />}
-                </button>
-            );
-        })()}
-
         {/* ADMIN SWITCH BUTTON */}
         {(user.role === 'ADMIN' || isImpersonating) && (
              <div className="fixed bottom-36 right-4 z-50 flex flex-col gap-3 items-end">

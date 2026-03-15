@@ -2531,7 +2531,22 @@ const App: React.FC = () => {
           />
       )}
 
-      
+      {/* FLOATING ACTION MENU (Unified NSTA Controls & Translation) */}
+      {state.user && (state.user.role === 'STUDENT' || state.originalAdmin) && !activeWeeklyTest && !isFullScreen && (
+          <FloatingActionMenu
+              user={state.user}
+              settings={state.settings}
+              activeTab={state.activeTab}
+              isFlashSaleActive={isFlashSaleActive}
+              onOpenProfile={() => setStudentTab('PROFILE')}
+              onOpenStore={() => setStudentTab('STORE')}
+              onNavigate={(path) => {
+                  if (path === 'DOWNLOADS') setStudentTab('HISTORY');
+                  // Add logic for other paths like translation if needed
+              }}
+          />
+      )}
+
       {activeReward && <RewardPopup reward={activeReward} onClaim={handleClaimReward} onIgnore={handleIgnoreReward} />}
       
       {/* POPUP QUEUE MANAGER */}
