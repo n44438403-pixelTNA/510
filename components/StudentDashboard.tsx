@@ -1886,8 +1886,8 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
                       <button onClick={() => setEditMode(false)} className="flex-1 py-3 text-slate-500 font-bold bg-slate-100 rounded-xl hover:bg-slate-200">Cancel</button>
                       <button
                           onClick={() => {
-                              // Check Class Change Limit
-                              if (profileData.classLevel !== user.classLevel) {
+                              // Check Class Change Limit (Exclude TEACHER)
+                              if (profileData.classLevel !== user.classLevel && user.role !== 'TEACHER') {
                                   const limit = user.subscriptionLevel === 'ULTRA' ? 3 : user.subscriptionLevel === 'BASIC' ? 2 : 1;
                                   const todayKey = `nst_class_changes_${user.id}_${new Date().toDateString()}`;
                                   const used = parseInt(localStorage.getItem(todayKey) || '0');
