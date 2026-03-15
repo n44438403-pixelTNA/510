@@ -1022,6 +1022,15 @@ const App: React.FC = () => {
   }, [state.user?.id, state.view, state.settings]);
 
     const handleLogin = (user: User) => {
+    // ENFORCE PREMIUM LOCKOUT ON LOGIN
+    if (user.isPremium && user.subscriptionEndDate && user.subscriptionTier !== 'LIFETIME') {
+        if (new Date(user.subscriptionEndDate) < new Date()) {
+            user.isPremium = false;
+            user.subscriptionTier = 'FREE';
+            user.subscriptionLevel = undefined;
+        }
+    }
+
     if (!state.originalAdmin) {
         localStorage.setItem('nst_current_user', JSON.stringify(user));
     }
@@ -1053,6 +1062,7 @@ const App: React.FC = () => {
 
   const [logoutPending, setLogoutPending] = useState(false);
   const [logoutTimeLeft, setLogoutTimeLeft] = useState(10);
+  const [logoutStep, setLogoutStep] = useState(0); // For 5-step confirmation
   const [cloudUser, setCloudUser] = useState<User | null>(null);
   const [showCloudRecoveryModal, setShowCloudRecoveryModal] = useState(false);
 
@@ -1062,15 +1072,16 @@ const App: React.FC = () => {
     localStorage.removeItem('nst_user_history'); // Clear Saved Notes on logout to prevent bleeding across accounts
     setState(prev => ({ ...prev, user: null, originalAdmin: null, view: 'BOARDS', selectedBoard: null, selectedClass: null, selectedStream: null, selectedSubject: null, lessonContent: null, language: 'English' }));
     setDailyStudySeconds(0);
+    setLogoutStep(0);
   };
 
   useEffect(() => {
      let timer: NodeJS.Timeout;
-     if (logoutPending && logoutTimeLeft > 0) {
+     if (logoutPending && logoutTimeLeft > 0 && logoutStep === 5) {
         timer = setTimeout(() => {
             setLogoutTimeLeft(prev => prev - 1);
         }, 1000);
-     } else if (logoutPending && logoutTimeLeft <= 0) {
+     } else if (logoutPending && logoutTimeLeft <= 0 && logoutStep === 5) {
         // Sync and logout
         if (state.user) {
             saveUserToLive(state.user).catch(err => console.error("Error syncing on logout", err));
@@ -1079,7 +1090,7 @@ const App: React.FC = () => {
         setLogoutPending(false);
      }
      return () => clearTimeout(timer);
-  }, [logoutPending, logoutTimeLeft]);
+  }, [logoutPending, logoutTimeLeft, logoutStep]);
 
   const handleLogout = () => {
     if (!state.user) {
@@ -1087,6 +1098,7 @@ const App: React.FC = () => {
        return;
     }
     setLogoutPending(true);
+    setLogoutStep(1); // Start 5-step confirmation
     setLogoutTimeLeft(10);
   };
 
@@ -2209,25 +2221,61 @@ const App: React.FC = () => {
       {logoutPending && (
           <div className="fixed inset-0 z-[9999] bg-slate-900/90 backdrop-blur-sm flex flex-col items-center justify-center text-white">
               <div className="bg-slate-800 p-8 rounded-3xl border border-slate-700 flex flex-col items-center max-w-sm w-full mx-4 shadow-2xl animate-in zoom-in duration-200">
-                 <div className="w-16 h-16 bg-blue-500/20 text-blue-400 rounded-full flex items-center justify-center mb-6">
-                     <Cloud size={32} className="animate-pulse" />
-                 </div>
-                 <h2 className="text-xl font-black mb-2 text-center">Saving Your Progress</h2>
-                 <p className="text-slate-400 text-sm text-center mb-6">Please don't close the app. We are securely syncing your data to the cloud.</p>
 
-                 <div className="text-5xl font-black font-mono mb-8 text-blue-400">
-                     {logoutTimeLeft}s
-                 </div>
+                 {logoutStep < 5 ? (
+                    <>
+                       <div className="w-16 h-16 bg-red-500/20 text-red-400 rounded-full flex items-center justify-center mb-6">
+                           <LogOut size={32} />
+                       </div>
+                       <h2 className="text-xl font-black mb-2 text-center">Are you sure?</h2>
+                       <p className="text-slate-400 text-sm text-center mb-6">
+                           {logoutStep === 1 && "Do you really want to log out?"}
+                           {logoutStep === 2 && "Are you absolutely certain?"}
+                           {logoutStep === 3 && "You will need to login again."}
+                           {logoutStep === 4 && "Final warning! Proceed?"}
+                       </p>
+                       <div className="flex flex-col w-full gap-3">
+                           <button
+                               onClick={() => setLogoutStep(prev => prev + 1)}
+                               className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition-colors text-sm"
+                           >
+                               Yes, Continue ({logoutStep}/4)
+                           </button>
+                           <button
+                               onClick={() => {
+                                   setLogoutPending(false);
+                                   setLogoutStep(0);
+                               }}
+                               className="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl transition-colors text-sm"
+                           >
+                               Cancel
+                           </button>
+                       </div>
+                    </>
+                 ) : (
+                    <>
+                       <div className="w-16 h-16 bg-blue-500/20 text-blue-400 rounded-full flex items-center justify-center mb-6">
+                           <Cloud size={32} className="animate-pulse" />
+                       </div>
+                       <h2 className="text-xl font-black mb-2 text-center">Saving Your Progress</h2>
+                       <p className="text-slate-400 text-sm text-center mb-6">Please don't close the app. We are securely syncing your data to the cloud.</p>
 
-                 <button
-                     onClick={() => {
-                         setLogoutPending(false);
-                         setLogoutTimeLeft(0);
-                     }}
-                     className="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl transition-colors text-sm"
-                 >
-                     Cancel Logout
-                 </button>
+                       <div className="text-5xl font-black font-mono mb-8 text-blue-400">
+                           {logoutTimeLeft}s
+                       </div>
+
+                       <button
+                           onClick={() => {
+                               setLogoutPending(false);
+                               setLogoutTimeLeft(0);
+                               setLogoutStep(0);
+                           }}
+                           className="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl transition-colors text-sm"
+                       >
+                           Cancel Logout
+                       </button>
+                    </>
+                 )}
               </div>
           </div>
       )}

@@ -307,7 +307,7 @@ export const FloatingActionMenu: React.FC<Props> = ({ settings, user, isFlashSal
                             </div>
 
                             {/* DYNAMIC MATRIX ROWS */}
-                            <div className="bg-white border border-slate-100 rounded-b-xl overflow-hidden">
+                            <div className="bg-white border border-slate-100 rounded-b-xl overflow-y-auto max-h-[50vh]">
                                 {dynamicMenuItems.map((item, idx) => {
                                     const Icon = getIconComponent(item.icon);
 
