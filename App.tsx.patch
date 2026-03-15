@@ -1,0 +1,13 @@
+--- App.tsx
++++ App.tsx
+@@ -10,2 +10,3 @@
+ import { OfflineDownloads } from './components/OfflineDownloads';
++import { MockPdfViewWrapper } from './components/MockPdfViewWrapper';
+
+@@ -34,2 +35,6 @@
+
++  if (window.location.search.includes('mock=pdfview')) {
++    return <MockPdfViewWrapper />;
++  }
++
+   useEffect(() => {

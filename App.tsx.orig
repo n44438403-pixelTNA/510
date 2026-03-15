@@ -1,14 +1,14 @@
 
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   ClassLevel, Subject, Chapter, AppState, Board, Stream, User, ContentType, SystemSettings, ActivityLogEntry, WeeklyTest, LessonContent, ActiveSubscription, InboxMessage
 } from './types';
 import { getChapterData, saveChapterData, checkFirebaseConnection, saveTestResult, saveUserToLive, updateUserStatus, getUserData, subscribeToSettings, auth, savePublicActivity, saveUserHistory, getUserSavedNotes } from './firebase';
 import { recalculateSubscriptionStatus, addSubscription } from './utils/subscriptionUtils';
 import { signInAnonymously } from 'firebase/auth';
 import { fetchChapters, fetchLessonContent } from './services/groq';
-import { Onboarding } from './components/Onboarding';
-import { MockPdfViewWrapper } from './components/MockPdfViewWrapper';
+import { Onboarding }
+from './components/Onboarding';
 import { BoardSelection } from './components/BoardSelection';
 import { ClassSelection } from './components/ClassSelection';
 import { SubjectSelection } from './components/SubjectSelection';
@@ -135,10 +135,6 @@ const App: React.FC = () => {
   // ABANDONMENT DISCOUNT STATE
   const [isFlashSaleActive, setIsFlashSaleActive] = useState(false);
 
-  if (window.location.search.includes('mock=pdfview')) {
-    return <MockPdfViewWrapper />;
-  }
-
   useEffect(() => {
       // Check Discount Logic Periodically
       const checkDiscount = () => {
@@ -203,11 +199,11 @@ const App: React.FC = () => {
         maintenanceMessage: 'We are upgrading our servers. Please check back later.',
         customCSS: '',
         apiKeys: [],
-        welcomeTitle: 'Unlock Smart Learning', 
+        welcomeTitle: 'Unlock Smart Learning',
         welcomeMessage: 'Experience the power of AI-driven education. Our AI filters out the noise of traditional textbooks to deliver only the essential, high-yield topics you need for success. Study smarter, not harder.',
-        marqueeLines: ["Welcome to Leon karo Classes", "Learn Smart", "Contact Admin for Credits"], 
-        liveMessage1: 'Experience the power of AI-driven education.', 
-        liveMessage2: 'Start learning today!', 
+        marqueeLines: ["Welcome to Leon karo Classes", "Learn Smart", "Contact Admin for Credits"],
+        liveMessage1: 'Experience the power of AI-driven education.',
+        liveMessage2: 'Start learning today!',
         bannerConfig: {
             top: { text: 'Experience the power of AI-driven education.', enabled: true, autoHideSeconds: 0, bgColor: '#dc2626', textColor: '#ffffff' },
             bottom: { text: 'Start learning today!', enabled: true, autoHideSeconds: 0, bgColor: '#2563eb', textColor: '#ffffff' }
@@ -222,12 +218,12 @@ const App: React.FC = () => {
         dailyReward: 3,
         signupBonus: 2,
         isChatEnabled: true,
-        isGameEnabled: true, 
+        isGameEnabled: true,
         allowSignup: true,
         loginMessage: '',
         allowedClasses: ['6','7','8','9','10','11','12'],
         storageCapacity: '100 GB',
-        isPaymentEnabled: true, 
+        isPaymentEnabled: true,
         upiId: '',
         upiName: '',
         qrCodeUrl: '',
@@ -319,7 +315,7 @@ const App: React.FC = () => {
   const [activeReward, setActiveReward] = useState<PendingReward | null>(null);
   const [lastTestResult, setLastTestResult] = useState<MCQResult | null>(null);
   const [lastTestQuestions, setLastTestQuestions] = useState<MCQItem[] | null>(null); // NEW: For granular analysis
-  
+
   // CUSTOM DIALOG STATE (GLOBAL)
   const [alertConfig, setAlertConfig] = useState<{isOpen: boolean, message: string}>({isOpen: false, message: ''});
   const [confirmConfig, setConfirmConfig] = useState<{isOpen: boolean, title: string, message: string, onConfirm: () => void}>({isOpen: false, title: '', message: '', onConfirm: () => {}});
@@ -334,7 +330,7 @@ const App: React.FC = () => {
 
   // GLOBAL STUDY TIMER
   const [dailyStudySeconds, setDailyStudySeconds] = useState(0);
-  
+
   // FULL SCREEN MODE (Hides Header/Footer/Dock)
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [popupQueue, setPopupQueue] = useState<('TRACKER' | 'CHALLENGE' | 'WELCOME')[]>([]);
@@ -359,7 +355,7 @@ const App: React.FC = () => {
           const now = Date.now();
           const ninetyDaysMs = 90 * 24 * 60 * 60 * 1000;
           const newDeletedKeys = deletedKeys.filter(k => (now - k.deletedAt) <= ninetyDaysMs);
-          
+
           if (newDeletedKeys.length !== deletedKeys.length) {
               // console.log("Cleaned up old Groq keys");
               const updatedSettings = { ...state.settings, deletedGroqKeys: newDeletedKeys };
@@ -382,8 +378,8 @@ const App: React.FC = () => {
         timestamp: new Date().toISOString(),
         ...extra
     };
-    const updatedUser = { 
-        ...state.user, 
+    const updatedUser = {
+        ...state.user,
         usageHistory: [entry, ...(state.user.usageHistory || [])].slice(0, 100)
     };
     setState(prev => ({ ...prev, user: updatedUser }));
@@ -466,11 +462,11 @@ const App: React.FC = () => {
       // Only if no new reward set (priority to Login Bonus, next render will handle Prize)
       if (!newReward && !activeReward && updatedUser.pendingRewards && updatedUser.pendingRewards.length > 0) {
           const unlockIndex = updatedUser.pendingRewards.findIndex(r => !r.unlockDate || new Date(r.unlockDate) <= now);
-          
+
           if (unlockIndex !== -1) {
               const item = updatedUser.pendingRewards[unlockIndex];
               newReward = item;
-              
+
               // Remove from pending list (it moved to Active Popup)
               const newPending = [...updatedUser.pendingRewards];
               newPending.splice(unlockIndex, 1);
@@ -753,9 +749,9 @@ const App: React.FC = () => {
                   };
               }
 
-              setState(prev => ({ 
-                  ...prev, 
-                  settings: loadedSettings 
+              setState(prev => ({
+                  ...prev,
+                  settings: loadedSettings
               }));
 
               // --- CACHE CLEANUP (Admin Controlled) ---
@@ -793,7 +789,7 @@ const App: React.FC = () => {
 
           } catch(e) {}
       }
-      
+
       const hasAcceptedTerms = localStorage.getItem('nst_terms_accepted');
       if (!hasAcceptedTerms && loadedSettings.showTermsPopup !== false) setShowTerms(true);
 
@@ -828,14 +824,14 @@ const App: React.FC = () => {
         }
 
         if (!user.progress) user.progress = {};
-        if (user.isLocked) { 
-            localStorage.removeItem('nst_current_user'); 
-            setAlertConfig({isOpen: true, message: "Account Locked. Please contact Admin."}); 
-            return; 
+        if (user.isLocked) {
+            localStorage.removeItem('nst_current_user');
+            setAlertConfig({isOpen: true, message: "Account Locked. Please contact Admin."});
+            return;
         }
 
         let initialView = (user.role === 'ADMIN' || user.role === 'SUB_ADMIN') ? 'ADMIN_DASHBOARD' : 'STUDENT_DASHBOARD';
-        
+
         if (user.role === 'STUDENT' && !user.profileCompleted) {
              initialView = 'ONBOARDING';
         }
@@ -848,14 +844,14 @@ const App: React.FC = () => {
             initialView = 'STUDENT_DASHBOARD'; // Default view
         }
 
-        setState(prev => ({ 
-          ...prev, 
-          user: user, 
-          view: initialView as any, 
-          selectedBoard: user.board || null, 
-          selectedClass: safeClass, 
-          selectedStream: user.stream || null, 
-          language: user.board === 'BSEB' ? 'Hindi' : 'English', 
+        setState(prev => ({
+          ...prev,
+          user: user,
+          view: initialView as any,
+          selectedBoard: user.board || null,
+          selectedClass: safeClass,
+          selectedStream: user.stream || null,
+          language: user.board === 'BSEB' ? 'Hindi' : 'English',
           showWelcome: !hasSeenWelcome && !!hasAcceptedTerms
         }));
       } catch(e) {
@@ -891,7 +887,7 @@ const App: React.FC = () => {
             setDailyStudySeconds(prev => {
                 const next = prev + 1;
                 localStorage.setItem('nst_daily_study_seconds', next.toString());
-                
+
                 // NEW: CHECK FOR DAILY REWARDS (DYNAMIC)
                 if (state.user && state.settings.engagementRewards) {
                     state.settings.engagementRewards.forEach(reward => {
@@ -910,7 +906,7 @@ const App: React.FC = () => {
                     });
                 }
 
-                if (next % 10 === 0) updateUserStatus(state.user!.id, next); 
+                if (next % 10 === 0) updateUserStatus(state.user!.id, next);
                 return next;
             });
         }, 1000);
@@ -919,7 +915,7 @@ const App: React.FC = () => {
     return () => {
         if (interval) clearInterval(interval);
     };
-  }, [state.user?.id, state.view]); 
+  }, [state.user?.id, state.view]);
 
   useEffect(() => {
       document.title = `${state.settings.appName}`;
@@ -968,7 +964,7 @@ const App: React.FC = () => {
   const logActivity = (action: string, details: string, overrideUser?: User) => {
       const u = overrideUser || state.user;
       if (!u && !overrideUser) return;
-      
+
       const newLog: ActivityLogEntry = {
           id: Date.now().toString() + Math.random(),
           userId: u!.id,
@@ -982,7 +978,7 @@ const App: React.FC = () => {
       const storedLogs = localStorage.getItem('nst_activity_log');
       const logs: ActivityLogEntry[] = storedLogs ? JSON.parse(storedLogs) : [];
       // Keep last 500 logs
-      const updatedLogs = [...logs, newLog].slice(-500); 
+      const updatedLogs = [...logs, newLog].slice(-500);
       localStorage.setItem('nst_activity_log', JSON.stringify(updatedLogs));
   };
 
@@ -1143,7 +1139,7 @@ const App: React.FC = () => {
 
     setLastTestResult(result);
     setLastTestQuestions(displayData); // Pass for Marksheet Granular View
-    
+
     // UPDATE USER HISTORY & PROGRESS
     let updatedUser = { ...state.user };
     if (!updatedUser.testResults) updatedUser.testResults = [];
@@ -1164,11 +1160,11 @@ const App: React.FC = () => {
         updatedUser.inbox = [failureMsg, ...(updatedUser.inbox || [])];
         setAlertConfig({isOpen: true, message: "⚠️ Low Score Alert: Check your inbox for study recommendations."});
     }
-    
+
     // Save to Firestore
     saveUserHistory(state.user.id, result);
     saveTestResult(state.user.id, result);
-    
+
     if (!state.originalAdmin) {
         saveUserToLive(updatedUser);
         localStorage.setItem('nst_current_user', JSON.stringify(updatedUser));
@@ -1369,7 +1365,7 @@ const App: React.FC = () => {
         setIsFullScreen(true);
         return;
     }
-    
+
     // --- HTML NOTES & AI IMAGE HANDLING ---
     if (type === 'NOTES_HTML_FREE' || type === 'NOTES_HTML_PREMIUM' || type === 'NOTES_IMAGE_AI') {
         const streamKey = (state.selectedClass === '11' || state.selectedClass === '12') ? `-${state.selectedStream}` : '';
@@ -1505,7 +1501,7 @@ const App: React.FC = () => {
     // Check Cost Logic
     let cost = 0;
     const streamKey = (state.selectedClass === '11' || state.selectedClass === '12') ? `-${state.selectedStream}` : '';
-    
+
     // 1. Construct Keys
     const mainKey = `nst_content_${state.selectedBoard}_${state.selectedClass}${streamKey}_${state.selectedSubject?.name}_${tempSelectedChapter.id}`;
     const typeKey = `${mainKey}_${type}`;
@@ -1771,7 +1767,7 @@ const App: React.FC = () => {
         };
 
         const content = await fetchLessonContent(
-          state.selectedBoard!, state.selectedClass!, state.selectedStream!, state.selectedSubject!, tempSelectedChapter, state.language, type, 
+          state.selectedBoard!, state.selectedClass!, state.selectedStream!, state.selectedSubject!, tempSelectedChapter, state.language, type,
           0, false, 15, "", state.user?.role === 'ADMIN',
           handleStreamUpdate
         );
@@ -1790,9 +1786,9 @@ const App: React.FC = () => {
       setState(prev => ({ ...prev, loading: false }));
     }
   };
-  
-  const handleLoadingAnimationComplete = () => { 
-      setState(prev => ({ ...prev, loading: false, view: 'LESSON' })); 
+
+  const handleLoadingAnimationComplete = () => {
+      setState(prev => ({ ...prev, loading: false, view: 'LESSON' }));
       setIsFullScreen(true);
   };
 
@@ -2330,7 +2326,7 @@ const App: React.FC = () => {
           )}
       </div>
       )}
-      
+
       {/* GLOBAL LIVE DASHBOARD 1 (TOP) */}
       {state.settings.bannerConfig?.top?.enabled && showTopBanner && (
           <div
@@ -2401,7 +2397,7 @@ const App: React.FC = () => {
             <ErrorBoundary>
             <>
                 {state.view === 'ADMIN_DASHBOARD' && (state.user.role === 'ADMIN' || state.user.role === 'SUB_ADMIN') && <AdminDashboard user={state.user} onNavigate={(v) => setState(prev => ({...prev, view: v}))} settings={state.settings} onUpdateSettings={updateSettings} onImpersonate={handleImpersonate} logActivity={logActivity} isDarkMode={darkMode} onToggleDarkMode={setDarkMode} />}
-                
+
                 {/* ACTIVE WEEKLY TEST OVERRIDE */}
                 {activeWeeklyTest ? (
                     <WeeklyTestView
@@ -2421,15 +2417,15 @@ const App: React.FC = () => {
                     />
                 ) : (
                     state.view === 'STUDENT_DASHBOARD' as any && (
-                        <StudentDashboard 
-                            user={state.user} 
-                            dailyStudySeconds={dailyStudySeconds} 
-                            onSubjectSelect={handleSubjectSelect} 
-                            onRedeemSuccess={u => setState(prev => ({...prev, user: u}))} 
-                            settings={state.settings} 
-                            onStartWeeklyTest={handleStartWeeklyTest} 
-                            activeTab={studentTab} 
-                            onTabChange={setStudentTab} 
+                        <StudentDashboard
+                            user={state.user}
+                            dailyStudySeconds={dailyStudySeconds}
+                            onSubjectSelect={handleSubjectSelect}
+                            onRedeemSuccess={u => setState(prev => ({...prev, user: u}))}
+                            settings={state.settings}
+                            onStartWeeklyTest={handleStartWeeklyTest}
+                            activeTab={studentTab}
+                            onTabChange={setStudentTab}
                             setFullScreen={setIsFullScreen} // PASSED PROP
                             onNavigate={(v) => setState(prev => ({...prev, view: v}))}
                             isImpersonating={!!state.originalAdmin}
@@ -2447,7 +2443,7 @@ const App: React.FC = () => {
                         />
                     )
                 )}
-                
+
                 {(!activeWeeklyTest && state.view === 'BOARDS') && <BoardSelection onSelect={handleBoardSelect} onBack={goBack} />}
                 {state.view === 'ONBOARDING' && state.user && <Onboarding user={state.user} onComplete={handleLogin} onLogout={handleLogout} />}
                 {state.view === 'CLASSES' && <ClassSelection selectedBoard={state.selectedBoard} allowedClasses={state.user?.role === 'ADMIN' ? undefined : state.settings.allowedClasses} settings={state.settings} user={state.user} onSelect={handleClassSelect} onBack={goBack} />}
@@ -2455,13 +2451,13 @@ const App: React.FC = () => {
                 {state.view === 'SUBJECTS' && state.selectedClass && <SubjectSelection classLevel={state.selectedClass} stream={state.selectedStream} board={state.selectedBoard || undefined} onSelect={handleSubjectSelect} onBack={goBack} />}
                 {state.view === 'CHAPTERS' && state.selectedSubject && <ChapterSelection chapters={state.chapters} subject={state.selectedSubject} classLevel={state.selectedClass!} loading={state.loading && state.view === 'CHAPTERS'} user={state.user} onSelect={onChapterClick} onBack={goBack}/>}
                 {state.view === 'LESSON' && state.lessonContent && (
-                    <LessonView 
-                        content={state.lessonContent} 
-                        subject={state.selectedSubject!} 
-                        classLevel={state.selectedClass!} 
-                        chapter={state.selectedChapter!} 
+                    <LessonView
+                        content={state.lessonContent}
+                        subject={state.selectedSubject!}
+                        classLevel={state.selectedClass!}
+                        chapter={state.selectedChapter!}
                         loading={state.loading && !isStreaming}
-                        onBack={goBack} 
+                        onBack={goBack}
                         onMCQComplete={handleMCQComplete}
                         user={state.user}
                         settings={state.settings}
@@ -2474,7 +2470,7 @@ const App: React.FC = () => {
             </ErrorBoundary>
         )}
       </main>
-      
+
       {/* PERSISTENT FOOTER - Hide in Student Dashboard as it has its own Bottom Nav */}
       {!isFullScreen && state.view !== 'STUDENT_DASHBOARD' && state.settings.showFooter !== false && (
       <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 py-1 text-center z-[40]">
@@ -2523,21 +2519,21 @@ const App: React.FC = () => {
               isFlashSaleActive={isFlashSaleActive}
           />
       )}
-      
+
       {/* FLOATING DOCK */}
       {state.user && !activeWeeklyTest && !isFullScreen && (
-          <FloatingDock 
-            onTabSelect={setStudentTab} 
-            onGoHome={goHome} 
-            onGoBack={goBack} 
-            isStudent={state.user.role === 'STUDENT' || !!state.originalAdmin} 
+          <FloatingDock
+            onTabSelect={setStudentTab}
+            onGoHome={goHome}
+            onGoBack={goBack}
+            isStudent={state.user.role === 'STUDENT' || !!state.originalAdmin}
             settings={state.settings}
           />
       )}
 
-      
+
       {activeReward && <RewardPopup reward={activeReward} onClaim={handleClaimReward} onIgnore={handleIgnoreReward} />}
-      
+
       {/* POPUP QUEUE MANAGER */}
       {/* {popupQueue.length > 0 && !showPremiumModal && !activeWeeklyTest && (
           <>
