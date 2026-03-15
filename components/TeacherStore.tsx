@@ -132,30 +132,37 @@ const TeacherStore: React.FC<TeacherStoreProps> = ({ user, settings, onRedeemSuc
                                         ))}
                                     </ul>
                                 </div>
-                                <div className="grid grid-cols-2 gap-2 mt-auto">
+                                {settings?.paymentNumbers && settings.paymentNumbers.length > 0 ? (
+                                    <div className="flex flex-col gap-2 mt-auto">
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase text-center mb-1">Select an Admin to Purchase</p>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {settings.paymentNumbers.map((num) => (
+                                                <button
+                                                    key={num.id}
+                                                    onClick={() => {
+                                                        const phone = num.number;
+                                                        const msg = encodeURIComponent(`Hi ${num.name}, I am interested in purchasing the Teacher Plan: ${plan.name} for ₹${plan.price}. My account ID is ${user.displayId || user.id}`);
+                                                        window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+                                                    }}
+                                                    className="w-full bg-slate-900 text-white py-2 rounded-xl font-bold hover:bg-slate-800 transition-colors text-xs flex flex-col items-center justify-center"
+                                                >
+                                                    <span className="truncate w-full px-1">{num.name}</span>
+                                                    <span className="text-[9px] text-slate-400 font-mono mt-0.5">{num.number}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ) : (
                                     <button
                                         onClick={() => {
-                                            const phone = '918227070298';
-                                            const msg = encodeURIComponent(`Hi Admin 1, I am interested in purchasing the Teacher Plan: ${plan.name} for ₹${plan.price}. My account ID is ${user.displayId || user.id}`);
-                                            window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+                                            const msg = encodeURIComponent(`Hi, I am interested in purchasing the Teacher Plan: ${plan.name} for ₹${plan.price}. My account ID is ${user.displayId || user.id}`);
+                                            window.open(`https://wa.me/918227070298?text=${msg}`, '_blank');
                                         }}
-                                        className="w-full bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-slate-800 transition-colors text-xs flex flex-col items-center justify-center"
+                                        className="w-full bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-slate-800 transition-colors mt-auto"
                                     >
-                                        <span>Message Admin 1</span>
-                                        <span className="text-[9px] text-slate-400 font-mono mt-0.5">8227070298</span>
+                                        Purchase via WhatsApp
                                     </button>
-                                    <button
-                                        onClick={() => {
-                                            const phone = '919835763641';
-                                            const msg = encodeURIComponent(`Hi Admin 2, I am interested in purchasing the Teacher Plan: ${plan.name} for ₹${plan.price}. My account ID is ${user.displayId || user.id}`);
-                                            window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
-                                        }}
-                                        className="w-full bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-slate-800 transition-colors text-xs flex flex-col items-center justify-center"
-                                    >
-                                        <span>Message Admin 2</span>
-                                        <span className="text-[9px] text-slate-400 font-mono mt-0.5">9835763641</span>
-                                    </button>
-                                </div>
+                                )}
                             </div>
                         ))}
                     </div>
