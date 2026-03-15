@@ -414,7 +414,7 @@ export const PdfView: React.FC<Props> = ({
                             const lowerText = text.toLowerCase();
 
                             // Check if the current node contains a trigger word
-                            const triggerRegex = /(quick revision|mini revision|recap|summary|key points|महत्वपूर्ण बिंदु|सार|संशोधन|तथ्य|topic quick recap|qùicqk|quicq revisun|quicqk|quicq)/i;
+                            const triggerRegex = /(quick revision|mini revision|recap|summary|key points|महत्वपूर्ण बिंदु|सार|संशोधन|तथ्य|topic quick recap)/i;
                             if (triggerRegex.test(lowerText)) {
 
                                 // Avoid re-extracting the overall topic title if it contains the word "revision" by accident
@@ -462,9 +462,34 @@ export const PdfView: React.FC<Props> = ({
                                     let strippedHtml = cleanHtml.replace(replaceRegex, '').trim();
                                     // Secondary clean up for leading non-alphanumeric chars (e.g., '> Recap' -> 'Recap')
                                     strippedHtml = strippedHtml.replace(/^[>\s🔁🔄📌💡📝]+/, '').trim();
+                                    // Handle HTML entities like &gt;
+                                    strippedHtml = strippedHtml.replace(/^(?:&gt;|>)/, '').trim();
 
                                     if (strippedHtml && strippedHtml.length > 5 && !currentTopicPoints.some(qp => qp.includes(strippedHtml) || strippedHtml.includes(qp.replace(/<(?:b|strong)>.*?(?:<\/b>|<\/strong>)/gi, '').trim()))) {
                                          currentTopicPoints.push(`<b>${prefix}:</b> ${strippedHtml}`);
+                                    } else if (strippedHtml.length <= 5) {
+                                        // The paragraph just acted as a header (e.g. <p>>🔁 Recap</p>)
+                                        // We need to look at the next sibling to find the actual list or content!
+                                        let nextSibling = currentNode.nextElementSibling;
+                                        while (nextSibling && !['p', 'ul', 'ol', 'div', 'blockquote'].includes(nextSibling.tagName.toLowerCase())) {
+                                            nextSibling = nextSibling.nextElementSibling;
+                                        }
+                                        if (nextSibling) {
+                                            if (['ul', 'ol'].includes(nextSibling.tagName.toLowerCase())) {
+                                                const listItems = Array.from(nextSibling.querySelectorAll('li'));
+                                                listItems.forEach(li => {
+                                                    const cleanLiHtml = li.innerHTML.trim();
+                                                    if (cleanLiHtml && !currentTopicPoints.some(qp => qp.includes(cleanLiHtml) || cleanLiHtml.includes(qp))) {
+                                                        currentTopicPoints.push(`<b>${prefix}:</b> ${cleanLiHtml}`);
+                                                    }
+                                                });
+                                            } else {
+                                                const cleanBlockHtml = nextSibling.innerHTML.trim();
+                                                if (cleanBlockHtml && !currentTopicPoints.some(qp => qp.includes(cleanBlockHtml) || cleanBlockHtml.includes(qp))) {
+                                                    currentTopicPoints.push(`<b>${prefix}:</b> ${cleanBlockHtml}`);
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -473,7 +498,7 @@ export const PdfView: React.FC<Props> = ({
 
                         // 2. Fallback regex approach (catches inline stuff the walker might miss)
                         // Note: added support for emojis and special chars in the prefix matching
-                        const fallbackRegex = new RegExp(`(?:<b>|<strong>)?\\s*[\\u2700-\\u27BF\\uE000-\\uF8FF\\u2011-\\u26FF\\>\\s]*(Quick Revision|Mini Revision|Recap|Summary|Key Points|महत्वपूर्ण बिंदु|सार|संशोधन|तथ्य|Topic Quick Recap|Qùicqk|Quicq Revisun|Quicqk|Quicq)[\\u2700-\\u27BF\\uE000-\\uF8FF\\u2011-\\u26FF\\>\\s]*:?\\s*(?:<\\/b>|<\\/strong>)?\\s*([\\s\\S]*?)(?:<br\\/?>|<\\/p>|<hr\\/?>|$)`, 'gi');
+                        const fallbackRegex = new RegExp(`(?:<b>|<strong>)?\\s*[\\u2700-\\u27BF\\uE000-\\uF8FF\\u2011-\\u26FF\\>\\s]*(Quick Revision|Mini Revision|Recap|Summary|Key Points|महत्वपूर्ण बिंदु|सार|संशोधन|तथ्य|Topic Quick Recap)[\\u2700-\\u27BF\\uE000-\\uF8FF\\u2011-\\u26FF\\>\\s]*:?\\s*(?:<\\/b>|<\\/strong>)?\\s*([\\s\\S]*?)(?:<br\\/?>|<\\/p>|<hr\\/?>|$)`, 'gi');
                         let matchRegex;
                         while ((matchRegex = fallbackRegex.exec(entry.htmlContent)) !== null) {
                             if (matchRegex[2] && matchRegex[2].trim().length > 0) {
@@ -864,38 +889,26 @@ export const PdfView: React.FC<Props> = ({
            onClose={() => setAlertConfig({...alertConfig, isOpen: false})}
        />
 
-       {/* FULLSCREEN FLOATING CONTROLS */}
-       {isFullscreen && (
-           <div className="fixed top-4 left-4 right-4 z-[100] flex justify-between items-center pointer-events-none">
-               <button onClick={onBack} className="pointer-events-auto bg-black/50 backdrop-blur-md text-white p-3 rounded-full hover:bg-black/70 border border-white/20 shadow-lg transition-transform active:scale-95 flex items-center gap-2">
-                   <ArrowLeft size={20} /> <span className="text-sm font-bold pr-1">Back</span>
+       {/* HEADER */}
+       <div className={`sticky top-0 z-30 bg-white shadow-sm flex flex-col ${isFullscreen ? '' : 'border-b border-slate-100'}`}>
+           <div className="p-4 flex items-center gap-3">
+               <button onClick={onBack} className="p-2 hover:bg-slate-100 rounded-full text-slate-600">
+                   <ArrowLeft size={20} />
                </button>
-               <button onClick={toggleFullScreen} className="pointer-events-auto bg-black/50 backdrop-blur-md text-white p-3 rounded-full hover:bg-black/70 border border-white/20 shadow-lg transition-transform active:scale-95 flex items-center gap-2" title="Exit Full Screen">
-                   <Minimize size={20} /> <span className="text-sm font-bold pr-1">Exit</span>
+               <div className="flex-1">
+                   <h3 className="font-bold text-slate-800 leading-tight line-clamp-1">{chapter.title}</h3>
+                   <div className="flex gap-2 mt-1">
+                     <button onClick={() => setSyllabusMode('SCHOOL')} className={`text-[10px] px-2 py-0.5 rounded-full font-bold transition-all ${syllabusMode === 'SCHOOL' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-500'}`}>School</button>
+                     <button onClick={() => setSyllabusMode('COMPETITION')} className={`text-[10px] px-2 py-0.5 rounded-full font-bold transition-all ${syllabusMode === 'COMPETITION' ? 'bg-purple-600 text-white shadow-sm' : 'bg-slate-100 text-slate-500'}`}>Competition</button>
+                   </div>
+               </div>
+               <button onClick={toggleFullScreen} className="p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-colors" title={isFullscreen ? "Exit Full Screen" : "Full Screen"}>
+                   {isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
                </button>
            </div>
-       )}
 
-       {/* HEADER */}
-       {!isFullscreen && (
-           <div className="sticky top-0 z-30 bg-white border-b border-slate-100 shadow-sm flex flex-col">
-               <div className="p-4 flex items-center gap-3">
-                   <button onClick={onBack} className="p-2 hover:bg-slate-100 rounded-full text-slate-600">
-                       <ArrowLeft size={20} />
-                   </button>
-                   <div className="flex-1">
-                       <h3 className="font-bold text-slate-800 leading-tight line-clamp-1">{chapter.title}</h3>
-                       <div className="flex gap-2 mt-1">
-                         <button onClick={() => setSyllabusMode('SCHOOL')} className={`text-[10px] px-2 py-0.5 rounded-full font-bold transition-all ${syllabusMode === 'SCHOOL' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-500'}`}>School</button>
-                         <button onClick={() => setSyllabusMode('COMPETITION')} className={`text-[10px] px-2 py-0.5 rounded-full font-bold transition-all ${syllabusMode === 'COMPETITION' ? 'bg-purple-600 text-white shadow-sm' : 'bg-slate-100 text-slate-500'}`}>Competition</button>
-                       </div>
-                   </div>
-                   <button onClick={toggleFullScreen} className="p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-colors" title="Full Screen">
-                       <Maximize size={18} />
-                   </button>
-               </div>
-
-               {/* TABS */}
+           {/* TABS */}
+           {!isFullscreen && (
                <div className="flex overflow-x-auto border-t border-slate-100 scrollbar-hide">
                    {[
                        { id: 'QUICK', label: 'Quick', icon: Zap, show: true },
@@ -933,8 +946,8 @@ export const PdfView: React.FC<Props> = ({
                                );
                            })}
                </div>
-           </div>
-       )}
+           )}
+       </div>
 
        {/* CONTENT BODY (WRAPPED IN ERROR BOUNDARY) */}
        <ErrorBoundary>
