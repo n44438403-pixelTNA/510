@@ -301,7 +301,9 @@ export const PdfView: React.FC<Props> = ({
       if (!document.fullscreenElement) {
           document.documentElement.requestFullscreen().catch(err => console.error(err));
       } else {
-          document.exitFullscreen();
+          if (document.exitFullscreen) {
+              document.exitFullscreen();
+          }
       }
   };
 

@@ -43,7 +43,6 @@ export const Store: React.FC<Props> = ({ user, settings }) => {
 
   // Special Discount Event Logic
   const event = settings?.specialDiscountEvent;
-  const isSubscribed = user.isPremium && user.subscriptionEndDate && new Date(user.subscriptionEndDate) > new Date();
   
   // NEW: Check if event is actually active (now >= startsAt && now < endsAt)
   const isEventActive = () => {
@@ -60,7 +59,7 @@ export const Store: React.FC<Props> = ({ user, settings }) => {
   };
 
   const activeEvent = isEventActive();
-  const showEventBanner = activeEvent && ((isSubscribed && event?.showToPremiumUsers) || (!isSubscribed && event?.showToFreeUsers));
+  const showEventBanner = activeEvent && ((user.isPremium && event?.showToPremiumUsers) || (!user.isPremium && event?.showToFreeUsers));
 
   // Countdown Timer Logic
   const [timeLeft, setTimeLeft] = useState<{days: number, hours: number, minutes: number, seconds: number} | null>(null);
@@ -330,7 +329,7 @@ export const Store: React.FC<Props> = ({ user, settings }) => {
                                   <p className="text-xs text-white/90 font-medium max-w-[200px]">
                                       {!activeEvent
                                           ? "Get ready for the biggest sale!"
-                                          : `Limited time offer on all premium plans.${isSubscribed ? ' (+5% Bonus for You!)' : ''}`}
+                                      : `Limited time offer on all premium plans.${user.isPremium ? ' (+5% Bonus for You!)' : ''}`}
                                   </p>
                               </div>
 
@@ -409,7 +408,7 @@ export const Store: React.FC<Props> = ({ user, settings }) => {
 
                   // 1. Base Event Discount (if active)
                   if (activeEvent) {
-                      if ((isSubscribed && event?.showToPremiumUsers) || (!isSubscribed && event?.showToFreeUsers)) {
+                      if ((user.isPremium && event?.showToPremiumUsers) || (!user.isPremium && event?.showToFreeUsers)) {
                           discountPercentVal += (event?.discountPercent || 0);
                       }
                   }
@@ -491,7 +490,7 @@ export const Store: React.FC<Props> = ({ user, settings }) => {
                      let finalPrice = tierType === 'BASIC' ? selectedPlan.basicPrice : selectedPlan.ultraPrice;
                      let discountPercentVal = 0;
                      if (activeEvent) {
-                         if ((isSubscribed && event?.showToPremiumUsers) || (!isSubscribed && event?.showToFreeUsers)) {
+                         if ((user.isPremium && event?.showToPremiumUsers) || (!user.isPremium && event?.showToFreeUsers)) {
                              discountPercentVal += (event?.discountPercent || 0);
                          }
                      }
@@ -536,7 +535,7 @@ export const Store: React.FC<Props> = ({ user, settings }) => {
                       // Apply Discount Logic to Credits too if applicable
                       let creditDiscount = 0;
                       if (activeEvent) {
-                          if ((isSubscribed && event?.showToPremiumUsers) || (!isSubscribed && event?.showToFreeUsers)) {
+                          if ((user.isPremium && event?.showToPremiumUsers) || (!user.isPremium && event?.showToFreeUsers)) {
                               creditDiscount += (event?.discountPercent || 0);
                           }
                       }
