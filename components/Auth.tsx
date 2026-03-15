@@ -124,7 +124,7 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
               const validCode = codes.find(c => c.code === formData.teacherCode && c.isActive);
 
               if (!validCode) {
-                  setError("Invalid or inactive Teacher Code.");
+                  setError("Invalid, inactive, or already used Teacher Code.");
                   return;
               }
 
@@ -169,7 +169,31 @@ export const Auth: React.FC<Props> = ({ onLogin, logActivity }) => {
           delete firestoreUser.password; 
           await saveUserToLive(firestoreUser);
 
-          logActivity("SIGNUP", `New Student Registered: ${newUser.classLevel} - ${newUser.board}`, newUser);
+          // Mark Teacher Code as Used
+          if (isTeacherSignup && teacherCodeStr) {
+              const updatedCodes = (settings?.teacherCodes || []).map(c =>
+                  c.code === teacherCodeStr
+                      ? { ...c, isActive: false, uses: (c.uses || 0) + 1 }
+                      : c
+              );
+              // Save updated codes directly via system settings update
+              if (settings) {
+                  const newSettings = { ...settings, teacherCodes: updatedCodes };
+                  setSettings(newSettings);
+                  // Not ideal to fetch DB directly here, but we will trust the admin panel to manage codes primarily.
+                  // However, we must trigger a save to DB here. Assuming saveSystemSettings is not imported,
+                  // we will fetch and save using Firebase RTDB directly.
+                  try {
+                      const { set, ref } = await import('firebase/database');
+                      const { rtdb } = await import('../firebase');
+                      await set(ref(rtdb, 'system_settings/teacherCodes'), updatedCodes);
+                  } catch(e) {
+                      console.error("Failed to mark teacher code as used", e);
+                  }
+              }
+          }
+
+          logActivity("SIGNUP", `New ${assignedRole} Registered: ${newUser.classLevel} - ${newUser.board}`, newUser);
           
           // AUTO LOGIN
           setPendingLoginUser(newUser); // Store to pass down to SUCCESS_ID

@@ -47,55 +47,81 @@ export const FloatingDock: React.FC<Props> = ({ onTabSelect, onGoHome, onGoBack,
         return true;
     });
 
-    if (!isMaximized) {
-        return (
-            <div className="fixed bottom-24 right-4 z-[9999] flex flex-col gap-2 animate-in fade-in slide-in-from-right">
-                <button 
-                    onClick={() => setIsMaximized(true)} 
-                    className="w-12 h-12 bg-blue-600 rounded-full shadow-xl shadow-blue-600/30 flex items-center justify-center text-white hover:bg-blue-700 active:scale-90 transition-all"
-                >
-                    <Menu size={24} />
-                </button>
-            </div>
-        );
-    }
+    // Extract top 4 items for the bottom nav bar, rest go into the "More" menu
+    const visibleItems = menuItems.slice(0, 4);
+    const moreItems = menuItems.slice(4);
 
     return (
-        <div className="fixed inset-0 z-[9999] bg-black/40 backdrop-blur-sm flex items-end justify-end p-4 animate-in fade-in">
-             {/* Click outside to close */}
-             <div className="absolute inset-0" onClick={() => setIsMaximized(false)}></div>
-             
-             <div className="bg-white rounded-3xl p-6 shadow-2xl w-full max-w-sm mb-20 animate-in zoom-in slide-in-from-bottom-10 border border-slate-100 relative z-10">
-                 <button 
-                     onClick={() => setIsMaximized(false)} 
-                     className="absolute -top-4 -right-4 w-10 h-10 bg-slate-900 text-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform"
-                 >
-                     <X size={20} />
-                 </button>
-                 
-                 <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
-                     <Menu size={18} className="text-blue-600" /> Quick Navigation
-                 </h3>
-                 
-                 <div className="grid grid-cols-4 gap-3">
-                     {menuItems.map(item => (
-                         <button 
-                             key={item.id}
-                             onClick={() => {
-                                 onTabSelect(item.id);
-                                 onGoHome(); // Ensure we are on dashboard to see the tab
-                                 setIsMaximized(false);
-                             }}
-                             className="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-slate-50 active:bg-slate-100 transition-colors"
-                         >
-                             <div className={`w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center ${item.color}`}>
-                                 <item.icon size={20} />
-                             </div>
-                             <span className="text-[10px] font-bold text-slate-600 text-center leading-tight">{item.label}</span>
-                         </button>
-                     ))}
-                 </div>
-             </div>
-        </div>
+        <>
+            {/* Flat Bottom Navigation Bar */}
+            <div className="fixed bottom-0 left-0 right-0 z-[9000] bg-white border-t border-slate-200 px-2 py-2 flex items-center justify-around pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] max-w-md mx-auto">
+
+                <button
+                    onClick={() => { onGoHome(); }}
+                    className="flex flex-col items-center justify-center w-16 p-1 text-slate-400 hover:text-blue-600 transition-colors active:scale-95"
+                >
+                    <Home size={22} className="mb-1" />
+                    <span className="text-[9px] font-bold">Home</span>
+                </button>
+
+                {visibleItems.map(item => (
+                    <button
+                        key={item.id}
+                        onClick={() => { onTabSelect(item.id); onGoHome(); }}
+                        className="flex flex-col items-center justify-center w-16 p-1 text-slate-400 hover:text-blue-600 transition-colors active:scale-95"
+                    >
+                        <item.icon size={22} className={`mb-1 ${item.color.replace('text-', 'text-').replace('-600', '-500')}`} />
+                        <span className="text-[9px] font-bold truncate w-full text-center">{item.label}</span>
+                    </button>
+                ))}
+
+                <button 
+                    onClick={() => setIsMaximized(true)}
+                    className="flex flex-col items-center justify-center w-16 p-1 text-slate-400 hover:text-blue-600 transition-colors active:scale-95"
+                >
+                    <Menu size={22} className="mb-1" />
+                    <span className="text-[9px] font-bold">More</span>
+                </button>
+            </div>
+
+            {/* Maximized "More" Menu */}
+            {isMaximized && (
+                <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-end justify-center p-4 animate-in fade-in">
+                    <div className="absolute inset-0" onClick={() => setIsMaximized(false)}></div>
+
+                    <div className="bg-white rounded-3xl p-6 shadow-2xl w-full max-w-md mb-20 animate-in slide-in-from-bottom-10 border border-slate-100 relative z-10 mx-auto">
+                        <button
+                            onClick={() => setIsMaximized(false)}
+                            className="absolute -top-4 -right-4 w-10 h-10 bg-slate-900 text-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform"
+                        >
+                            <X size={20} />
+                        </button>
+
+                        <h3 className="font-bold text-slate-800 mb-6 flex items-center gap-2">
+                            <Menu size={18} className="text-blue-600" /> All Options
+                        </h3>
+
+                        <div className="grid grid-cols-4 gap-4">
+                            {menuItems.map(item => (
+                                <button
+                                    key={item.id}
+                                    onClick={() => {
+                                        onTabSelect(item.id);
+                                        onGoHome();
+                                        setIsMaximized(false);
+                                    }}
+                                    className="flex flex-col items-center gap-2 p-2 rounded-2xl hover:bg-slate-50 active:bg-slate-100 transition-colors"
+                                >
+                                    <div className={`w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center shadow-sm ${item.color}`}>
+                                        <item.icon size={24} />
+                                    </div>
+                                    <span className="text-[10px] font-bold text-slate-700 text-center leading-tight">{item.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
     );
 };
