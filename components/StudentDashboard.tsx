@@ -945,39 +945,30 @@ export const StudentDashboard: React.FC<Props> = ({ user, dailyStudySeconds, onS
 
                         {/* Right Side: Badges & Logo */}
                         <div className="flex items-center gap-2">
-                             {/* Language Toggle */}
-                             {(() => {
-                                const access = getFeatureAccess('NAV_LANGUAGE');
-                                if (access.isHidden) return null;
-                                const isLocked = !access.hasAccess;
-                                return (
-                                    <button
-                                        onClick={() => {
-                                            if (isLocked) { showAlert("🔒 Language Toggle Locked", "ERROR"); return; }
-                                            const newBoard = user.board === 'CBSE' ? 'BSEB' : 'CBSE';
-                                            handleUserUpdate({ ...user, board: newBoard });
-                                            showAlert(`Language switched to ${newBoard === 'CBSE' ? 'English' : 'Hindi'}`, 'SUCCESS');
-                                        }}
-                                        className={`flex items-center gap-1 bg-indigo-50 text-indigo-600 px-2 py-1 rounded-lg text-[10px] font-black border border-indigo-100 transition-colors ${isLocked ? 'opacity-50 grayscale' : 'hover:bg-indigo-100'}`}
-                                    >
-                                        <Globe size={12} /> {user.board === 'CBSE' ? 'EN' : 'HI'}
-                                    </button>
-                                );
-                            })()}
+                            {/* Streak Badge */}
+                            <div className="flex items-center gap-1 bg-orange-50 px-2 py-1 rounded-lg border border-orange-100 shadow-sm">
+                                <Zap size={12} className="text-orange-500 shrink-0 fill-orange-500" />
+                                <span className="font-black text-orange-600 text-[10px] leading-none">{user.streak || 0}</span>
+                            </div>
 
                             {/* Flash Sale Badge (if active) */}
                             {settings?.bannerConfig?.bottom?.enabled && (
-                                <div className="flex items-center gap-1 bg-red-50 text-red-600 px-2 py-1 rounded-lg text-[10px] font-black border border-red-100 animate-pulse">
+                                <button
+                                    onClick={() => onTabChange('STORE')}
+                                    className="flex items-center gap-1 bg-red-50 text-red-600 px-2 py-1 rounded-lg text-[10px] font-black border border-red-100 animate-pulse shadow-sm active:scale-95 transition-transform"
+                                >
                                     <Zap size={12} /> SALE
-                                </div>
+                                </button>
                             )}
 
-                            {/* Credits Badge */}
-                            <div className="flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-lg border border-blue-100">
+                            {/* Credits Badge - Now clickable */}
+                            <button
+                                onClick={() => onTabChange('STORE')}
+                                className="flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-lg border border-blue-100 shadow-sm active:scale-95 transition-transform"
+                            >
                                 <Crown size={12} className="text-blue-600 shrink-0" />
                                 <span className="font-black text-blue-700 text-[10px] leading-none">{user.credits}</span>
-                            </div>
-
+                            </button>
                         </div>
                     </div>
                 </div>
